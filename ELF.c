@@ -9,8 +9,36 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     for(int i = 0; i < EI_NIDENT; i++) {
         if (!fread(&header->e_ident[i], sizeof(unsigned char), 1, file))
             perror("Read error\n");
-        printf("%c\n", header->e_ident[i]);
+        printf("%d ", header->e_ident[i]);
     }
+    printf("\nClass: ");
+    switch(header->e_ident[EI_CLASS]) {
+        case 0:
+            printf("ELFCLASSNONE (Invalid class)");
+            break;
+        case 1:
+            printf("ELFCLASS32 (32-bit objects)");
+            break;
+        case 2:
+            printf("ELFCLASS64 (64-bit objects)");
+            break;
+    }
+
+    printf("\nDATA: ");
+    switch(header->e_ident[EI_DATA]) {
+        case 0:
+            printf("ELFDATANONE (Invalid data encoding)");
+            break;
+        case 1:
+            printf("ELFDATA2LSB");
+            break;
+        case 2:
+            printf("ELFDATA2MSB");
+            break;
+    }
+    printf("\n");
+
+    printf("Version : %d\n", header->e_ident[EI_VERSION]);
 
     // Le type de l'objet
     if (!fread(&header->e_type, 2, 1, file))
@@ -18,25 +46,25 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("Type : ");
     switch(header->e_type) {
         case 0:
-            printf("ET_NONE");
+            printf("NONE (No file type)");
             break;
         case 1:
-            printf("ET_REL");
+            printf("REL (Relocatable file)");
             break;
         case 2:
-            printf("ET_EXEC");
+            printf("EXEC (Executable file)");
             break;
         case 3:
-            printf("ET_DYN");
+            printf("DYN (Shared object file)");
             break;
         case 4:
-            printf("ET_CORE");
+            printf("CORE (Core file)");
             break;
         case 0xff00:
-            printf("ET_LOPPROC");
+            printf("LOPROC (Processor-specific");
             break;
         case 0xffff:
-            printf("ET_HIPROC");
+            printf("HIPROC (Processor-specific)");
             break;
     }
     printf("\n");
@@ -47,31 +75,31 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("Required architecture : ");
     switch(header->e_machine) {
         case 0:
-            printf("ET_NONE");
+            printf("NONE (No machine)");
             break;
         case 1:
-            printf("EM_M32");
+            printf("M32 (AT&T WE 32100)");
             break;
         case 2:
-            printf("EM_SPARC");
+            printf("SPARC (SPARC)");
             break;
         case 3:
-            printf("EM_386");
+            printf("386 (Intel architecture)");
             break;
         case 4:
-            printf("EM_68K");
+            printf("68K (Motorola 68000)");
             break;
         case 5:
-            printf("EM_88K");
+            printf("88K (Motorola 68000)");
             break;
         case 7:
-            printf("EM_860");
+            printf("860 (Intel 80860)");
             break;
         case 8:
-            printf("EM_MIPS");
+            printf("MIPS (MIPS RS3000 Big-Endian)");
             break;
         case 10:
-            printf("EM_MIPS_RS4_BE");
+            printf("MIPS_RS4_BE (MIPS RS4000 Big-Endian)");
             break;
         default:
             if(header->e_machine >= 11 && header->e_machine <= 16) {
@@ -86,16 +114,16 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
         perror("Read error\n");
     printf("Version : ");
     if(header->e_version == 0) {
-        printf("EV_NONE");
+        printf("NONE");
     } else if(header->e_version == 1) {
-        printf("EV_CURRENT");
+        printf("CURRENT");
     }
     printf("\n");
 
     // Adresse virtuelle
     if (!fread(&header->e_entry, 4, 1, file))
         perror("Read error\n");
-    printf("Adresse virtuelle : %d\n", header->e_entry);
+    printf("Entry point: %d\n", header->e_entry);
 
     // Program header table's offset en bytes
     if (!fread(&header->e_phoff, 4, 1, file))

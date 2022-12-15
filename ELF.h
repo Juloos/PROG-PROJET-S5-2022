@@ -21,7 +21,7 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header);
  * - un pointeur sur un fichier ELF
  * Résultat : lit et affiche sur la sortie standard la table des sections du fichier ELF en paramètre
 */
-void ReadELFTableSection(FILE* file);
+//void ReadELFTableSection(FILE* file);
 
 /**ReadELFSection
  * Paramètres :
@@ -29,7 +29,7 @@ void ReadELFTableSection(FILE* file);
  * - le numéro de la section à afficher
  * Résultat : lit et affiche sur la sortie standard la section numéro numSection dans le fichier ELF en paramètre
 */
-void ReadELFSection(FILE* file, int numSection);
+//void ReadELFSection(FILE* file, int numSection);
 
 /**ReadELFSection
  * Paramètres :
@@ -44,4 +44,4 @@ void ReadELFSection(FILE* file, int numSection);
  * - un pointeur sur un fichier ELF
  * Résultat : lit et affiche sur la sortie standard la table des symboles du fichier ELF en paramètre
 */
-void ReadELFTableSymbols(FILE* file);
+//void ReadELFTableSymbols(FILE* file);
