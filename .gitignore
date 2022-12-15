@@ -1,4 +1,5 @@
 /*.o
+/.idea/
 /Examples_fusion/*.o
 /Options_and_debug_example
 /Makefile
