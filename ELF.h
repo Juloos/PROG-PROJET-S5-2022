@@ -29,7 +29,7 @@ void ReadELFTableSection(FILE* file);
  * - le numéro de la section à afficher
  * Résultat : lit et affiche sur la sortie standard la section numéro numSection dans le fichier ELF en paramètre
 */
-void ReadELFSection(FILE* file, int numSection);
+void ReadELFSectionNum(FILE* file, int numSection);
 
 /**ReadELFSection
  * Paramètres :
@@ -37,7 +37,7 @@ void ReadELFSection(FILE* file, int numSection);
  * - le numéro de la section à afficher
  * Résultat : lit et affiche sur la sortie standard la section nomSection dans le fichier ELF en paramètre
 */
-void ReadELFSection(FILE* file, char* nomSection);
+void ReadELFSectionNom(FILE* file, char* nomSection);
 
 /**ReadELFTableSymbols
  * Paramètres :
