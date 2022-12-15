@@ -1,7 +1,6 @@
 #include <stdio.h>
-#include <stdint.h>
+#include <stdlib.h>
 #include "/usr/include/elf.h"
-
 
 /**ReadELFFile
  * Paramètres :
@@ -15,15 +14,15 @@ void ReadELFFile(FILE* file);
  * - un pointeur sur un fichier ELF
  * Résultat : lit et affiche sur la sortie standard l'en tête du fichier ELF en paramètre
 */
-void ReadELFHeader(FILE* file);
+void ReadELFHeader(FILE* file, Elf32_Ehdr* header);
 
 
-/**init_TabSection
+/**init_TableSection
  * Paramètres :
  * - un entier représentant le nombre de sections
  * Résultat : retourne un pointeur sur un tableau de sections initialiser
 */
-Elf32_Shdr * init_TabSection(int nbSection);
+Elf32_Shdr * init_TableSection(int nbSection);
 
 /**ReadELFTableSection
  * Paramètre : 

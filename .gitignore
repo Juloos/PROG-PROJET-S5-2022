@@ -1,8 +1,7 @@
-/Options_and_debug_example.o
-/util.o
+/*.o
+/Examples_fusion/*.o
 /Options_and_debug_example
 /Makefile
-/debug.o
 /config.status
 /config.log
 /.deps/
@@ -13,8 +12,5 @@
 /Examples_fusion/config.status
 /Examples_fusion/Makefile
 /Examples_fusion/stamp-h1
-/Examples_fusion/fusion_result.o
 /Examples_fusion/fusion_result
-/Examples_fusion/file2.o
-/Examples_fusion/file1.o
-/Examples_fusion/eabi-none-lib.o
+/readELF
