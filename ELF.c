@@ -56,15 +56,16 @@ Elf32_Shdr * create_ELFTableSection(int nbSection) {
     return (Elf32_Shdr *) calloc(sizeof(Elf32_Shdr), nbSection);
 }
 
-void ReadELFTabSection(FILE* file, Elf32_Shdr* tableSection, int nbSection) {
+void ReadELFTableSection(FILE* file, Elf32_Shdr* tableSection, int nbSection, int offset) {
+    fseek(file, offset, SEEK_SET);
     for (int i = 0; i < nbSection; i++) {
-        if (!fread(&tableSection[i].sh_name, sizeof(uint32_t), 1, file))
+        if (!fread(&tableSection[i].sh_name, sizeof(Elf32_Word), 1, file))
             perror("Read error\n");
 
-        if (!fread(&tableSection[i].sh_type, sizeof(uint32_t), 1, file))
+        if (!fread(&tableSection[i].sh_type, sizeof(Elf32_Word), 1, file))
             perror("Read error\n");
 
-        if (!fread(&tableSection[i].sh_flags, sizeof(uint32_t), 1, file))
+        if (!fread(&tableSection[i].sh_flags, sizeof(Elf32_Word), 1, file))
             perror("Read error\n");
 
         if (!fread(&tableSection[i].sh_addr, sizeof(Elf32_Addr), 1, file))
@@ -73,19 +74,19 @@ void ReadELFTabSection(FILE* file, Elf32_Shdr* tableSection, int nbSection) {
         if (!fread(&tableSection[i].sh_offset, sizeof(Elf32_Off), 1, file))
             perror("Read error\n");
 
-        if (!fread(&tableSection[i].sh_size, sizeof(uint32_t), 1, file))
+        if (!fread(&tableSection[i].sh_size, sizeof(Elf32_Word), 1, file))
             perror("Read error\n");
 
-        if (!fread(&tableSection[i].sh_link, sizeof(uint32_t), 1, file))
+        if (!fread(&tableSection[i].sh_link, sizeof(Elf32_Word), 1, file))
             perror("Read error\n");
 
-        if (!fread(&tableSection[i].sh_info, sizeof(uint32_t), 1, file))
+        if (!fread(&tableSection[i].sh_info, sizeof(Elf32_Word), 1, file))
             perror("Read error\n");
 
-        if (!fread(&tableSection[i].sh_addralign, sizeof(uint32_t), 1, file))
+        if (!fread(&tableSection[i].sh_addralign, sizeof(Elf32_Word), 1, file))
             perror("Read error\n");
 
-        if (!fread(&tableSection[i].sh_entsize, sizeof(uint32_t), 1, file))
+        if (!fread(&tableSection[i].sh_entsize, sizeof(Elf32_Word), 1, file))
             perror("Read error\n");
     }
 }

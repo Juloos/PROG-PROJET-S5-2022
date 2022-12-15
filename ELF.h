@@ -29,7 +29,7 @@ Elf32_Shdr * create_ELFTableSection(int nbSection);
  * - un pointeur sur un fichier ELF
  * Résultat : lit et affiche sur la sortie standard la table des sections du fichier ELF en paramètre
 */
-void ReadELFTableSection(FILE* file, Elf32_Shdr* tableSection, int nbSection);
+void ReadELFTableSection(FILE* file, Elf32_Shdr *tableSection, int nbSection, int offset);
 
 /**ReadELFSection
  * Paramètres :
