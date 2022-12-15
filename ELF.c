@@ -15,25 +15,25 @@ void ReadELFTabSection(FILE* file, Elf32_Shdr* tableSection, int nbSection) {
     printf("Section Header Table\n")
     for (int i = 0; i < nbSection; i++) {
         printf("\nSection %d\n    ", i);
-        tableSection[i].sh_name = fread(file, sizeof(Elf32_Word), 1);
-        printf("%x ", tableSection[i].sh_name);
-        tableSection[i].sh_type = fread(file, sizeof(Elf32_Word), 1);
-        printf("%x ", tableSection[i].sh_type);
-        tableSection[i].sh_flags = fread(file, sizeof(Elf32_Word), 1);
-        printf("%x ", tableSection[i].sh_flags);
-        tableSection[i].sh_addr = fread(file, sizeof(Elf32_Addr), 1);
-        printf("%x ", tableSection[i].sh_addr);
-        tableSection[i].sh_offset = fread(file, sizeof(Elf32_Off), 1);
-        printf("%x ", tableSection[i].sh_offset);
-        tableSection[i].sh_size = fread(file, sizeof(Elf32_Word), 1);
-        printf("%x ", tableSection[i].sh_size);
-        tableSection[i].sh_link = fread(file, sizeof(Elf32_Word), 1);
-        printf("%x ", tableSection[i].sh_link);
-        tableSection[i].sh_info = fread(file, sizeof(Elf32_Word), 1);
-        printf("%x ", tableSection[i].sh_info);
-        tableSection[i].sh_addralign = fread(file, sizeof(Elf32_Word), 1);
-        printf("%x ", tableSection[i].sh_addralign);
-        tableSection[i].sh_entsize = fread(file, sizeof(Elf32_Word), 1);
-        printf("%x\n", tableSection[i].sh_entsize);
+        if (!fread(&tableSection[i].sh_name, sizeof(uint32_t), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_type, sizeof(uint32_t), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_flags, sizeof(uint32_t), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_addr, sizeof(Elf32_Addr), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_offset, sizeof(Elf32_Off), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_size, sizeof(uint32_t), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_link, sizeof(uint32_t), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_info, sizeof(uint32_t), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_addralign, sizeof(uint32_t), 1, file))
+            perror("Read error\n");
+        if (!fread(&tableSection[i].sh_entsize, sizeof(uint32_t), 1, file))
+            perror("Read error\n");
     }
 }
