@@ -1,18 +1,18 @@
 #include "ELF.h"
 
-void ReadELFFile(FILE* file) {
+void ReadELFile(FILE* file) {
 }
 
 void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("HEADER\n");
     // Bytes initiaux pour indiquer que le fichier est un fichier objet
     for(int i = 0; i < EI_NIDENT; i++) {
-        fscanf(file, "%c", &header->e_ident[i]);
+        fread(&header->e_ident[i], sizeof(unsigned char), 1, file);
         printf("%c\n", header->e_ident[i]);
     }
 
     // Le type de l'objet
-    fscanf(file, "%d", &header->e_type);
+    fread(&header->e_type, 2, 1, file);
     printf("Type : ");
     switch(header->e_type) {
         case 0:
@@ -40,7 +40,7 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("\n");
 
     // Required architecture
-    fscanf(file, "%d", header->e_machine);
+    fread(&header->e_machine, 2, 1, file);
     printf("Required architecture : ");
     switch(header->e_machine) {
         case 0:
@@ -79,7 +79,7 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("\n");
 
     // Version de l'objet
-    fscanf(file, "%d", &header->e_version);
+    fread(&header->e_version, 4, 1, file);
     printf("Version : ");
     if(header->e_version == 0) {
         printf("EV_NONE");
@@ -89,42 +89,42 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("\n");
 
     // Adresse virtuelle
-    fscanf(file, "%d", &header->e_entry);
+    fread(&header->e_entry, 4, 1, file);
     printf("Adresse virtuelle : %d\n", header->e_entry);
 
     // Program header table's offset en bytes
-    fscanf(file, "%d", &header->e_phoff);
+    fread(&header->e_phoff, 4, 1, file);
     printf("Program header table's offset : %d\n", header->e_phoff);
 
     // Section header table's offset en bytes
-    fscanf(file, "%d", &header->e_shoff);
+    fread(&header->e_shoff, 4, 1, file);
     printf("Section header table's offset : %d\n", header->e_shoff);
 
     // Flags processor-specifi associés au fichier
-    fscanf(file, "%d", &header->e_flags);
+    fread(&header->e_flags, 4, 1, file);
     printf("Flags processor-specific : %d\n", header->e_flags);
 
     // Taille du header en nombre de bytes
-    fscanf(file, "%d", &header->e_ehsize);
+    fread(&header->e_ehsize, 2, 1, file);
     printf("Header size : %d\n", header->e_ehsize);
 
     // Taille 
-    fscanf(file, "%d", &header->e_phentsize);
+    fread(&header->e_phentsize, 2, 1, file);
     printf("Phentsize : %d\n", header->e_phentsize);
 
     // 
-    fscanf(file, "%d", &header->e_phnum);
+    fread(&header->e_phnum, 2, 1, file);
     printf("Phnum : %d\n", header->e_phnum);
 
     // 
-    fscanf(file, "%d", &header->e_shentsize);
+    fread(&header->e_shentsize, 2, 1, file);
     printf("Shentsize : %d\n", header->e_shentsize);
 
     // 
-    fscanf(file, "%d", &header->e_shnum);
+    fread(&header->e_shnum, 2, 1, file);
     printf("Shnum : %d\n", header->e_shnum);
 
     //
-    fscanf(file, "%d", &header->e_shstrndx);
+    fread(&header->e_shstrndx, 2, 1, file);
     printf("e_shstrndx : %d\n", header->e_shstrndx);
 } 
