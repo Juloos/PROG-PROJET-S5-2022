@@ -12,30 +12,37 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     }
 
     // Le type de l'objet
-    uint32_t e_type = 0;
-    fscanf(file, "%d", &e_type);
+    fscanf(file, "%d", &header->e_type);
     printf("Type : ");
-    if(e_type == 0) {
-        printf("ET_NONE");
-    } else if(e_type == 1) {
-        printf("ET_REL");
-    } else if(e_type == 2) {
-        printf("ET_EXEC");
-    } else if (e_type == 3) {
-        printf("ET_DYN");
-    } else if(e_type == 4) {
-        printf("ET_CORE");
-    } else if(e_type == 0xff00) {
-        printf("ET_LOPPROC");
-    } else if(e_type == 0xffff) {
-        printf("ET_HIPROC");
+    switch(header->e_type) {
+        case 0:
+            printf("ET_NONE");
+            break;
+        case 1:
+            printf("ET_REL");
+            break;
+        case 2:
+            printf("ET_EXEC");
+            break;
+        case 3:
+            printf("ET_DYN");
+            break;
+        case 4:
+            printf("ET_CORE");
+            break;
+        case 0xff00:
+            printf("ET_LOPPROC");
+            break;
+        case 0xffff:
+            printf("ET_HIPROC");
+            break;
     }
     printf("\n");
 
     // Required architecture
-    uint32_t e_machine = 0;
+    fscanf(file, "%d", header->e_machine);
     printf("Required architecture : ");
-    switch(e_machine) {
+    switch(header->e_machine) {
         case 0:
             printf("ET_NONE");
             break;
@@ -64,7 +71,7 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
             printf("EM_MIPS_RS4_BE");
             break;
         default:
-            if(e_machine >= 11 && e_machine <= 16) {
+            if(header->e_machine >= 11 && header->e_machine <= 16) {
                 printf("RESERVED");
             }
             break;
@@ -72,40 +79,52 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("\n");
 
     // Version de l'objet
-    uint32_t e_version = 0;
-    fscanf(file, "%d", &e_version);
+    fscanf(file, "%d", &header->e_version);
     printf("Version : ");
-    if(e_version == 0) {
+    if(header->e_version == 0) {
         printf("EV_NONE");
-    } else if(e_version == 1) {
+    } else if(header->e_version == 1) {
         printf("EV_CURRENT");
     }
     printf("\n");
 
     // Adresse virtuelle
-    uint32_t e_entry = 0;
-    fscanf(file, "%d", &e_entry);
-    printf("Adresse virtuelle : %d\n", e_entry);
+    fscanf(file, "%d", &header->e_entry);
+    printf("Adresse virtuelle : %d\n", header->e_entry);
 
     // Program header table's offset en bytes
-    uint32_t e_phoff = 0;
-    fscanf(file, "%d", &e_phoff);
-    printf("Program header table's offset : %d\n", e_phoff);
+    fscanf(file, "%d", &header->e_phoff);
+    printf("Program header table's offset : %d\n", header->e_phoff);
 
     // Section header table's offset en bytes
-    uint32_t e_shoff = 0;
-    fscanf(file, "%d", &e_shoff);
-    printf("Section header table's offset : %d\n", e_shoff);
+    fscanf(file, "%d", &header->e_shoff);
+    printf("Section header table's offset : %d\n", header->e_shoff);
 
     // Flags processor-specifi associés au fichier
-    uint32_t e_flags = 0;
-    fscanf(file, "%d", &e_flags);
-    printf("Flags processor-specific : %d\n", e_flags);
+    fscanf(file, "%d", &header->e_flags);
+    printf("Flags processor-specific : %d\n", header->e_flags);
 
     // Taille du header en nombre de bytes
-    uint32_t e_ehsize = 0;
-    fscanf(file, "%d", &e_ehsize);
-    printf("Header size : %d\n", e_ehsize);
+    fscanf(file, "%d", &header->e_ehsize);
+    printf("Header size : %d\n", header->e_ehsize);
+
+    // Taille 
+    fscanf(file, "%d", &header->e_phentsize);
+    printf("Phentsize : %d\n", header->e_phentsize);
 
     // 
+    fscanf(file, "%d", &header->e_phnum);
+    printf("Phnum : %d\n", header->e_phnum);
+
+    // 
+    fscanf(file, "%d", &header->e_shentsize);
+    printf("Shentsize : %d\n", header->e_shentsize);
+
+    // 
+    fscanf(file, "%d", &header->e_shnum);
+    printf("Shnum : %d\n", header->e_shnum);
+
+    //
+    fscanf(file, "%d", &header->e_shstrndx);
+    printf("e_shstrndx : %d\n", header->e_shstrndx);
 } 
