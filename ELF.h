@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "elf.h"
+#include "/usr/include/elf.h"
 
 /**ReadELFFile
  * Paramètres :
@@ -37,7 +37,7 @@ void ReadELFSection(FILE* file, int numSection);
  * - le numéro de la section à afficher
  * Résultat : lit et affiche sur la sortie standard la section nomSection dans le fichier ELF en paramètre
 */
-void ReadELFSection(FILE* file, char* nomSection);
+//void ReadELFSection(FILE* file, char* nomSection);
 
 /**ReadELFTableSymbols
  * Paramètres :

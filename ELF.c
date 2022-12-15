@@ -7,12 +7,14 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("HEADER\n");
     // Bytes initiaux pour indiquer que le fichier est un fichier objet
     for(int i = 0; i < EI_NIDENT; i++) {
-        fread(&header->e_ident[i], sizeof(unsigned char), 1, file);
+        if (!fread(&header->e_ident[i], sizeof(unsigned char), 1, file))
+            perror("Read error\n");
         printf("%c\n", header->e_ident[i]);
     }
 
     // Le type de l'objet
-    fread(&header->e_type, 2, 1, file);
+    if (!fread(&header->e_type, 2, 1, file))
+        perror("Read error\n");
     printf("Type : ");
     switch(header->e_type) {
         case 0:
@@ -40,7 +42,8 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("\n");
 
     // Required architecture
-    fread(&header->e_machine, 2, 1, file);
+    if (!fread(&header->e_machine, 2, 1, file))
+        perror("Read error\n");
     printf("Required architecture : ");
     switch(header->e_machine) {
         case 0:
@@ -79,7 +82,8 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("\n");
 
     // Version de l'objet
-    fread(&header->e_version, 4, 1, file);
+    if (!fread(&header->e_version, 4, 1, file))
+        perror("Read error\n");
     printf("Version : ");
     if(header->e_version == 0) {
         printf("EV_NONE");
@@ -89,42 +93,52 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
     printf("\n");
 
     // Adresse virtuelle
-    fread(&header->e_entry, 4, 1, file);
+    if (!fread(&header->e_entry, 4, 1, file))
+        perror("Read error\n");
     printf("Adresse virtuelle : %d\n", header->e_entry);
 
     // Program header table's offset en bytes
-    fread(&header->e_phoff, 4, 1, file);
+    if (!fread(&header->e_phoff, 4, 1, file))
+        perror("Read error\n");
     printf("Program header table's offset : %d\n", header->e_phoff);
 
     // Section header table's offset en bytes
-    fread(&header->e_shoff, 4, 1, file);
+    if (!fread(&header->e_shoff, 4, 1, file))
+        perror("Read error\n");
     printf("Section header table's offset : %d\n", header->e_shoff);
 
     // Flags processor-specifi associés au fichier
-    fread(&header->e_flags, 4, 1, file);
+    if (!fread(&header->e_flags, 4, 1, file))
+        perror("Read error\n");
     printf("Flags processor-specific : %d\n", header->e_flags);
 
     // Taille du header en nombre de bytes
-    fread(&header->e_ehsize, 2, 1, file);
+    if (!fread(&header->e_ehsize, 2, 1, file))
+        perror("Read error\n");
     printf("Header size : %d\n", header->e_ehsize);
 
     // Taille 
-    fread(&header->e_phentsize, 2, 1, file);
+    if (!fread(&header->e_phentsize, 2, 1, file))
+        perror("Read error\n");
     printf("Phentsize : %d\n", header->e_phentsize);
 
     // 
-    fread(&header->e_phnum, 2, 1, file);
+    if (!fread(&header->e_phnum, 2, 1, file))
+        perror("Read error\n");
     printf("Phnum : %d\n", header->e_phnum);
 
     // 
-    fread(&header->e_shentsize, 2, 1, file);
+    if (!fread(&header->e_shentsize, 2, 1, file))
+        perror("Read error\n");
     printf("Shentsize : %d\n", header->e_shentsize);
 
     // 
-    fread(&header->e_shnum, 2, 1, file);
+    if (!fread(&header->e_shnum, 2, 1, file))
+        perror("Read error\n");
     printf("Shnum : %d\n", header->e_shnum);
 
     //
-    fread(&header->e_shstrndx, 2, 1, file);
+    if (!fread(&header->e_shstrndx, 2, 1, file))
+        perror("Read error\n");
     printf("e_shstrndx : %d\n", header->e_shstrndx);
 } 
