@@ -17,12 +17,12 @@ void ReadELFFile(FILE* file);
 void ReadELFHeader(FILE* file, Elf32_Ehdr* header);
 
 
-/**init_TableSection
+/**create_ELFTableSection
  * Paramètres :
  * - un entier représentant le nombre de sections
  * Résultat : retourne un pointeur sur un tableau de sections initialiser
 */
-Elf32_Shdr * init_TableSection(int nbSection);
+Elf32_Shdr * create_ELFTableSection(int nbSection);
 
 /**ReadELFTableSection
  * Paramètre : 

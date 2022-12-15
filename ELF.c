@@ -52,7 +52,7 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
         perror("Read error\n");
 }
 
-Elf32_Shdr * create_TableSection(int nbSection) {
+Elf32_Shdr * create_ELFTableSection(int nbSection) {
     return (Elf32_Shdr *) calloc(sizeof(Elf32_Shdr), nbSection);
 }
 
