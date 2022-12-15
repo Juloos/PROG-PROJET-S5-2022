@@ -1,6 +1,6 @@
 #include <stdio.h>
-
-#define EI_NIDENT 16
+#include <stdlib.h>
+#include "elf.h"
 
 /**ReadELFFile
  * Paramètres :
@@ -14,7 +14,7 @@ void ReadELFFile(FILE* file);
  * - un pointeur sur un fichier ELF
  * Résultat : lit et affiche sur la sortie standard l'en tête du fichier ELF en paramètre
 */
-void ReadELFHeader(FILE* file);
+void ReadELFHeader(FILE* file, Elf32_Ehdr* header);
 
 /**ReadELFTableSection
  * Paramètre : 
