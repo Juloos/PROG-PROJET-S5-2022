@@ -47,4 +47,4 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header) {
 
     if (!fread(&header->e_shstrndx, 2, 1, file))
         perror("Read error\n");
-} 
+}
