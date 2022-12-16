@@ -55,11 +55,11 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
         fprintf(stderr, "Read error\n");
 }
 
-Elf32_Shdr * create_ELFTableSection(int nbSection) {
+Elf32_Shdr * create_ELFTableSections(int nbSection) {
     return (Elf32_Shdr *) calloc(sizeof(Elf32_Shdr), nbSection);
 }
 
-void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int offset) {
+void ReadELFTableSections(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int offset) {
     fseek(file, offset, SEEK_SET);
     for (int i = 0 ; i < nbSection ; i++) {
         if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
@@ -187,7 +187,7 @@ void getFlags(char *flags, Elf32_Word sh_flags) {
     strcat(flags, sh_flags & SHF_EXCLUDE ? "E" : "-");
 }
 
-void PrintELFTableSection(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
+void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     printf("Section table header:\n");
     printf("  [N°]  Section Name              Type      Addr     Off    Size   ES Flg Flg Keys        Lk Inf Al\n");
     char name[STR_SIZE];

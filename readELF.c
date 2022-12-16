@@ -8,9 +8,9 @@ int main(int argc, char* argv[]) {
 
         ReadELFHeader(file, &header);
 
-        Elf32_Shdr *sectionTable = create_ELFTableSection(header.e_shnum);
-        ReadELFTableSection(file, sectionTable, header.e_shnum, header.e_shoff);
-        PrintELFTableSection(file, header, sectionTable);
+        Elf32_Shdr *sectionTable = create_ELFTableSections(header.e_shnum);
+        ReadELFTableSections(file, sectionTable, header.e_shnum, header.e_shoff);
+        PrintELFTableSections(file, header, sectionTable);
     }
     return 0;
 }
