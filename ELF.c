@@ -10,48 +10,48 @@ void ReadELFile(FILE *file) {
 void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
     fseek(file, 0, SEEK_SET);
 
-    for(int i = 0 ; i < EI_NIDENT ; i++) {
+    for (int i = 0 ; i < EI_NIDENT ; i++) {
         if (!fread(&ehdr->e_ident[i], sizeof(unsigned char), 1, file))
             fprintf(stderr, "Read error\n");
     }
 
-    if (!fread(&ehdr->e_type, 2, 1, file))
+    if (!fread(&ehdr->e_type, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_machine, 2, 1, file))
+    if (!fread(&ehdr->e_machine, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_version, 4, 1, file))
+    if (!fread(&ehdr->e_version, sizeof(Elf32_Word), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_entry, 4, 1, file))
+    if (!fread(&ehdr->e_entry, sizeof(Elf32_Addr), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_phoff, 4, 1, file))
+    if (!fread(&ehdr->e_phoff, sizeof(Elf32_Off), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_shoff, 4, 1, file))
+    if (!fread(&ehdr->e_shoff, sizeof(Elf32_Off), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_flags, 4, 1, file))
+    if (!fread(&ehdr->e_flags, sizeof(Elf32_Word), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_ehsize, 2, 1, file))
+    if (!fread(&ehdr->e_ehsize, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_phentsize, 2, 1, file))
+    if (!fread(&ehdr->e_phentsize, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_phnum, 2, 1, file))
+    if (!fread(&ehdr->e_phnum, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_shentsize, 2, 1, file))
+    if (!fread(&ehdr->e_shentsize, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_shnum, 2, 1, file))
+    if (!fread(&ehdr->e_shnum, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
 
-    if (!fread(&ehdr->e_shstrndx, 2, 1, file))
+    if (!fread(&ehdr->e_shstrndx, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
 }
 
