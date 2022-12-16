@@ -1,17 +1,23 @@
 ACLOCAL_AMFLAGS = -I ../m4
 
 # no code transformations to work with thumb
-AM_CFLAGS= @VD_CROSS_NOPIE_CFLAGS@ -mno-thumb-interwork
+AM_CFLAGS= @VD_CROSS_NOPIE_CFLAGS@ -mbig-endian -mno-thumb-interwork
+AM_CCASFLAGS=-mbig-endian -mno-thumb-interwork
 
 if HAVE_ARM_COMPILER
 
 noinst_PROGRAMS=fusion_result
 
+AM_LDFLAGS=
+
 if HAVE_NO_STDLIB
 # avec arm-none-eabi-, on a besoin de "puts" pour générer le programme
 fusion_result_SOURCES=eabi-none-lib.c
-AM_LDFLAGS = @VD_CROSS_NOSTDLIB_LDFLAGS@
+AM_LDFLAGS += @VD_CROSS_NOSTDLIB_LDFLAGS@
 endif
+
+# Big endian
+AM_LDFLAGS+=-Wl,-EB
 
 # il faudra linker avec fusion_result.o
 fusion_result_LDADD=fusion_result.o
