@@ -87,6 +87,7 @@ NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
 @HAVE_ARM_COMPILER_TRUE@noinst_PROGRAMS = fusion_result$(EXEEXT)
+@HAVE_ARM_COMPILER_TRUE@@HAVE_NO_STDLIB_TRUE@am__append_1 = @VD_CROSS_NOSTDLIB_LDFLAGS@
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/../m4/ax_check_compile_flag.m4 \
@@ -285,11 +286,14 @@ top_srcdir = @top_srcdir@
 ACLOCAL_AMFLAGS = -I ../m4
 
 # no code transformations to work with thumb
-AM_CFLAGS = @VD_CROSS_NOPIE_CFLAGS@ -mno-thumb-interwork
+AM_CFLAGS = @VD_CROSS_NOPIE_CFLAGS@ -mbig-endian -mno-thumb-interwork
+AM_CCASFLAGS = -mbig-endian -mno-thumb-interwork
+
+# Big endian
+@HAVE_ARM_COMPILER_TRUE@AM_LDFLAGS = $(am__append_1) -Wl,-EB
 
 # avec arm-none-eabi-, on a besoin de "puts" pour générer le programme
 @HAVE_ARM_COMPILER_TRUE@@HAVE_NO_STDLIB_TRUE@fusion_result_SOURCES = eabi-none-lib.c
-@HAVE_ARM_COMPILER_TRUE@@HAVE_NO_STDLIB_TRUE@AM_LDFLAGS = @VD_CROSS_NOSTDLIB_LDFLAGS@
 
 # il faudra linker avec fusion_result.o
 @HAVE_ARM_COMPILER_TRUE@fusion_result_LDADD = fusion_result.o

@@ -3,6 +3,20 @@
 #include <stdio.h>
 #include <string.h>
 
+// This will help determine the endianness of the machine
+const int BIG_ENDIAN_THROTTLE = 1;
+#define IS_BIGENDIAN() ((*(char *) &BIG_ENDIAN_THROTTLE) == 0)
+
+// This function will help us swap bytes depending on the endianness of the machine
+void SWAPB(void *ptr, size_t size) {
+    char *tmp = malloc(size);
+    memcpy(tmp, ptr, size);
+    for (int i = 0 ; i < size ; i++) {
+        ((char *) ptr)[i] = tmp[size - i - 1];
+    }
+    free(tmp);
+}
+
 
 void ReadELFile(FILE *file) {
 }
@@ -53,6 +67,23 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
 
     if (!fread(&ehdr->e_shstrndx, sizeof(Elf32_Half), 1, file))
         fprintf(stderr, "Read error\n");
+
+    if (!IS_BIGENDIAN()) {
+        // Not swapping Magic because apparently it's not endian dependent
+        SWAPB(&ehdr->e_type, sizeof(Elf32_Half));
+        SWAPB(&ehdr->e_machine, sizeof(Elf32_Half));
+        SWAPB(&ehdr->e_version, sizeof(Elf32_Word));
+        SWAPB(&ehdr->e_entry, sizeof(Elf32_Addr));
+        SWAPB(&ehdr->e_phoff, sizeof(Elf32_Off));
+        SWAPB(&ehdr->e_shoff, sizeof(Elf32_Off));
+        SWAPB(&ehdr->e_flags, sizeof(Elf32_Word));
+        SWAPB(&ehdr->e_ehsize, sizeof(Elf32_Half));
+        SWAPB(&ehdr->e_phentsize, sizeof(Elf32_Half));
+        SWAPB(&ehdr->e_phnum, sizeof(Elf32_Half));
+        SWAPB(&ehdr->e_shentsize, sizeof(Elf32_Half));
+        SWAPB(&ehdr->e_shnum, sizeof(Elf32_Half));
+        SWAPB(&ehdr->e_shstrndx, sizeof(Elf32_Half));
+    }
 }
 
 Elf32_Shdr * create_ELFTableSection(int nbSection) {
@@ -91,6 +122,19 @@ void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int o
 
         if (!fread(&shdrTable[i].sh_entsize, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error\n");
+
+        if (!IS_BIGENDIAN()) {
+            SWAPB(&shdrTable[i].sh_name, sizeof(Elf32_Word));
+            SWAPB(&shdrTable[i].sh_type, sizeof(Elf32_Word));
+            SWAPB(&shdrTable[i].sh_flags, sizeof(Elf32_Word));
+            SWAPB(&shdrTable[i].sh_addr, sizeof(Elf32_Addr));
+            SWAPB(&shdrTable[i].sh_offset, sizeof(Elf32_Off));
+            SWAPB(&shdrTable[i].sh_size, sizeof(Elf32_Word));
+            SWAPB(&shdrTable[i].sh_link, sizeof(Elf32_Word));
+            SWAPB(&shdrTable[i].sh_info, sizeof(Elf32_Word));
+            SWAPB(&shdrTable[i].sh_addralign, sizeof(Elf32_Word));
+            SWAPB(&shdrTable[i].sh_entsize, sizeof(Elf32_Word));
+        }
     }
 }
 
