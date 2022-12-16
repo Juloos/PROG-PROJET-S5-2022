@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include "/usr/include/elf.h"
 
+#define STR_SIZE 256
+
 /**ReadELFFile
  * Paramètres :
  * - un pointeur sur un fichier ELF
