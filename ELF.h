@@ -45,3 +45,10 @@ void ReadELFHeader(FILE* file, Elf32_Ehdr* header);
  * Résultat : lit et affiche sur la sortie standard la table des symboles du fichier ELF en paramètre
 */
 //void ReadELFTableSymbols(FILE* file);
+
+/**PrintELFHeader
+ * Paramètres:
+ * - un pointeur sur un header d'un fichier ELF
+ * Résultat: affiche les informations contenues dans le header
+*/
+void PrintELFHeader(Elf32_Ehdr* header);
