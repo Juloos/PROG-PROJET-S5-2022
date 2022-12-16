@@ -97,13 +97,13 @@ void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int o
 
 void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
     fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset + shdrTable[numSection].sh_name, SEEK_SET);
-    if (!fread(name, sizeof(char),  STR_SIZE, file))
+    if (!fread(name, sizeof(char), STR_SIZE, file))
         fprintf(stderr, "Empty name\n");
 }
 
-int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int nbSection) {
-    char sectionName[ STR_SIZE];
-    for (int i = 0 ; i < nbSection ; i++) {
+int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
+    char sectionName[STR_SIZE];
+    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
         getSectionName(sectionName, file, ehdr, shdrTable, i);
         if (strcmp(sectionName, name) == 0)
             return i;
@@ -170,8 +170,8 @@ void getSectionType(char *type, Elf32_Shdr *shdrTable, int numSection) {
 void PrintELFTableSection(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     printf("Section table header\n");
     printf("[N°]  Section Name              Type      Addr     Off    Size   ES Flg Lk Inf Al\n");
-    char name[ STR_SIZE];
-    char type[ STR_SIZE];
+    char name[STR_SIZE];
+    char type[STR_SIZE];
     for (int i = 0 ; i < ehdr.e_shnum ; i++) {
         getSectionName(name, file, ehdr, shdrTable, i);
         getSectionType(type, shdrTable, i);
@@ -188,4 +188,12 @@ void PrintELFTableSection(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
                shdrTable[i].sh_addralign
         );
     }
+}
+
+void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
+
+}
+
+void ReadELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
+    ReadELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
 }
