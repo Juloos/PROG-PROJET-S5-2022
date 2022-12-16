@@ -94,7 +94,6 @@ void ReadELFTableSections(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int 
     }
 }
 
-
 void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
     fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset + shdrTable[numSection].sh_name, SEEK_SET);
     if (!fread(name, sizeof(char), STR_SIZE, file))
@@ -110,6 +109,47 @@ int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrT
     }
     return -1;
 }
+
+void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
+
+}
+
+void ReadELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
+    ReadELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
+}
+
+Elf32_Sym * create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
+    return (Elf32_Sym *) calloc(sizeof(sh_symtab.sh_entsize), sh_symtab.sh_size / sh_symtab.sh_entsize);
+}
+
+void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) {
+    if (sh_symtab.sh_type != SHT_SYMTAB) {
+        fprintf(stderr, "Not a symbol table\n");
+        return;
+    }
+    fseek(file, sh_symtab.sh_offset, SEEK_SET);
+    int nbEntries = sh_symtab.sh_size / sh_symtab.sh_entsize;
+    for (int i = 0 ; i < nbEntries; i++) {
+        if (!fread(&symTable[i].st_name, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_value, sizeof(Elf32_Addr), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_size, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_info, sizeof(unsigned char), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_other, sizeof(unsigned char), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_shndx, sizeof(Elf32_Half), 1, file))
+            fprintf(stderr, "Read error\n");
+    }
+}
+
 
 void getSectionType(char *type, Elf32_Shdr *shdrTable, int numSection) {
     switch (shdrTable[numSection].sh_type) {
@@ -182,22 +222,21 @@ void getFlags(char *flags, Elf32_Word sh_flags) {
     strcat(flags, sh_flags & SHF_COMPRESSED ? "C" : "-");
     strcat(flags, sh_flags & SHF_MASKOS ? "o" : "-");
     strcat(flags, sh_flags & SHF_MASKPROC ? "p" : "-");
-    strcat(flags, sh_flags & SHF_GNU_RETAIN ? "g" : "-");
     strcat(flags, sh_flags & SHF_ORDERED ? "R" : "-");
     strcat(flags, sh_flags & SHF_EXCLUDE ? "E" : "-");
 }
 
 void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     printf("Section table header:\n");
-    printf("  [N°]  Section Name              Type      Addr     Off    Size   ES Flg Flg Keys        Lk Inf Al\n");
+    printf("  [N°]  Section Name              Type      Addr     Off    Size   ES Flg Flg Keys       Lk Inf Al\n");
     char name[STR_SIZE];
     char type[STR_SIZE];
-    char flags[17];
+    char flags[16];
     for (int i = 0 ; i < ehdr.e_shnum ; i++) {
         getSectionName(name, file, ehdr, shdrTable, i);
         getSectionType(type, shdrTable, i);
         getFlags(flags, shdrTable[i].sh_flags);
-        printf("  [%2d]  %-24.24s  %-8s  %8.8x %6.6x %6.6x %2.2x %3.3x %16s %2d %3d %2d\n", i,
+        printf("  [%2d]  %-24.24s  %-8s  %8.8x %6.6x %6.6x %2.2x %3.3x %15s %2d %3d %2d\n", i,
                name,
                type,
                shdrTable[i].sh_addr,
@@ -216,12 +255,4 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
            "  I: INFO_LINK, L: LINK_ORDER, O: OS_NONCONFORMING\n"
            "  G: GROUP, T: TLS, C: COMPRESSED, o: MASKOS\n"
            "  p: MASKPROC, g: GNU_RETAIN, R: ORDERED, E: EXCLUDE\n");
-}
-
-void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
-
-}
-
-void ReadELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
-    ReadELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
 }
