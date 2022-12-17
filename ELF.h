@@ -21,20 +21,19 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr);
 
 /**create_ELFTableSection
  * Paramètres :
- * - un entier représentant le nombre de sections
+ * - un header ELF
  * Résultat : retourne un pointeur sur un tableau de sections initialisé
  */
-Elf32_Shdr * create_ELFTableSections(int nbSection);
+Elf32_Shdr * create_ELFTableSections(Elf32_Ehdr ehdr);
 
 /**ReadELFTableSection
  * Paramètre : 
  * - un pointeur sur un fichier ELF
+ * - un header ELF
  * - un tableau de sections
- * - le nombre de sections
- * - l'offset de la table des sections, soit son emplacement dans le fichier ELF
  * Résultat : lit la table des sections du fichier ELF en paramètre
  */
-void ReadELFTableSections(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int offset);
+void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
 
 /**sectionName2Index
  * Paramètres :
@@ -78,7 +77,7 @@ Elf32_Sym * create_ELFTableSymbols(Elf32_Shdr sh_symtab);
  * - un pointeur sur un fichier ELF
  * - la table des symboles dans laquelle écrire les données
  * - le header de la table des symboles
- * Résultat : lit la table des symboles du fichier ELF en paramètre
+ * Résultat : lit la table des symboles du fichier ELF et l'écrit dans la table des symboles donnée
  */
 void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab);
 
@@ -90,3 +89,13 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab);
  * Résultat : affiche sur la sortie standard le contenu du tableau des sections
  */
 void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
+
+/**PrintELFTableSymbols
+ * Paramètres :
+ * - un pointeur sur un fichier ELF
+ * - un header ELF
+ * - un tableau des headers de section
+ * - la table des symboles
+ * Résultat : affiche sur la sortie standard le contenu de la table des symboles
+ */
+void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);

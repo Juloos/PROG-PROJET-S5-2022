@@ -8,13 +8,17 @@ int main(int argc, char* argv[]) {
 
         ReadELFHeader(file, &header);
 
-        Elf32_Shdr *sectionTable = create_ELFTableSections(header.e_shnum);
-        ReadELFTableSections(file, sectionTable, header.e_shnum, header.e_shoff);
+        Elf32_Shdr *sectionTable = create_ELFTableSections(header);
+        ReadELFTableSections(file, header, sectionTable);
 //        PrintELFTableSections(file, header, sectionTable);
 
         Elf32_Shdr sh_symtab = sectionTable[sectionName2Index(".symtab", file, header, sectionTable)];
         Elf32_Sym *symbolTable = create_ELFTableSymbols(sh_symtab);
         ReadELFTableSymbols(file, symbolTable, sh_symtab);
+        PrintELFTableSymbols(file, header, sectionTable, symbolTable);
+
+        free(sectionTable);
+        free(symbolTable);
     }
     return 0;
 }
