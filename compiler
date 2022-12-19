@@ -1,0 +1,10 @@
+#!/bin/sh
+
+for dir in *
+do
+    autoreconf -vif $dir
+done
+
+./configure && make
+
+exit 0
