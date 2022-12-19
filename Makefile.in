@@ -86,7 +86,7 @@ POST_INSTALL = :
 NORMAL_UNINSTALL = :
 PRE_UNINSTALL = :
 POST_UNINSTALL = :
-bin_PROGRAMS = Options_and_debug_example$(EXEEXT)
+bin_PROGRAMS = Options_and_debug_example$(EXEEXT) readELF$(EXEEXT)
 subdir = .
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/m4/hostsubdir.m4 \
@@ -108,6 +108,9 @@ am_Options_and_debug_example_OBJECTS = $(am__objects_1) \
 Options_and_debug_example_OBJECTS =  \
 	$(am_Options_and_debug_example_OBJECTS)
 Options_and_debug_example_LDADD = $(LDADD)
+am_readELF_OBJECTS = readELF.$(OBJEXT) ELF.$(OBJEXT)
+readELF_OBJECTS = $(am_readELF_OBJECTS)
+readELF_LDADD = $(LDADD)
 AM_V_P = $(am__v_P_@AM_V@)
 am__v_P_ = $(am__v_P_@AM_DEFAULT_V@)
 am__v_P_0 = false
@@ -123,8 +126,9 @@ am__v_at_1 =
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/build-aux/depcomp
 am__maybe_remake_depfiles = depfiles
-am__depfiles_remade = ./$(DEPDIR)/Options_and_debug_example.Po \
-	./$(DEPDIR)/debug.Po ./$(DEPDIR)/util.Po
+am__depfiles_remade = ./$(DEPDIR)/ELF.Po \
+	./$(DEPDIR)/Options_and_debug_example.Po ./$(DEPDIR)/debug.Po \
+	./$(DEPDIR)/readELF.Po ./$(DEPDIR)/util.Po
 am__mv = mv -f
 COMPILE = $(CC) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) \
 	$(CPPFLAGS) $(AM_CFLAGS) $(CFLAGS)
@@ -138,8 +142,8 @@ AM_V_CCLD = $(am__v_CCLD_@AM_V@)
 am__v_CCLD_ = $(am__v_CCLD_@AM_DEFAULT_V@)
 am__v_CCLD_0 = @echo "  CCLD    " $@;
 am__v_CCLD_1 = 
-SOURCES = $(Options_and_debug_example_SOURCES)
-DIST_SOURCES = $(Options_and_debug_example_SOURCES)
+SOURCES = $(Options_and_debug_example_SOURCES) $(readELF_SOURCES)
+DIST_SOURCES = $(Options_and_debug_example_SOURCES) $(readELF_SOURCES)
 RECURSIVE_TARGETS = all-recursive check-recursive cscopelist-recursive \
 	ctags-recursive dvi-recursive html-recursive info-recursive \
 	install-data-recursive install-dvi-recursive \
@@ -335,6 +339,7 @@ SUBDIRS = . Examples_fusion
 COMMON = debug.h debug.c util.h util.c
 EXTRA_DIST = filtre.pl
 Options_and_debug_example_SOURCES = $(COMMON) Options_and_debug_example.c
+readELF_SOURCES = readELF.c ELF.c ELF.h
 all: all-recursive
 
 .SUFFIXES:
@@ -419,14 +424,20 @@ Options_and_debug_example$(EXEEXT): $(Options_and_debug_example_OBJECTS) $(Optio
 	@rm -f Options_and_debug_example$(EXEEXT)
 	$(AM_V_CCLD)$(LINK) $(Options_and_debug_example_OBJECTS) $(Options_and_debug_example_LDADD) $(LIBS)
 
+readELF$(EXEEXT): $(readELF_OBJECTS) $(readELF_DEPENDENCIES) $(EXTRA_readELF_DEPENDENCIES) 
+	@rm -f readELF$(EXEEXT)
+	$(AM_V_CCLD)$(LINK) $(readELF_OBJECTS) $(readELF_LDADD) $(LIBS)
+
 mostlyclean-compile:
 	-rm -f *.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/ELF.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/Options_and_debug_example.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/debug.Po@am__quote@ # am--include-marker
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/readELF.Po@am__quote@ # am--include-marker
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/util.Po@am__quote@ # am--include-marker
 
 $(am__depfiles_remade):
@@ -790,8 +801,10 @@ clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
-		-rm -f ./$(DEPDIR)/Options_and_debug_example.Po
+		-rm -f ./$(DEPDIR)/ELF.Po
+	-rm -f ./$(DEPDIR)/Options_and_debug_example.Po
 	-rm -f ./$(DEPDIR)/debug.Po
+	-rm -f ./$(DEPDIR)/readELF.Po
 	-rm -f ./$(DEPDIR)/util.Po
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
@@ -840,8 +853,10 @@ installcheck-am:
 maintainer-clean: maintainer-clean-recursive
 	-rm -f $(am__CONFIG_DISTCLEAN_FILES)
 	-rm -rf $(top_srcdir)/autom4te.cache
-		-rm -f ./$(DEPDIR)/Options_and_debug_example.Po
+		-rm -f ./$(DEPDIR)/ELF.Po
+	-rm -f ./$(DEPDIR)/Options_and_debug_example.Po
 	-rm -f ./$(DEPDIR)/debug.Po
+	-rm -f ./$(DEPDIR)/readELF.Po
 	-rm -f ./$(DEPDIR)/util.Po
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
