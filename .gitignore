@@ -22,3 +22,5 @@
 /COPYING
 /util.h
 /util.c
+/build/
+/confdefs.h
