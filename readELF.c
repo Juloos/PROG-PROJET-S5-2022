@@ -15,7 +15,7 @@ int main(int argc, char* argv[]) {
         ReadELFHeader(file, header);
 
         // Affichage du contenu du fichier
-        printf("HEADER\n");
+        printf("ELF Header:\n");
         // Ident
         printf("Ident: ");
         for(int i = 0; i < EI_NIDENT; i++) {
