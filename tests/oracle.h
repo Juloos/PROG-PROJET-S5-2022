@@ -8,9 +8,9 @@
  * Paramètres:
  * - file: un pointeur sur un fichier en mode lecture
  * - n: un entier >= 0
- * Résultat: lit n lignes dans le fichier
+ * Résultat: passe les n lignes suivants dans le fichier
 */
-void lireNLignes(FILE* file, uint n);
+void passerNLignes(FILE* file, uint n);
 
 /**lireLigne
  * Paramètres:
@@ -28,4 +28,4 @@ void lireLigne(FILE* file, char* ligne, size_t tailleLigne);
  * affiche un message d'erreur si ce n'est pas le cas
  * sinon affiche sucess
 */
-void oracleEtapeUn(char* fileName);
+void oracleEtape1(char* fileName);

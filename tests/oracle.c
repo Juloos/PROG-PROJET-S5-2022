@@ -1,6 +1,6 @@
 #include "oracle.h"
 
-void lireNLignes(FILE* file, uint n) {
+void passerNLignes(FILE* file, uint n) {
     char ligne[200];
     for(int i = 0; i < n; i++) {
         if(!fgets(ligne, sizeof(ligne), file)) {
@@ -15,7 +15,7 @@ void lireLigne(FILE* file, char* ligne, size_t tailleLigne) {
     }
 }
 
-void oracleEtapeUn(char* fileName) {
+void oracleEtape1(char* fileName) {
     /* On éxecute la commande readelf -h fileName et on crée un header avec le résultat */
     char command[100] = "readelf -h ";
     FILE* resultCommand = popen(strcat(command, fileName), "r");
@@ -29,7 +29,7 @@ void oracleEtapeUn(char* fileName) {
     char* token;
 
     // On ignore la première ligne
-    lireNLignes(resultCommand, 1);
+    passerNLignes(resultCommand, 1);
 
     // Ligne Magic
     lireLigne(resultCommand, ligne, tailleLigne);
@@ -44,7 +44,7 @@ void oracleEtapeUn(char* fileName) {
     }
 
     // On ignore les 5 prochaines lignes
-    lireNLignes(resultCommand, 5);
+    passerNLignes(resultCommand, 5);
 
     // Ligne Type
     lireLigne(resultCommand, ligne, tailleLigne);
@@ -304,7 +304,7 @@ int main(int argc, char* argv[]) {
         printf("Il faut au moins un fichier de test\n");
     } else {
         for(int i = 1; i < argc; i++) {
-            oracleEtapeUn(argv[i]);
+            oracleEtape1(argv[i]);
         }
     }
 
