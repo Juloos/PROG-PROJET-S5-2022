@@ -16,10 +16,12 @@ int main(int argc, char* argv[]) {
         ReadELFTableSections(file, header, sectionTable);
 //        PrintELFTableSections(file, header, sectionTable);
 
+        PrintELFSectionNum(file, header, sectionTable, 12);
+
         Elf32_Shdr sh_symtab = sectionTable[sectionName2Index(".symtab", file, header, sectionTable)];
         Elf32_Sym *symbolTable = create_ELFTableSymbols(sh_symtab);
         ReadELFTableSymbols(file, symbolTable, sh_symtab);
-        PrintELFTableSymbols(file, header, sectionTable, symbolTable);
+//        PrintELFTableSymbols(file, header, sectionTable, symbolTable);
 
         free(sectionTable);
         free(symbolTable);

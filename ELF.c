@@ -140,16 +140,13 @@ void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
 }
 
 
-// TODO: Add support for big endian using SWAPB
 void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
     if (numSection < 0 || numSection >= ehdr.e_shnum) {
         fprintf(stderr, "Section number out of range\n");
         return;
     }
-    int i;
-    char *buff;
 
-    buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
+    char *buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
 
     if (buff != NULL) {
         fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset, SEEK_SET);
@@ -157,15 +154,18 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
             fprintf(stderr, "Read error\n");
     }
 
-    fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
-    for (i = 0; i < shdrTable[numSection].sh_size; i++) {
+    for (int i = 0; i < shdrTable[numSection].sh_size; i++) {
         if (i % 16 == 0)
-            printf("\n0x%08x: ", shdrTable[numSection].sh_addr + i);
+            printf("0x%08x", shdrTable[numSection].sh_addr + i);
         if (i % 4 == 0)
             printf(" ");
         printf("%02x", fgetc(file));
+        if (i % 16 == 0)
+            printf("\n");
     }
     printf("\n");
+
+    free(buff);
 }
 
 void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
