@@ -86,13 +86,14 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
     }
 }
 
-Elf32_Shdr * create_ELFTableSections(Elf32_Ehdr ehdr) {
-    return (Elf32_Shdr *) malloc(sizeof(Elf32_Shdr) * ehdr.e_shnum);
+Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr) {
+    return (Elf32_Shdr * )
+    malloc(sizeof(Elf32_Shdr) * ehdr.e_shnum);
 }
 
 void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     fseek(file, ehdr.e_shoff, SEEK_SET);
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error\n");
 
@@ -138,6 +139,8 @@ void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     }
 }
 
+
+// TODO: Add support for big endian using SWAPB
 void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
     if (numSection < 0 || numSection >= ehdr.e_shnum) {
         fprintf(stderr, "Section number out of range\n");
@@ -168,7 +171,6 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
 void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
     PrintELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
 }
-
 
 void PrintELFHeader(Elf32_Ehdr *header) {
     printf("ELF File's Header:\n");
@@ -328,15 +330,7 @@ int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrT
     return -1;
 }
 
-void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
-
-}
-
-void ReadELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
-    ReadELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
-}
-
-Elf32_Sym * create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
+Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
     return (Elf32_Sym *) malloc(sh_symtab.sh_size);
 }
 
@@ -347,7 +341,7 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     }
     fseek(file, sh_symtab.sh_offset, SEEK_SET);
     int nbEntries = sh_symtab.sh_size / sh_symtab.sh_entsize;
-    for (int i = 0 ; i < nbEntries ; i++) {
+    for (int i = 0; i < nbEntries; i++) {
         if (!fread(&symTable[i].st_name, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error\n");
 
@@ -365,6 +359,17 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
 
         if (!fread(&symTable[i].st_shndx, sizeof(Elf32_Half), 1, file))
             fprintf(stderr, "Read error\n");
+    }
+
+    if (!IS_BIGENDIAN()) {
+        for (int i = 0; i < nbEntries; i++) {
+            SWAPB(&symTable[i].st_name, sizeof(Elf32_Word));
+            SWAPB(&symTable[i].st_value, sizeof(Elf32_Addr));
+            SWAPB(&symTable[i].st_size, sizeof(Elf32_Word));
+            SWAPB(&symTable[i].st_info, sizeof(unsigned char));
+            SWAPB(&symTable[i].st_other, sizeof(unsigned char));
+            SWAPB(&symTable[i].st_shndx, sizeof(Elf32_Half));
+        }
     }
 }
 
@@ -451,7 +456,7 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     char name[STR_SIZE];
     char type[STR_SIZE];
     char flags[16];
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         getSectionName(name, file, ehdr, shdrTable, i);
         getSectionType(type, shdrTable[i]);
         getSectionFlags(flags, shdrTable[i]);
@@ -585,7 +590,7 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
     char vis[STR_SIZE];
     char ndx[STR_SIZE];
     Elf32_Shdr sh_symtab = shdrTable[sectionName2Index(".symtab", file, ehdr, shdrTable)];
-    for (int i = 0 ; i < sh_symtab.sh_size / sh_symtab.sh_entsize ; i++) {
+    for (int i = 0; i < sh_symtab.sh_size / sh_symtab.sh_entsize; i++) {
         getSymbolName(name, file, ehdr, shdrTable, symTable[i]);
         getSymbolType(type, symTable[i]);
         getSymbolBind(bind, symTable[i]);
