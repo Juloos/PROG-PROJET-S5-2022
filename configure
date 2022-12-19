@@ -28,7 +28,7 @@ else
   *posix*) :
     set -o posix ;; #(
   *) :
-     ;;
+;;
 esac
 fi
 
