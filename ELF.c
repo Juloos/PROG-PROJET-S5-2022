@@ -154,14 +154,13 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
             fprintf(stderr, "Read error\n");
     }
 
+    printf("Section %d", numSection);
     for (int i = 0; i < shdrTable[numSection].sh_size; i++) {
         if (i % 16 == 0)
-            printf("0x%08x", shdrTable[numSection].sh_addr + i);
+            printf("\n  0x%08x: ", shdrTable[numSection].sh_addr + i);
         if (i % 4 == 0)
             printf(" ");
         printf("%02x", fgetc(file));
-        if (i % 16 == 0)
-            printf("\n");
     }
     printf("\n");
 
