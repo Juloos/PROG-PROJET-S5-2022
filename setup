@@ -1,5 +1,6 @@
 #!/bin/sh
 
 unzip -n elf_linker-1.0.zip
+
 echo Done
 exit 0
