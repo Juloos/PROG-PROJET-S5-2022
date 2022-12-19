@@ -86,13 +86,13 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
     }
 }
 
-Elf32_Shdr *create_ELFTableSection(int nbSection) {
-    return (Elf32_Shdr *) calloc(sizeof(Elf32_Shdr), nbSection);
+Elf32_Shdr * create_ELFTableSections(Elf32_Ehdr ehdr) {
+    return (Elf32_Shdr *) malloc(sizeof(Elf32_Shdr) * ehdr.e_shnum);
 }
 
-void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int offset) {
-    fseek(file, offset, SEEK_SET);
-    for (int i = 0; i < nbSection; i++) {
+void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
+    fseek(file, ehdr.e_shoff, SEEK_SET);
+    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
         if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error\n");
 
@@ -324,11 +324,53 @@ int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrT
         if (strcmp(sectionName, name) == 0)
             return i;
     }
+    fprintf(stderr, "Section not found '%s'\n", name);
     return -1;
 }
 
-void getSectionType(char *type, Elf32_Shdr *shdrTable, int numSection) {
-    switch (shdrTable[numSection].sh_type) {
+void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
+
+}
+
+void ReadELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
+    ReadELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
+}
+
+Elf32_Sym * create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
+    return (Elf32_Sym *) malloc(sh_symtab.sh_size);
+}
+
+void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) {
+    if (sh_symtab.sh_type != SHT_SYMTAB) {
+        fprintf(stderr, "Not a symbol table\n");
+        return;
+    }
+    fseek(file, sh_symtab.sh_offset, SEEK_SET);
+    int nbEntries = sh_symtab.sh_size / sh_symtab.sh_entsize;
+    for (int i = 0 ; i < nbEntries ; i++) {
+        if (!fread(&symTable[i].st_name, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_value, sizeof(Elf32_Addr), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_size, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_info, sizeof(unsigned char), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_other, sizeof(unsigned char), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_shndx, sizeof(Elf32_Half), 1, file))
+            fprintf(stderr, "Read error\n");
+    }
+}
+
+
+void getSectionType(char *type, Elf32_Shdr shdr) {
+    switch (shdr.sh_type) {
         case SHT_NULL:
             strcpy(type, "NULL");
             return;
@@ -383,8 +425,9 @@ void getSectionType(char *type, Elf32_Shdr *shdrTable, int numSection) {
     strcpy(type, "UNKNOWN");
 }
 
-void getFlags(char *flags, Elf32_Word sh_flags) {
+void getSectionFlags(char *flags, Elf32_Shdr shdr) {
     strcpy(flags, "");
+    Elf32_Word sh_flags = shdr.sh_flags;
     strcat(flags, sh_flags & SHF_WRITE ? "W" : "-");
     strcat(flags, sh_flags & SHF_ALLOC ? "A" : "-");
     strcat(flags, sh_flags & SHF_EXECINSTR ? "X" : "-");
@@ -398,22 +441,21 @@ void getFlags(char *flags, Elf32_Word sh_flags) {
     strcat(flags, sh_flags & SHF_COMPRESSED ? "C" : "-");
     strcat(flags, sh_flags & SHF_MASKOS ? "o" : "-");
     strcat(flags, sh_flags & SHF_MASKPROC ? "p" : "-");
-    strcat(flags, sh_flags & SHF_GNU_RETAIN ? "g" : "-");
     strcat(flags, sh_flags & SHF_ORDERED ? "R" : "-");
     strcat(flags, sh_flags & SHF_EXCLUDE ? "E" : "-");
 }
 
-void PrintELFTableSection(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
-    printf("Section table header:\n");
-    printf("  [N°]  Section Name              Type      Addr     Off    Size   ES Flg Flg Keys        Lk Inf Al\n");
+void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
+    printf("Section table headers:\n");
+    printf("  [N°]  Section Name              Type          Addr    Off   Size ES Flg Flg Keys        Lk Inf Al\n");
     char name[STR_SIZE];
     char type[STR_SIZE];
-    char flags[17];
-    for (int i = 0; i < ehdr.e_shnum; i++) {
+    char flags[16];
+    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
         getSectionName(name, file, ehdr, shdrTable, i);
-        getSectionType(type, shdrTable, i);
-        getFlags(flags, shdrTable[i].sh_flags);
-        printf("  [%2d]  %-24.24s  %-8s  %8.8x %6.6x %6.6x %2.2x %3.3x %16s %2d %3d %2d\n", i,
+        getSectionType(type, shdrTable[i]);
+        getSectionFlags(flags, shdrTable[i]);
+        printf("  [%2d]  %-24.24s  %-8s  %8.8x %6.6x %6.6x %2.2x %3.3x %15s %2d %3d %2d\n", i,
                name,
                type,
                shdrTable[i].sh_addr,
@@ -432,4 +474,131 @@ void PrintELFTableSection(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
            "  I: INFO_LINK, L: LINK_ORDER, O: OS_NONCONFORMING\n"
            "  G: GROUP, T: TLS, C: COMPRESSED, o: MASKOS\n"
            "  p: MASKPROC, g: GNU_RETAIN, R: ORDERED, E: EXCLUDE\n");
+}
+
+void getSymbolName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym symEntry) {
+    if (symEntry.st_name == STN_UNDEF) {
+        getSectionName(name, file, ehdr, shdrTable, symEntry.st_shndx);
+        return;
+    }
+    Elf32_Shdr sh_strtab = shdrTable[sectionName2Index(".strtab", file, ehdr, shdrTable)];
+    fseek(file, sh_strtab.sh_offset + symEntry.st_name, SEEK_SET);
+    if (!fread(name, sizeof(char), STR_SIZE, file))
+        fprintf(stderr, "Read error\n");
+}
+
+void getSymbolType(char *type, Elf32_Sym symEntry) {
+    switch (ELF32_ST_TYPE(symEntry.st_info)) {
+        case STT_NOTYPE:
+            strcpy(type, "NOTYPE");
+            return;
+        case STT_OBJECT:
+            strcpy(type, "OBJECT");
+            return;
+        case STT_FUNC:
+            strcpy(type, "FUNC");
+            return;
+        case STT_SECTION:
+            strcpy(type, "SECTION");
+            return;
+        case STT_FILE:
+            strcpy(type, "FILE");
+            return;
+        case STT_LOPROC:
+            strcpy(type, "LOPROC");
+            return;
+        case STT_HIPROC:
+            strcpy(type, "HIPROC");
+            return;
+        default:
+            break;
+    }
+    strcpy(type, "UNKNOWN");
+}
+
+void getSymbolBind(char *bind, Elf32_Sym symEntry) {
+    switch (ELF32_ST_BIND(symEntry.st_info)) {
+        case STB_LOCAL:
+            strcpy(bind, "LOCAL");
+            return;
+        case STB_GLOBAL:
+            strcpy(bind, "GLOBAL");
+            return;
+        case STB_WEAK:
+            strcpy(bind, "WEAK");
+            return;
+        case STB_LOPROC:
+            strcpy(bind, "LOPROC");
+            return;
+        case STB_HIPROC:
+            strcpy(bind, "HIPROC");
+            return;
+        default:
+            break;
+    }
+    strcpy(bind, "UNKNOWN");
+}
+
+void getSymbolVis(char *visibility, Elf32_Sym symEntry) {
+    switch (ELF32_ST_VISIBILITY(symEntry.st_other)) {
+        case STV_DEFAULT:
+            strcpy(visibility, "DEFAULT");
+            return;
+        case STV_INTERNAL:
+            strcpy(visibility, "INTERNAL");
+            return;
+        case STV_HIDDEN:
+            strcpy(visibility, "HIDDEN");
+            return;
+        case STV_PROTECTED:
+            strcpy(visibility, "PROTECTED");
+            return;
+        default:
+            break;
+    }
+    strcpy(visibility, "UNKNOWN");
+}
+
+void getSymbolNdx(char *ndx, Elf32_Sym symEntry) {
+    switch (symEntry.st_shndx) {
+        case SHN_UNDEF:
+            strcpy(ndx, "UND");
+            return;
+        case SHN_ABS:
+            strcpy(ndx, "ABS");
+            return;
+        case SHN_COMMON:
+            strcpy(ndx, "COM");
+            return;
+        default:
+            break;
+    }
+    sprintf(ndx, "%d", symEntry.st_shndx);
+}
+
+void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable) {
+    printf("Symbol table entries:\n");
+    printf("  [N°]    Value  Size Type    Bind   Vis      Ndx Name\n");
+    char name[STR_SIZE];
+    char type[STR_SIZE];
+    char bind[STR_SIZE];
+    char vis[STR_SIZE];
+    char ndx[STR_SIZE];
+    Elf32_Shdr sh_symtab = shdrTable[sectionName2Index(".symtab", file, ehdr, shdrTable)];
+    for (int i = 0 ; i < sh_symtab.sh_size / sh_symtab.sh_entsize ; i++) {
+        getSymbolName(name, file, ehdr, shdrTable, symTable[i]);
+        getSymbolType(type, symTable[i]);
+        getSymbolBind(bind, symTable[i]);
+        getSymbolVis(vis, symTable[i]);
+        getSymbolNdx(ndx, symTable[i]);
+        printf("  [%2d] %08x %5d %-7s %-6s %-7s %4s %s \n", i,
+               symTable[i].st_value,
+               symTable[i].st_size,
+               type,
+               bind,
+               vis,
+               ndx,
+               name
+        );
+    }
 }
