@@ -54,6 +54,46 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
         fprintf(stderr, "Read error\n");
 }
 
+Elf32_Shdr * create_ELFTableSection(int nbSection) {
+    return (Elf32_Shdr *) calloc(sizeof(Elf32_Shdr), nbSection);
+}
+
+void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int offset) {
+    fseek(file, offset, SEEK_SET);
+    for (int i = 0; i < nbSection; i++) {
+        if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_type, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_flags, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_addr, sizeof(Elf32_Addr), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_offset, sizeof(Elf32_Off), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_size, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_link, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_info, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_addralign, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&shdrTable[i].sh_entsize, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+    }
+}
+
+
 void PrintELFHeader(Elf32_Ehdr* header) {
     printf("ELF File's Header:\n");
     // Ident
@@ -194,46 +234,6 @@ void PrintELFHeader(Elf32_Ehdr* header) {
     // Section header string table index
     printf("\n  Section header string table index: \t%d\n", header->e_shstrndx);
 }
-
-Elf32_Shdr * create_ELFTableSection(int nbSection) {
-    return (Elf32_Shdr *) calloc(sizeof(Elf32_Shdr), nbSection);
-}
-
-void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int offset) {
-    fseek(file, offset, SEEK_SET);
-    for (int i = 0; i < nbSection; i++) {
-        if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_type, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_flags, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_addr, sizeof(Elf32_Addr), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_offset, sizeof(Elf32_Off), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_size, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_link, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_info, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_addralign, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&shdrTable[i].sh_entsize, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-    }
-}
-
 
 char * getSectionName(FILE *file, Elf32_Shdr *shdrTable, int numSection, int offset) {
     char *name = (char *) calloc(sizeof(char), shdrTable[numSection].sh_size);
