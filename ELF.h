@@ -44,7 +44,7 @@ void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int o
  * - le numéro de section à lire
  * Résultat : lit et affiche sur la sortie standard la section numéro numSection dans le fichier ELF en paramètre
  */
-void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection);
+void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection);
 
 /**ReadELFSection
  * Paramètres :
@@ -54,7 +54,7 @@ void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int n
  * - le nom de section à lire
  * Résultat : lit et affiche sur la sortie standard la section nomSection dans le fichier ELF en paramètre
  */
-void ReadELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection);
+void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection);
 
 /**ReadELFTableSymbols
  * Paramètres :

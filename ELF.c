@@ -138,6 +138,40 @@ void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int o
     }
 }
 
+void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
+    if (numSection < 0 || numSection >= ehdr.e_shnum) {
+        fprintf(stderr, "Section number out of range\n");
+        return;
+    }
+    int i;
+    char* buff;
+
+    buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
+
+    if(buff != NULL) {
+        fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset, SEEK_SET);
+        if (!fread(buff, 1, shdrTable[ehdr.e_shstrndx].sh_size, file))
+            fprintf(stderr, "Read error\n");
+    }
+
+    fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
+    for (i = 0; i < shdrTable[numSection].sh_size; i++) {
+        if (i % 16 == 0)
+            printf("\n0x%08x: ", shdrTable[numSection].sh_addr + i);
+        if (i % 4 == 0)
+            printf(" ");
+        printf("%02x", fgetc(file));
+    }
+    printf("\n");
+
+
+}
+
+void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
+    ReadELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
+}
+
+
 void PrintELFHeader(Elf32_Ehdr* header) {
     printf("ELF File's Header:\n");
     // Ident
@@ -400,37 +434,4 @@ void PrintELFTableSection(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
            "  I: INFO_LINK, L: LINK_ORDER, O: OS_NONCONFORMING\n"
            "  G: GROUP, T: TLS, C: COMPRESSED, o: MASKOS\n"
            "  p: MASKPROC, g: GNU_RETAIN, R: ORDERED, E: EXCLUDE\n");
-}
-
-void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
-    if (numSection < 0 || numSection >= ehdr.e_shnum) {
-        fprintf(stderr, "Section number out of range\n");
-        return;
-    }
-    int i;
-    char* buff;
-
-    buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
-
-    if(buff != NULL) {
-        fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset, SEEK_SET);
-        if (!fread(buff, 1, shdrTable[ehdr.e_shstrndx].sh_size, file))
-            fprintf(stderr, "Read error\n");
-    }
-
-    fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
-    for (i = 0; i < shdrTable[numSection].sh_size; i++) {
-        if (i % 16 == 0)
-            printf("\n0x%08x: ", shdrTable[numSection].sh_addr + i);
-        if (i % 4 == 0)
-            printf(" ");
-        printf("%02x", fgetc(file));
-    }
-    printf("\n");
-
-
-}
-
-void ReadELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
-    ReadELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
 }
