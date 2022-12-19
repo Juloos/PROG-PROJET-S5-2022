@@ -7,4 +7,5 @@ done
 
 ./configure && make
 
+echo Done
 exit 0
