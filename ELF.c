@@ -281,7 +281,7 @@ void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int n
     fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
     for (i = 0; i < shdrTable[numSection].sh_size; i++) {
         if (i % 16 == 0)
-            printf("0x%08x: ", shdrTable[numSection].sh_addr + i);
+            printf("\n0x%08x: ", shdrTable[numSection].sh_addr + i);
         if (i % 4 == 0)
             printf(" ");
         printf("%02x", fgetc(file));
