@@ -9,8 +9,8 @@
  * - file: un pointeur sur un fichier en mode lecture
  * - n: un entier >= 0
  * Résultat: passe les n lignes suivants dans le fichier
-*/
-void passerNLignes(FILE* file, uint n);
+ */
+void passerNLignes(FILE *file, uint n);
 
 /**lireLigne
  * Paramètres:
@@ -18,8 +18,8 @@ void passerNLignes(FILE* file, uint n);
  * - ligne: une chaine de caractères
  * - tailleLigne: la taille de ligne
  * Résultat: le contenu de la ligne lue dans le fichier est mis dans le paramètre ligne
-*/
-void lireLigne(FILE* file, char* ligne, size_t tailleLigne);
+ */
+void lireLigne(FILE *file, char *ligne, size_t tailleLigne);
 
 /**oracleEtapeUn
  * Paramètres:
@@ -27,5 +27,5 @@ void lireLigne(FILE* file, char* ligne, size_t tailleLigne);
  * Résultat: vérifie que la fonction readELFHeader retourne le même résultat que la commande readelf -h pour le fichier donnée en paramètre
  * affiche un message d'erreur si ce n'est pas le cas
  * sinon affiche sucess
-*/
-void oracleEtape1(char* fileName);
+ */
+void oracleEtape1(char *fileName);

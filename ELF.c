@@ -11,7 +11,7 @@ const int BIG_ENDIAN_THROTTLE = 1;
 void SWAPB(void *ptr, size_t size) {
     char *tmp = malloc(size);
     memcpy(tmp, ptr, size);
-    for (int i = 0 ; i < size ; i++) {
+    for (int i = 0; i < size; i++) {
         ((char *) ptr)[i] = tmp[size - i - 1];
     }
     free(tmp);
@@ -24,7 +24,7 @@ void ReadELFile(FILE *file) {
 void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
     fseek(file, 0, SEEK_SET);
 
-    for (int i = 0 ; i < EI_NIDENT ; i++) {
+    for (int i = 0; i < EI_NIDENT; i++) {
         if (!fread(&ehdr->e_ident[i], sizeof(unsigned char), 1, file))
             fprintf(stderr, "Read error\n");
     }
@@ -86,13 +86,13 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
     }
 }
 
-Elf32_Shdr * create_ELFTableSection(int nbSection) {
+Elf32_Shdr *create_ELFTableSection(int nbSection) {
     return (Elf32_Shdr *) calloc(sizeof(Elf32_Shdr), nbSection);
 }
 
 void ReadELFTableSection(FILE *file, Elf32_Shdr *shdrTable, int nbSection, int offset) {
     fseek(file, offset, SEEK_SET);
-    for (int i = 0 ; i < nbSection ; i++) {
+    for (int i = 0; i < nbSection; i++) {
         if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error\n");
 
@@ -144,11 +144,11 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
         return;
     }
     int i;
-    char* buff;
+    char *buff;
 
     buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
 
-    if(buff != NULL) {
+    if (buff != NULL) {
         fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset, SEEK_SET);
         if (!fread(buff, 1, shdrTable[ehdr.e_shstrndx].sh_size, file))
             fprintf(stderr, "Read error\n");
@@ -163,8 +163,6 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
         printf("%02x", fgetc(file));
     }
     printf("\n");
-
-
 }
 
 void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
@@ -172,17 +170,17 @@ void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char
 }
 
 
-void PrintELFHeader(Elf32_Ehdr* header) {
+void PrintELFHeader(Elf32_Ehdr *header) {
     printf("ELF File's Header:\n");
     // Ident
     printf("  Ident: ");
-    for(int i = 0; i < EI_NIDENT; i++) {
+    for (int i = 0; i < EI_NIDENT; i++) {
         printf("%.2x ", header->e_ident[i]);
     }
 
     // Class
     printf("\n  Class: \t\t\t\t");
-    switch(header->e_ident[EI_CLASS]) {
+    switch (header->e_ident[EI_CLASS]) {
         case 0:
             printf("ELFNONE");
             break;
@@ -196,7 +194,7 @@ void PrintELFHeader(Elf32_Ehdr* header) {
 
     // Data
     printf("\n  Data: \t\t\t\t");
-    switch(header->e_ident[EI_DATA]) {
+    switch (header->e_ident[EI_DATA]) {
         case ELFDATANONE:
             printf("Invalid data encoding");
             break;
@@ -210,7 +208,7 @@ void PrintELFHeader(Elf32_Ehdr* header) {
 
     // File Version
     printf("\n  Version: \t\t\t\t");
-    if(header->e_ident[EI_VERSION] == EV_NONE) {
+    if (header->e_ident[EI_VERSION] == EV_NONE) {
         printf("%d (invalid)", header->e_ident[EI_VERSION]);
     } else {
         printf("%d (current)", header->e_ident[EI_VERSION]);
@@ -218,7 +216,7 @@ void PrintELFHeader(Elf32_Ehdr* header) {
 
     // File type
     printf("\n  Type: \t\t\t\t");
-    switch(header->e_type) {
+    switch (header->e_type) {
         case ET_NONE:
             printf("NONE (No file type)");
             break;
@@ -244,7 +242,7 @@ void PrintELFHeader(Elf32_Ehdr* header) {
 
     // Required architecture
     printf("\n  Machine: \t\t\t\t");
-    switch(header->e_machine) {
+    switch (header->e_machine) {
         case ET_NONE:
             printf("No machine");
             break;
@@ -273,7 +271,7 @@ void PrintELFHeader(Elf32_Ehdr* header) {
             printf("ARM");
             break;
         default:
-            if(header->e_machine >= 11 && header->e_machine <= 16) {
+            if (header->e_machine >= 11 && header->e_machine <= 16) {
                 printf("RESERVED");
             }
             break;
@@ -321,7 +319,7 @@ void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTab
 
 int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     char sectionName[STR_SIZE];
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         getSectionName(sectionName, file, ehdr, shdrTable, i);
         if (strcmp(sectionName, name) == 0)
             return i;
@@ -411,7 +409,7 @@ void PrintELFTableSection(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     char name[STR_SIZE];
     char type[STR_SIZE];
     char flags[17];
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         getSectionName(name, file, ehdr, shdrTable, i);
         getSectionType(type, shdrTable, i);
         getFlags(flags, shdrTable[i].sh_flags);

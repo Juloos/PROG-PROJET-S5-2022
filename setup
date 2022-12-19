@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 unzip -n elf_linker-1.0.zip
 

@@ -24,7 +24,7 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr);
  * - un entier représentant le nombre de sections
  * Résultat : retourne un pointeur sur un tableau de sections initialiser
  */
-Elf32_Shdr * create_ELFTableSection(int nbSection);
+Elf32_Shdr *create_ELFTableSection(int nbSection);
 
 /**ReadELFTableSection
  * Paramètre : 
@@ -68,7 +68,7 @@ void ReadELFTableSymbols(FILE *file);
  * - un pointeur sur un header d'un fichier ELF
  * Résultat: affiche les informations contenues dans le header
  */
-void PrintELFHeader(Elf32_Ehdr* header);
+void PrintELFHeader(Elf32_Ehdr *header);
 
 /**PrintELFTableSection
  * Paramètres :
