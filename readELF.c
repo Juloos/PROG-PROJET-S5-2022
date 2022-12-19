@@ -16,7 +16,8 @@ int main(int argc, char* argv[]) {
         ReadELFTableSections(file, header, sectionTable);
 //        PrintELFTableSections(file, header, sectionTable);
 
-        PrintELFSectionNum(file, header, sectionTable, 12);
+//        PrintELFSectionNum(file, header, sectionTable, 12);
+//        PrintELFSectionNom(file, header, sectionTable, ".text");
 
         Elf32_Shdr sh_symtab = sectionTable[sectionName2Index(".symtab", file, header, sectionTable)];
         Elf32_Sym *symbolTable = create_ELFTableSymbols(sh_symtab);
