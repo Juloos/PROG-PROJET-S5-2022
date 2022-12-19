@@ -263,6 +263,31 @@ void PrintELFTableSection(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
 }
 
 void ReadELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
+    if (numSection < 0 || numSection >= ehdr.e_shnum) {
+        fprintf(stderr, "Section number out of range\n");
+        return;
+    }
+    int i;
+    char* buff;
+
+    buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
+
+    if(buff != NULL) {
+        fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset, SEEK_SET);
+        if (!fread(buff, 1, shdrTable[ehdr.e_shstrndx].sh_size, file))
+            fprintf(stderr, "Read error\n");
+    }
+
+    fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
+    for (i = 0; i < shdrTable[numSection].sh_size; i++) {
+        if (i % 16 == 0)
+            printf("0x%08x: ", shdrTable[numSection].sh_addr + i);
+        if (i % 4 == 0)
+            printf(" ");
+        printf("%02x", fgetc(file));
+    }
+    printf("\n");
+
 
 }
 
