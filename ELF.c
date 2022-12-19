@@ -87,8 +87,8 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
 }
 
 Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr) {
-    return (Elf32_Shdr * )
-    malloc(sizeof(Elf32_Shdr) * ehdr.e_shnum);
+    return (Elf32_Shdr *)
+            malloc(sizeof(Elf32_Shdr) * ehdr.e_shnum);
 }
 
 void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
@@ -139,37 +139,66 @@ void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     }
 }
 
+void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
+    fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset + shdrTable[numSection].sh_name, SEEK_SET);
+    if (!fread(name, sizeof(char), STR_SIZE, file))
+        fprintf(stderr, "Empty name\n");
+}
 
-void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
-    if (numSection < 0 || numSection >= ehdr.e_shnum) {
-        fprintf(stderr, "Section number out of range\n");
+int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
+    char sectionName[STR_SIZE];
+    for (int i = 0; i < ehdr.e_shnum; i++) {
+        getSectionName(sectionName, file, ehdr, shdrTable, i);
+        if (strcmp(sectionName, name) == 0)
+            return i;
+    }
+    fprintf(stderr, "Section not found '%s'\n", name);
+    return -1;
+}
+
+Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
+    return (Elf32_Sym *) malloc(sh_symtab.sh_size);
+}
+
+void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) {
+    if (sh_symtab.sh_type != SHT_SYMTAB) {
+        fprintf(stderr, "Not a symbol table\n");
         return;
     }
+    fseek(file, sh_symtab.sh_offset, SEEK_SET);
+    int nbEntries = sh_symtab.sh_size / sh_symtab.sh_entsize;
+    for (int i = 0; i < nbEntries; i++) {
+        if (!fread(&symTable[i].st_name, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
 
-    char *buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
+        if (!fread(&symTable[i].st_value, sizeof(Elf32_Addr), 1, file))
+            fprintf(stderr, "Read error\n");
 
-    if (buff != NULL) {
-        fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset, SEEK_SET);
-        if (!fread(buff, 1, shdrTable[ehdr.e_shstrndx].sh_size, file))
+        if (!fread(&symTable[i].st_size, sizeof(Elf32_Word), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_info, sizeof(unsigned char), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_other, sizeof(unsigned char), 1, file))
+            fprintf(stderr, "Read error\n");
+
+        if (!fread(&symTable[i].st_shndx, sizeof(Elf32_Half), 1, file))
             fprintf(stderr, "Read error\n");
     }
 
-    printf("Section %d", numSection);
-    for (int i = 0; i < shdrTable[numSection].sh_size; i++) {
-        if (i % 16 == 0)
-            printf("\n  0x%08x: ", shdrTable[numSection].sh_addr + i);
-        if (i % 4 == 0)
-            printf(" ");
-        printf("%02x", fgetc(file));
+    if (!IS_BIGENDIAN()) {
+        for (int i = 0; i < nbEntries; i++) {
+            SWAPB(&symTable[i].st_name, sizeof(Elf32_Word));
+            SWAPB(&symTable[i].st_value, sizeof(Elf32_Addr));
+            SWAPB(&symTable[i].st_size, sizeof(Elf32_Word));
+            SWAPB(&symTable[i].st_info, sizeof(unsigned char));
+            SWAPB(&symTable[i].st_other, sizeof(unsigned char));
+            SWAPB(&symTable[i].st_shndx, sizeof(Elf32_Half));
+        }
     }
-    printf("\n");
-
-    free(buff);
 }
 
-void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
-    PrintELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
-}
 
 void PrintELFHeader(Elf32_Ehdr *header) {
     printf("ELF File's Header:\n");
@@ -312,66 +341,37 @@ void PrintELFHeader(Elf32_Ehdr *header) {
     printf("\n  Section header string table index: \t%d\n", header->e_shstrndx);
 }
 
-void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
-    fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset + shdrTable[numSection].sh_name, SEEK_SET);
-    if (!fread(name, sizeof(char), STR_SIZE, file))
-        fprintf(stderr, "Empty name\n");
-}
-
-int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
-    char sectionName[STR_SIZE];
-    for (int i = 0; i < ehdr.e_shnum; i++) {
-        getSectionName(sectionName, file, ehdr, shdrTable, i);
-        if (strcmp(sectionName, name) == 0)
-            return i;
-    }
-    fprintf(stderr, "Section not found '%s'\n", name);
-    return -1;
-}
-
-Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
-    return (Elf32_Sym *) malloc(sh_symtab.sh_size);
-}
-
-void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) {
-    if (sh_symtab.sh_type != SHT_SYMTAB) {
-        fprintf(stderr, "Not a symbol table\n");
+void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
+    if (numSection < 0 || numSection >= ehdr.e_shnum) {
+        fprintf(stderr, "Section number out of range\n");
         return;
     }
-    fseek(file, sh_symtab.sh_offset, SEEK_SET);
-    int nbEntries = sh_symtab.sh_size / sh_symtab.sh_entsize;
-    for (int i = 0; i < nbEntries; i++) {
-        if (!fread(&symTable[i].st_name, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
 
-        if (!fread(&symTable[i].st_value, sizeof(Elf32_Addr), 1, file))
-            fprintf(stderr, "Read error\n");
+    char *buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
 
-        if (!fread(&symTable[i].st_size, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&symTable[i].st_info, sizeof(unsigned char), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&symTable[i].st_other, sizeof(unsigned char), 1, file))
-            fprintf(stderr, "Read error\n");
-
-        if (!fread(&symTable[i].st_shndx, sizeof(Elf32_Half), 1, file))
+    if (buff != NULL) {
+        fseek(file, shdrTable[ehdr.e_shstrndx].sh_offset, SEEK_SET);
+        if (!fread(buff, 1, shdrTable[ehdr.e_shstrndx].sh_size, file))
             fprintf(stderr, "Read error\n");
     }
 
-    if (!IS_BIGENDIAN()) {
-        for (int i = 0; i < nbEntries; i++) {
-            SWAPB(&symTable[i].st_name, sizeof(Elf32_Word));
-            SWAPB(&symTable[i].st_value, sizeof(Elf32_Addr));
-            SWAPB(&symTable[i].st_size, sizeof(Elf32_Word));
-            SWAPB(&symTable[i].st_info, sizeof(unsigned char));
-            SWAPB(&symTable[i].st_other, sizeof(unsigned char));
-            SWAPB(&symTable[i].st_shndx, sizeof(Elf32_Half));
-        }
+    char name[STR_SIZE];
+    getSectionName(name, file, ehdr, shdrTable, numSection);
+    printf("Section %d (%s):", numSection, name);
+    for (int i = 0; i < shdrTable[numSection].sh_size; i++) {
+        if (i % 16 == 0)
+            printf("\n  0x%08x ", shdrTable[numSection].sh_addr + i);
+        if (i % 4 == 0)
+            printf(" ");
     }
+    printf("\n");
+
+    free(buff);
 }
 
+void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
+    PrintELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
+}
 
 void getSectionType(char *type, Elf32_Shdr shdr) {
     switch (shdr.sh_type) {
