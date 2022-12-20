@@ -26,47 +26,47 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
 
     for (int i = 0 ; i < EI_NIDENT ; i++) {
         if (!fread(&ehdr->e_ident[i], sizeof(unsigned char), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (header) magic\n");
     }
 
     if (!fread(&ehdr->e_type, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) type\n");
 
     if (!fread(&ehdr->e_machine, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) machine\n");
 
     if (!fread(&ehdr->e_version, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) version\n");
 
     if (!fread(&ehdr->e_entry, sizeof(Elf32_Addr), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) address to which the system first transfers control, thus starting the process\n");
 
     if (!fread(&ehdr->e_phoff, sizeof(Elf32_Off), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) program header table's file\n");
 
     if (!fread(&ehdr->e_shoff, sizeof(Elf32_Off), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) section header table's\n");
 
     if (!fread(&ehdr->e_flags, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) flags\n");
 
     if (!fread(&ehdr->e_ehsize, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) size\n");
 
     if (!fread(&ehdr->e_phentsize, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) size in bytes of one entry in the file's program header table\n");
 
     if (!fread(&ehdr->e_phnum, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) number of entries in the program header table\n");
 
     if (!fread(&ehdr->e_shentsize, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) section header's size\n");
 
     if (!fread(&ehdr->e_shnum, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) number of entries in the section header table\n");
 
     if (!fread(&ehdr->e_shstrndx, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (header) section header table index of the entry associated with the section name string table\n");
 
     if (!IS_BIGENDIAN()) {
         // Not swapping Magic because apparently it's not endian dependent
@@ -95,34 +95,34 @@ void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     fseek(file, ehdr.e_shoff, SEEK_SET);
     for (int i = 0 ; i < ehdr.e_shnum ; i++) {
         if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) name\n");
 
         if (!fread(&shdrTable[i].sh_type, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) type\n");
 
         if (!fread(&shdrTable[i].sh_flags, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) flags\n");
 
         if (!fread(&shdrTable[i].sh_addr, sizeof(Elf32_Addr), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) address at which the section's first byte should reside\n");
 
         if (!fread(&shdrTable[i].sh_offset, sizeof(Elf32_Off), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) value gives the byte offset from the beginning of the file to the first byte in the section\n");
 
         if (!fread(&shdrTable[i].sh_size, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) section's size\n");
 
         if (!fread(&shdrTable[i].sh_link, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) section header table index link\n");
 
         if (!fread(&shdrTable[i].sh_info, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) extra information\n");
 
         if (!fread(&shdrTable[i].sh_addralign, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) address alignment constraints\n");
 
         if (!fread(&shdrTable[i].sh_entsize, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (table section) table of fixed-size entries\n");
 
         if (!IS_BIGENDIAN()) {
             SWAPB(&shdrTable[i].sh_name, sizeof(Elf32_Word));
@@ -152,22 +152,22 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     int nbEntries = sh_symtab.sh_size / sh_symtab.sh_entsize;
     for (int i = 0 ; i < nbEntries ; i++) {
         if (!fread(&symTable[i].st_name, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (TableSymbols) name\n");
 
         if (!fread(&symTable[i].st_value, sizeof(Elf32_Addr), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (TableSymbols) value\n");
 
         if (!fread(&symTable[i].st_size, sizeof(Elf32_Word), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (TableSymbols) size\n");
 
         if (!fread(&symTable[i].st_info, sizeof(unsigned char), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (TableSymbols) information about symbol's type and binding attributes\n");
 
         if (!fread(&symTable[i].st_other, sizeof(unsigned char), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (TableSymbols) no defined meaning\n");
 
         if (!fread(&symTable[i].st_shndx, sizeof(Elf32_Half), 1, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (TableSymbols) the relevant section header table index\n");
     }
 
     if (!IS_BIGENDIAN()) {
@@ -431,7 +431,7 @@ void getSymbolName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTabl
     Elf32_Shdr sh_strtab = shdrTable[sectionName2Index(".strtab", file, ehdr, shdrTable)];
     fseek(file, sh_strtab.sh_offset + symEntry.st_name, SEEK_SET);
     if (!fread(name, sizeof(char), STR_SIZE, file))
-        fprintf(stderr, "Read error\n");
+        fprintf(stderr, "Read error : (getSymbolName)\n");
 }
 
 void getSymbolType(char *type, Elf32_Sym symEntry) {
@@ -630,7 +630,7 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
     if (buff != NULL) {
         fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
         if (!fread(buff, 1, shdrTable[ehdr.e_shstrndx].sh_size, file))
-            fprintf(stderr, "Read error\n");
+            fprintf(stderr, "Read error : (ELFSectionNum)\n");
     }
 
     char name[STR_SIZE];
