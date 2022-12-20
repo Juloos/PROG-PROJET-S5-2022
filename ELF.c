@@ -394,6 +394,9 @@ void getSectionType(char *type, Elf32_Shdr shdr) {
         case SHT_HIUSER:
             strcpy(type, "HIUSER");
             return;
+        case SHT_ARM_ATTRIBUTES:
+            strcpy(type, "ARM_ATTRIBUTES");
+            return;
         default:
             break;
     }
@@ -585,6 +588,37 @@ void PrintELFHeader(Elf32_Ehdr ehdr) {
     printf("\n  Section header string table index: \t%d\n", ehdr.e_shstrndx);
 }
 
+void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
+    printf("Section table headers:\n");
+    printf("  [N°]  Section Name              Type                Addr    Off   Size ES Flg Flg Keys        Lk Inf Al\n");
+    char name[STR_SIZE];
+    char type[STR_SIZE];
+    char flags[16];
+    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+        getSectionName(name, file, ehdr, shdrTable, i);
+        getSectionType(type, shdrTable[i]);
+        getSectionFlags(flags, shdrTable[i]);
+        printf("  [%2d]  %-24.24s  %-14s  %8.8x %6.6x %6.6x %2.2x %3.3x %15s %2d %3d %2d\n", i,
+               name,
+               type,
+               shdrTable[i].sh_addr,
+               shdrTable[i].sh_offset,
+               shdrTable[i].sh_size,
+               shdrTable[i].sh_entsize,
+               shdrTable[i].sh_flags,
+               flags,
+               shdrTable[i].sh_link,
+               shdrTable[i].sh_info,
+               shdrTable[i].sh_addralign
+        );
+    }
+    printf("Key to Flags:\n"
+           "  W: WRITE, A: ALLOC, X: EXECINSTR, M: MERGE, S: STRINGS\n"
+           "  I: INFO_LINK, L: LINK_ORDER, O: OS_NONCONFORMING\n"
+           "  G: GROUP, T: TLS, C: COMPRESSED, o: MASKOS\n"
+           "  p: MASKPROC, g: GNU_RETAIN, R: ORDERED, E: EXCLUDE\n");
+}
+
 void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
     if (numSection < 0 || numSection >= ehdr.e_shnum) {
         fprintf(stderr, "Section number out of range\n");
@@ -635,37 +669,6 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
 
 void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
     PrintELFSectionNum(file, ehdr, shdrTable, sectionName2Index(nomSection, file, ehdr, shdrTable));
-}
-
-void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
-    printf("Section table headers:\n");
-    printf("  [N°]  Section Name              Type          Addr    Off   Size ES Flg Flg Keys        Lk Inf Al\n");
-    char name[STR_SIZE];
-    char type[STR_SIZE];
-    char flags[16];
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
-        getSectionName(name, file, ehdr, shdrTable, i);
-        getSectionType(type, shdrTable[i]);
-        getSectionFlags(flags, shdrTable[i]);
-        printf("  [%2d]  %-24.24s  %-8s  %8.8x %6.6x %6.6x %2.2x %3.3x %15s %2d %3d %2d\n", i,
-               name,
-               type,
-               shdrTable[i].sh_addr,
-               shdrTable[i].sh_offset,
-               shdrTable[i].sh_size,
-               shdrTable[i].sh_entsize,
-               shdrTable[i].sh_flags,
-               flags,
-               shdrTable[i].sh_link,
-               shdrTable[i].sh_info,
-               shdrTable[i].sh_addralign
-        );
-    }
-    printf("Key to Flags:\n"
-           "  W: WRITE, A: ALLOC, X: EXECINSTR, M: MERGE, S: STRINGS\n"
-           "  I: INFO_LINK, L: LINK_ORDER, O: OS_NONCONFORMING\n"
-           "  G: GROUP, T: TLS, C: COMPRESSED, o: MASKOS\n"
-           "  p: MASKPROC, g: GNU_RETAIN, R: ORDERED, E: EXCLUDE\n");
 }
 
 void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable) {

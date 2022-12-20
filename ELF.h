@@ -71,6 +71,17 @@ Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab);
  */
 void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab);
 
+/**getSectionName
+ * Paramètres :
+ * - une chaine de caractères initialisée dans laquelle écrire le nom
+ * - un pointeur sur un fichier ELF
+ * - un header ELF
+ * - un tableau de sections
+ * - le numéro de la section dont on veut le nom
+ * Résultat : le nom de la section (numéro numSection) est écrit dans la chaine de caractères donnée
+ */
+void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection);
+
 /**sectionName2Index
  * Paramètres :
  * - une chaine de caractères initialisée

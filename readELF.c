@@ -11,13 +11,13 @@ int main(int argc, char* argv[]) {
 
         Elf32_Ehdr header;
         ReadELFHeader(file, &header);
-        PrintELFHeader(header);
+//        PrintELFHeader(header);
 
         Elf32_Shdr *sectionTable = create_ELFTableSections(header);
         ReadELFTableSections(file, header, sectionTable);
 //        PrintELFTableSections(file, header, sectionTable);
 
-//        PrintELFSectionNum(file, header, sectionTable, 12);
+        PrintELFSectionNum(file, header, sectionTable, 1);
 //        PrintELFSectionNom(file, header, sectionTable, ".text");
 
         Elf32_Shdr sh_symtab = sectionTable[sectionName2Index(".symtab", file, header, sectionTable)];
