@@ -35,16 +35,6 @@ Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr);
  */
 void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
 
-/**sectionName2Index
- * Paramètres :
- * - une chaine de caractères initialisée
- * - un pointeur sur un fichier ELF
- * - un header ELF
- * - un tableau de sections
- * Résultat : renvoie l'index de la section dont le nom est passé en paramètre
- */
-int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
-
 /**ReadELFSection
  * Paramètres :
  * - un pointeur sur un fichier ELF
@@ -81,12 +71,22 @@ Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab);
  */
 void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab);
 
+/**sectionName2Index
+ * Paramètres :
+ * - une chaine de caractères initialisée
+ * - un pointeur sur un fichier ELF
+ * - un header ELF
+ * - un tableau de sections
+ * Résultat : renvoie l'index de la section dont le nom est passé en paramètre
+ */
+int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
+
 /**PrintELFHeader
  * Paramètres :
- * - un pointeur sur un header d'un fichier ELF
+ * - un header ELF
  * Résultat: affiche les informations contenues dans le header
  */
-void PrintELFHeader(Elf32_Ehdr *header);
+void PrintELFHeader(Elf32_Ehdr ehdr);
 
 /**PrintELFTableSection
  * Paramètres :

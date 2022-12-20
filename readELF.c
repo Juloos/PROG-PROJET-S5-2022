@@ -11,6 +11,7 @@ int main(int argc, char* argv[]) {
 
         Elf32_Ehdr header;
         ReadELFHeader(file, &header);
+        PrintELFHeader(header);
 
         Elf32_Shdr *sectionTable = create_ELFTableSections(header);
         ReadELFTableSections(file, header, sectionTable);

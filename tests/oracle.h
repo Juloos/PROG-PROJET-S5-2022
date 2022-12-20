@@ -21,7 +21,7 @@ void passerNLignes(FILE *file, uint n);
  */
 void lireLigne(FILE *file, char *ligne, size_t tailleLigne);
 
-/**oracleEtapeUn
+/**oracleEtape1
  * Paramètres:
  * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
  * Résultat: vérifie que la fonction readELFHeader retourne le même résultat que la commande readelf -h pour le fichier donnée en paramètre
