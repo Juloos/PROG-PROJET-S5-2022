@@ -15,10 +15,10 @@ void lireLigne(FILE *file, char *ligne, size_t tailleLigne) {
     }
 }
 
-void oracleEtape1(char *fileName) {
-    /* On execute la commande readelf -h fileName et on crée un header avec le résultat */
+void oracleEtape1(char *filename) {
+    /* On execute la commande readelf -h filename et on crée un header avec le résultat */
     char command[STR_SIZE] = "readelf -h ";
-    FILE *resultCommand = popen(strcat(command, fileName), "r");
+    FILE *resultCommand = popen(strcat(command, filename), "r");
     Elf32_Ehdr *headerCommand = malloc(sizeof(Elf32_Ehdr));
 
     // Chaine de caractères pour lire les lignes de resultCommand
@@ -158,7 +158,7 @@ void oracleEtape1(char *fileName) {
     free(ligne);
 
     /* On exécute la fonction readELFHeader pour le fichier en paramètre */
-    FILE *file = fopen(fileName, "r");
+    FILE *file = fopen(filename, "r");
     Elf32_Ehdr *headerProgram = malloc(sizeof(Elf32_Ehdr));
     ReadELFHeader(file, headerProgram);
     fclose(file);
@@ -305,6 +305,7 @@ int main(int argc, char *argv[]) {
     } else {
         for (int i = 1 ; i < argc ; i++) {
             oracleEtape1(argv[i]);
+//            oracleEtape2(argv[i]);
         }
     }
 

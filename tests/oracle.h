@@ -24,8 +24,19 @@ void lireLigne(FILE *file, char *ligne, size_t tailleLigne);
 /**oracleEtape1
  * Paramètres:
  * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
- * Résultat: vérifie que la fonction readELFHeader retourne le même résultat que la commande readelf -h pour le fichier donnée en paramètre
- * affiche un message d'erreur si ce n'est pas le cas
+ * Résultat: vérifie que la fonction ReadELFHeader retourne le même résultat que la commande readelf -h
+ *           pour le fichier donnée en paramètre.
+ * Affiche un message d'erreur si ce n'est pas le cas
  * sinon affiche sucess
  */
-void oracleEtape1(char *fileName);
+void oracleEtape1(char *filename);
+
+/**oracleEtape2
+ * Paramètres:
+ * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
+ * Résultat: vérifie que la fonction ReadELFTableSections retourne le même résultat que la commande readelf -S
+ *           pour le fichier donnée en paramètre.
+ * Affiche un message d'erreur si ce n'est pas le cas.
+ * sinon affiche sucess
+ */
+void oracleEtape2(char *filename);
