@@ -16,13 +16,14 @@ SUBDIRS+=. Examples_fusion
 bin_PROGRAMS=
 bin_PROGRAMS+=Options_and_debug_example
 bin_PROGRAMS+=readELF
-
+bin_PROGRAMS+=oracle
 
 COMMON=debug.h debug.c util.h util.c
 
 EXTRA_DIST=filtre.pl
 Options_and_debug_example_SOURCES=$(COMMON) Options_and_debug_example.c
 readELF_SOURCES=readELF.c ELF.c ELF.h
+oracle_SOURCES=tests/oracle.c tests/oracle.h ELF.c ELF.h
 
 EXTRA_DIST+=
 
