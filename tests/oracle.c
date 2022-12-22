@@ -22,8 +22,7 @@ void oracleEtape1(char *filename) {
     Elf32_Ehdr headerCommand;
 
     // Chaine de caractères pour lire les lignes de resultCommand
-    size_t tailleLigne = sizeof(char) * STR_SIZE;
-    char *ligne = malloc(tailleLigne);
+    char ligne[STR_SIZE];
 
     // Token utilisé lorsqu'on découpé une ligne en tableau
     char *token;
@@ -50,43 +49,41 @@ void oracleEtape1(char *filename) {
     lireLigne(resultCommand, ligne, tailleLigne);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
-    if (strcmp(token, "NONE") == 0) {
+    if (strcmp(token, "NONE") == 0)
         headerCommand.e_type = ET_NONE;
-    } else if (strcmp(token, "REL") == 0) {
+    else if (strcmp(token, "REL") == 0)
         headerCommand.e_type = ET_REL;
-    } else if (strcmp(token, "EXEC") == 0) {
+    else if (strcmp(token, "EXEC") == 0)
         headerCommand.e_type = ET_EXEC;
-    } else if (strcmp(token, "DYN") == 0) {
+    else if (strcmp(token, "DYN") == 0)
         headerCommand.e_type = ET_DYN;
-    } else if (strcmp(token, "CORE") == 0) {
+    else if (strcmp(token, "CORE") == 0)
         headerCommand.e_type = ET_CORE;
-    } else if (strcmp(token, "LOPROC") == 0) {
+    else if (strcmp(token, "LOPROC") == 0)
         headerCommand.e_type = ET_LOPROC;
-    } else if (strcmp(token, "HIPROC") == 0) {
+    else if (strcmp(token, "HIPROC") == 0)
         headerCommand.e_type = ET_HIPROC;
-    }
 
     // Ligne Machine
     lireLigne(resultCommand, ligne, tailleLigne);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
-    if (strcmp(token, "NONE\n") == 0) {
+    if (strcmp(token, "NONE\n") == 0)
         headerCommand.e_machine = ET_NONE;
-    } else if (strcmp(token, "M32\n") == 0) {
+    else if (strcmp(token, "M32\n") == 0)
         headerCommand.e_machine = EM_M32;
-    } else if (strcmp(token, "SPARC\n") == 0) {
+    else if (strcmp(token, "SPARC\n") == 0)
         headerCommand.e_machine = EM_SPARC;
-    } else if (strcmp(token, "386\n") == 0) {
+    else if (strcmp(token, "386\n") == 0)
         headerCommand.e_machine = EM_386;
-    } else if (strcmp(token, "68K\n") == 0) {
+    else if (strcmp(token, "68K\n") == 0)
         headerCommand.e_machine = EM_68K;
-    } else if (strcmp(token, "860\n") == 0) {
+    else if (strcmp(token, "860\n") == 0)
         headerCommand.e_machine = EM_860;
-    } else if (strcmp(token, "MIPS\n") == 0) {
+    else if (strcmp(token, "MIPS\n") == 0)
         headerCommand.e_machine = EM_MIPS;
-    } else if (strcmp(token, "ARM\n") == 0) {
+    else if (strcmp(token, "ARM\n") == 0)
         headerCommand.e_machine = EM_ARM;
-    }
 
     // Ligne Version
     lireLigne(resultCommand, ligne, tailleLigne);
@@ -155,7 +152,6 @@ void oracleEtape1(char *filename) {
     headerCommand.e_shstrndx = atoi(token);
 
     pclose(resultCommand);
-    free(ligne);
 
     /* On exécute la fonction ReadELFHeader pour le fichier en paramètre */
     FILE *file = fopen(filename, "r");
@@ -167,9 +163,8 @@ void oracleEtape1(char *filename) {
     int echec = 0;
     // Champ e_ident
     int i = 0;
-    while (i < EI_NIDENT && headerProgram.e_ident[i] == headerCommand.e_ident[i]) {
+    while (i < EI_NIDENT && headerProgram.e_ident[i] == headerCommand.e_ident[i])
         i++;
-    }
 
     if (i < EI_NIDENT) {
         printf("Erreur sur le champ e_ident\n");
@@ -289,11 +284,10 @@ void oracleEtape1(char *filename) {
         echec = 1;
     }
 
-    if (echec) {
+    if (echec)
         printf("Echec pour l'etape 1\n");
-    } else {
+    else
         printf("Succes pour l'etape 1\n");
-    }
 }
 
 void getSectionFlags2(char *flags, Elf32_Shdr shdr) {
@@ -348,17 +342,15 @@ void oracleEtape2(char *filename) {
 
     Elf32_Shdr shdr[imax];
 
-    char line[STR_SIZE];
-
     // lecture de la taille de chaque colonne
-    int colonnes[10];
-    if (fgets(line, STR_SIZE, resultCommand) == NULL)
+    char buffer[STR_SIZE];
+    if (fgets(buffer, STR_SIZE, resultCommand) == NULL)
         fprintf(stderr, "Erreur de lecture de la ligne des titres\n");
     int espaces[11];
     int iespaces = 0;
     int nb_espace = 0;
-    for (int i = 0 ; i < strlen(line) ; i++) {
-        if (line[i] == ' ')
+    for (int i = 0 ; i < strlen(buffer) ; i++) {
+        if (buffer[i] == ' ')
             nb_espace++;
         else if (nb_espace > 0) {
             espaces[iespaces] = nb_espace;
@@ -366,6 +358,7 @@ void oracleEtape2(char *filename) {
             iespaces++;
         }
     }
+    int colonnes[10];
     colonnes[0] = espaces[2] + 4;  // nb_espace + 4 (à cause de "Name") + 1 (décalage entre colonnes)
     colonnes[1] = espaces[3] + 4;
     colonnes[2] = espaces[4] + 4;
@@ -377,10 +370,7 @@ void oracleEtape2(char *filename) {
     colonnes[8] = espaces[10] + 3;
     colonnes[9] = 2;
 
-    char buffer[STR_SIZE];
-
     int i = 0;
-    int iNULL;
     char names[STR_SIZE][imax];
     char type[STR_SIZE];
     char flags[STR_SIZE][imax];
@@ -389,7 +379,7 @@ void oracleEtape2(char *filename) {
         if (fgets(buffer, 7 + colonnes[0] + 1, resultCommand) == NULL)
             fprintf(stderr, "Read error\n");
         else
-            sscanf(buffer, "  [%d] %s", &iNULL, names[i]);
+            sscanf(buffer, "  [%*[^]]] %s", names[i]);
 
         strcpy(type, "");
         if (fgets(buffer, colonnes[1] + 1, resultCommand) == NULL)
@@ -533,6 +523,187 @@ void oracleEtape2(char *filename) {
         printf("Succes pour l'etape 2\n");
 }
 
+unsigned char Type2symType(char *type) {
+    if (strcmp(type, "NOTYPE") == 0) return STT_NOTYPE;
+    if (strcmp(type, "OBJECT") == 0) return STT_OBJECT;
+    if (strcmp(type, "FUNC") == 0) return STT_FUNC;
+    if (strcmp(type, "SECTION") == 0) return STT_SECTION;
+    if (strcmp(type, "FILE") == 0) return STT_FILE;
+    if (strcmp(type, "LOPROC") == 0) return STT_LOPROC;
+    if (strcmp(type, "HIPROC") == 0) return STT_HIPROC;
+    return STT_NOTYPE;
+}
+
+unsigned char Bind2symBind(char *bind) {
+    if (strcmp(bind, "LOCAL") == 0) return STB_LOCAL;
+    if (strcmp(bind, "GLOBAL") == 0) return STB_GLOBAL;
+    if (strcmp(bind, "WEAK") == 0) return STB_WEAK;
+    if (strcmp(bind, "LOPROC") == 0) return STB_LOPROC;
+    if (strcmp(bind, "HIPROC") == 0) return STB_HIPROC;
+    return STB_LOCAL;
+}
+
+unsigned char Vis2symVis(char *vis) {
+    if (strcmp(vis, "DEFAULT") == 0) return STV_DEFAULT;
+    if (strcmp(vis, "INTERNAL") == 0) return STV_INTERNAL;
+    if (strcmp(vis, "HIDDEN") == 0) return STV_HIDDEN;
+    if (strcmp(vis, "PROTECTED") == 0) return STV_PROTECTED;
+    return STV_DEFAULT;
+}
+
+Elf32_Half Ndx2symNdx(char *ndx) {
+    if (strcmp(ndx, "UND") == 0) return SHN_UNDEF;
+    if (strcmp(ndx, "ABS") == 0) return SHN_ABS;
+    if (strcmp(ndx, "COM") == 0) return SHN_COMMON;
+    return (Elf32_Half) strtol(ndx, NULL, 10);
+}
+
+void oracleEtape4(char *filename) {
+    char command[STR_SIZE] = "readelf -sTW ";
+    FILE *resultCommand = popen(strcat(command, filename), "r");
+
+    int imax;
+    passerNLignes(resultCommand, 1);
+    if (fscanf(resultCommand, "Symbol table '%*[^']' contains %d", &imax) != 1)
+        fprintf(stderr, "Erreur de lecture du nombre d'entrees\n");
+    passerNLignes(resultCommand, 1);
+
+    Elf32_Sym st[imax];
+
+    // lecture de la taille de chaque colonne
+    char buffer[STR_SIZE];
+    if (fgets(buffer, STR_SIZE, resultCommand) == NULL)
+        fprintf(stderr, "Erreur de lecture de la ligne des titres\n");
+    int espaces[8];
+    int iespaces = 0;
+    int nb_espace = 0;
+    for (int i = 0 ; i < strlen(buffer) ; i++) {
+        if (buffer[i] == ' ')
+            nb_espace++;
+        else if (nb_espace > 0) {
+            espaces[iespaces] = nb_espace;
+            nb_espace = 0;
+            iespaces++;
+        }
+    }
+    int colonnes[7];
+    colonnes[0] = 9;
+    colonnes[1] = 6;
+    colonnes[2] = espaces[4] + 4;  // nb_espace + 4 (à cause de "Type")
+    colonnes[3] = espaces[5] + 4;
+    colonnes[4] = espaces[6] + 2;
+    colonnes[5] = 5;
+
+    int i = 0;
+    char type[STR_SIZE];
+    char bind[STR_SIZE];
+    char vis[STR_SIZE];
+    char ndx[STR_SIZE];
+    char names[STR_SIZE][imax];
+    while (i < imax) {
+        if (fgets(buffer, 8 + colonnes[0] + 1, resultCommand) == NULL)
+            fprintf(stderr, "Read error\n");
+        else
+            sscanf(buffer, "%*[^:]: %x", &st[i].st_value);
+
+        if (fgets(buffer, colonnes[1] + 1, resultCommand) == NULL)
+            fprintf(stderr, "Read error\n");
+        else
+            sscanf(buffer, "%d", &st[i].st_size);
+
+        if (fgets(buffer, colonnes[2] + 1, resultCommand) == NULL)
+            fprintf(stderr, "Read error\n");
+        else {
+            sscanf(buffer, "%s", type);
+        }
+
+        if (fgets(buffer, colonnes[3] + 1, resultCommand) == NULL)
+            fprintf(stderr, "Read error\n");
+        else {
+            sscanf(buffer, "%s", bind);
+            st[i].st_info = ELF32_ST_INFO(Bind2symBind(bind), Type2symType(type));
+        }
+
+        if (fgets(buffer, colonnes[4] + 1, resultCommand) == NULL)
+            fprintf(stderr, "Read error\n");
+        else {
+            sscanf(buffer, "%s", vis);
+            st[i].st_other = Vis2symVis(vis);
+        }
+
+        if (fgets(buffer, colonnes[5] + 1, resultCommand) == NULL)
+            fprintf(stderr, "Read error\n");
+        else {
+            sscanf(buffer, "%s", ndx);
+            st[i].st_shndx = Ndx2symNdx(ndx);
+        }
+
+        strcpy(names[i], "");
+        if (fgets(buffer, STR_SIZE, resultCommand) == NULL)
+            fprintf(stderr, "Read error\n");
+        else
+            sscanf(buffer, "%s", names[i]);
+
+        i++;
+    }
+    pclose(resultCommand);
+
+    FILE *file = fopen(filename, "r");
+    Elf32_Ehdr header;
+    ReadELFHeader(file, &header);
+    Elf32_Shdr *shdrProgram = create_ELFTableSections(header);
+    ReadELFTableSections(file, header, shdrProgram);
+    Elf32_Shdr sh_symtab = shdrProgram[sectionName2Index(".symtab", file, header, shdrProgram)];
+    Elf32_Sym *stProgram = create_ELFTableSymbols(sh_symtab);
+    ReadELFTableSymbols(file, stProgram, sh_symtab);
+//    PrintELFTableSymbols(file, header, shdr, stProgram);
+    char name[STR_SIZE];
+    int echec = 0;
+    for (i = 0 ; i < imax ; i++) {
+        getSymbolName(name, file, header, shdrProgram, stProgram[i]);
+        if (strcmp(names[i], name) != 0) {
+            printf("Erreur sur le nom de l'entrée %d\n", i);
+            printf("  nom obtenu avec la commande readelf -s : '%s'\n", names[i]);
+            printf("  nom obtenu avec la fonction ReadELFTableSymbols : '%s'\n\n", name);
+            echec = 1;
+        }
+        if (st[i].st_value != stProgram[i].st_value) {
+            printf("Erreur sur le champ st_value de l'entrée %d\n", i);
+            printf("  st_value obtenu avec la commande readelf -s : %x\n", st[i].st_value);
+            printf("  st_value obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_value);
+            echec = 1;
+        }
+        if (st[i].st_size != stProgram[i].st_size) {
+            printf("Erreur sur le champ st_size de l'entrée %d\n", i);
+            printf("  st_size obtenu avec la commande readelf -s : %x\n", st[i].st_size);
+            printf("  st_size obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_size);
+            echec = 1;
+        }
+        if (st[i].st_info != stProgram[i].st_info) {
+            printf("Erreur sur le champ st_info de l'entrée %d\n", i);
+            printf("  st_info obtenu avec la commande readelf -s : %x\n", st[i].st_info);
+            printf("  st_info obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_info);
+            echec = 1;
+        }
+        if (st[i].st_other != stProgram[i].st_other) {
+            printf("Erreur sur le champ st_other de l'entrée %d\n", i);
+            printf("  st_other obtenu avec la commande readelf -s : %x\n", st[i].st_other);
+            printf("  st_other obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_other);
+            echec = 1;
+        }
+        if (st[i].st_shndx != stProgram[i].st_shndx) {
+            printf("Erreur sur le champ st_shndx de l'entrée %d\n", i);
+            printf("  st_shndx obtenu avec la commande readelf -s : %x\n", st[i].st_shndx);
+            printf("  st_shndx obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_shndx);
+            echec = 1;
+        }
+    }
+    if (echec)
+        printf("Echec pour l'etape 4\n");
+    else
+        printf("Succes pour l'etape 4\n");
+}
+
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
@@ -542,6 +713,7 @@ int main(int argc, char *argv[]) {
             printf("Tests avec le fichier '%s'\n", argv[i]);
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
+            oracleEtape4(argv[i]);
         }
     }
 
