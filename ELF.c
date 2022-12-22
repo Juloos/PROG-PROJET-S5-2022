@@ -590,7 +590,7 @@ void PrintELFHeader(Elf32_Ehdr ehdr) {
 
 void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     printf("Section table headers:\n");
-    printf("  [N°]  Section Name              Type                Addr    Off   Size ES Flg Flg Keys        Lk Inf Al\n");
+    printf("  [N°]  Section Name              Type            Addr     Off    Size   ES Flg Flg Keys        Lk Inf Al\n");
     char name[STR_SIZE];
     char type[STR_SIZE];
     char flags[16];
