@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "/usr/include/elf.h"
+#include "utils.h"
 
-#define STR_SIZE 256
 
 /**ReadELFFile
  * Paramètres :
