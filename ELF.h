@@ -1,8 +1,5 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include "/usr/include/elf.h"
+#include "utils.h"
 
-#define STR_SIZE 256
 
 /**ReadELFFile
  * Paramètres :
@@ -91,6 +88,17 @@ void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTab
  * Résultat : renvoie l'index de la section dont le nom est passé en paramètre
  */
 int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
+
+/**getSymbolName
+ * Paramètres :
+ * - une chaine de caractères initialisée dans laquelle écrire le nom
+ * - un pointeur sur un fichier ELF
+ * - un header ELF
+ * - un tableau de sections
+ * - un élément de la table des symboles
+ * Résultat : le nom de la section (numéro numSection) est écrit dans la chaine de caractères donnée
+ */
+void getSymbolName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym symEntry);
 
 /**PrintELFHeader
  * Paramètres :

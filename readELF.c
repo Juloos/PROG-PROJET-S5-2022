@@ -5,7 +5,7 @@ int main(int argc, char* argv[]) {
     for(int i = 1; i < argc; i++) {
         FILE* file = fopen(argv[i], "r");
         if (file == NULL) {
-            fprintf(stderr, "Error opening file");
+            fprintf(stderr, "Error opening file\n");
             exit(EXIT_FAILURE);
         }
 
