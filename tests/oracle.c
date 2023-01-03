@@ -559,7 +559,7 @@ Elf32_Half Ndx2symNdx(char *ndx) {
 }
 
 void oracleEtape4(char *filename) {
-    char command[STR_SIZE] = "readelf -sTW ";
+    char command[STR_SIZE] = "readelf -sW ";
     FILE *resultCommand = popen(strcat(command, filename), "r");
 
     int imax;
