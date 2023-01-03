@@ -31,7 +31,7 @@ void oracleEtape1(char *filename) {
     passerNLignes(resultCommand, 1);
 
     // Ligne Magic
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     // Découpage de la ligne avec l'espace comme délimiteur
     token = strtok(ligne, ":");
     // On ignore le premier mot
@@ -46,7 +46,7 @@ void oracleEtape1(char *filename) {
     passerNLignes(resultCommand, 5);
 
     // Ligne Type
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     if (strcmp(token, "NONE") == 0)
@@ -65,7 +65,7 @@ void oracleEtape1(char *filename) {
         headerCommand.e_type = ET_HIPROC;
 
     // Ligne Machine
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     if (strcmp(token, "NONE\n") == 0)
@@ -86,67 +86,67 @@ void oracleEtape1(char *filename) {
         headerCommand.e_machine = EM_ARM;
 
     // Ligne Version
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_version = strtol(token, NULL, 16);
 
     // Entry point address
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_entry = strtol(token, NULL, 16);
 
     // Start of program headers
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_phoff = strtol(token, NULL, 16);
 
     // Start of section headers
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_shoff = atoi(token);
 
     // Flags
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_flags = strtol(token, NULL, 16);
 
     // Size of this header
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_ehsize = atoi(token);
 
     // Size of program headers
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_phentsize = atoi(token);
 
     // Number of program headers
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_phnum = atoi(token);
 
     // Size of section headers
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_shentsize = atoi(token);
 
     // Number of section headers
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_shnum = atoi(token);
 
     // Section header string table index
-    lireLigne(resultCommand, ligne, tailleLigne);
+    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_shstrndx = atoi(token);
