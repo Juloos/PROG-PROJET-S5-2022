@@ -711,17 +711,17 @@ void oracleEtape3 (char *filename, char numSection){
     char command[STR_SIZE] = "readelf -x ";
     strcat(command, &numSection);
     strcat(command, filename);
-    FILE *resultCommand = popen(command, "r");
-    Elf32_Ehdr headerCommand;
+    //FILE *resultCommand = popen(command, "r");
+    //Elf32_Ehdr headerCommand;
 // Chaine de caractères pour lire les lignes de resultCommand
-    size_t tailleLigne = sizeof(char) * STR_SIZE;
-    char *ligne = malloc(tailleLigne);
+    //size_t tailleLigne = sizeof(char) * STR_SIZE;
+    //char *ligne = malloc(tailleLigne);
 // Token utilisé lorsqu'on découpé une ligne en tableau
-    char *token;
+    //char *token;
 
-    // On récupere les valeurs de la commande readelf -x nbsection filename
-    // lireLigne(resultCommand, ligne, tailleLigne); pour lire une ligne et l'interpréter
-    // passerNLignes(resultCommand, x); pour passer x lignes
+// On récupere les valeurs de la commande readelf -x nbsection filename
+    //lireLigne(resultCommand, ligne, tailleLigne); //pour lire une ligne et l'interpréter
+    //passerNLignes(resultCommand, x); pour passer x lignes
 
 
 /* On exécute la fonction ReadELFSectionNum pour le fichier en paramètre */
@@ -731,10 +731,10 @@ void oracleEtape3 (char *filename, char numSection){
     Elf32_Shdr *sectionTable = create_ELFTableSections(header);
     ReadELFTableSections(file, header, sectionTable);
 
-    //PrintELFSectionNum(file, header, sectionTable, numSection);
+    PrintELFSectionNum(file, header, sectionTable, numSection);
     char name[STR_SIZE];
     getSectionName(name, file, header, sectionTable, numSection);
-    //PrintELFSectionNom(file, header, sectionTable, name);
+    PrintELFSectionNom(file, header, sectionTable, name);
     fclose(file);
 
 /* On compare les résultats */
