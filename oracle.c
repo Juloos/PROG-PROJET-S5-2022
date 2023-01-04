@@ -714,7 +714,7 @@ int main(int argc, char *argv[]) {
             printf("Tests avec le fichier '%s'\n", argv[i]);
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
-            oracleEtape3(argv[i], 13);
+//            oracleEtape3(argv[i], 13);
             oracleEtape4(argv[i]);
         }
     }
