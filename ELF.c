@@ -697,3 +697,35 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
         );
     }
 }
+void PrintRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr){
+    int shstrndx = ehdr->e_shstrndx;
+    Elf32_Shdr *shstrhdr = &shdr[shstrndx];
+
+    // Get the section header string table
+    char *shstrtab = malloc(shstrhdr->sh_size);
+    fseek(file, shstrhdr->sh_offset, SEEK_SET);
+    if(!fread(shstrtab, shstrhdr->sh_size, 1, file))
+        fprintf(stderr, "Read error\n");
+
+    // Iterate through the section headers and print the relocation sections
+    for (int i = 0; i <= ehdr->e_shnum; i++) {
+        if (shdr[i].sh_type == SHT_REL) {
+            printf("Relocation section '%s' at offset 0x%x contains %d entries:\n",
+                   &shstrtab[shdr[i].sh_name], shdr[i].sh_offset, shdr[i].sh_size / shdr[i].sh_entsize);
+            Elf32_Rel *rel = malloc(shdr[i].sh_size);
+            fseek(file, shdr[i].sh_offset, SEEK_SET);
+            if(!fread(rel, shdr[i].sh_size, 1, file))
+                fprintf(stderr, "Read error\n");
+            printf(" Offset      Info      Type          Sym.value   Sym.name\n");
+            // Iterate through the relocation entries and print them
+            for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
+                printf(" %x  %08x  %x \n", rel[j].r_offset, rel[j].r_info,
+                       ELF32_R_TYPE(rel[j].r_info));
+            }
+
+            free(rel);
+        }
+    }
+
+    free(shstrtab);
+}
