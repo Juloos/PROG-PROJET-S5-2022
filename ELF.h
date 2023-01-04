@@ -16,13 +16,6 @@ void ReadELFFile(FILE *file);
  */
 void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr);
 
-/**create_ELFTableSection
- * Paramètres :
- * - un header ELF
- * Résultat : retourne un pointeur sur un tableau de sections initialisé
- */
-Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr);
-
 /**ReadELFTableSection
  * Paramètre : 
  * - un pointeur sur un fichier ELF
@@ -52,13 +45,6 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
  */
 void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection);
 
-/**create_ELFTableSymbols
- * Paramètres :
- * - la section symbol table
- * Résultat : retourne un pointeur sur un tableau de symboles initialisé
- */
-Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab);
-
 /**ReadELFTableSymbols
  * Paramètres :
  * - un pointeur sur un fichier ELF
@@ -67,38 +53,6 @@ Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab);
  * Résultat : lit la table des symboles du fichier ELF et l'écrit dans la table des symboles donnée
  */
 void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab);
-
-/**getSectionName
- * Paramètres :
- * - une chaine de caractères initialisée dans laquelle écrire le nom
- * - un pointeur sur un fichier ELF
- * - un header ELF
- * - un tableau de sections
- * - le numéro de la section dont on veut le nom
- * Résultat : le nom de la section (numéro numSection) est écrit dans la chaine de caractères donnée
- */
-void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection);
-
-/**sectionName2Index
- * Paramètres :
- * - une chaine de caractères initialisée
- * - un pointeur sur un fichier ELF
- * - un header ELF
- * - un tableau de sections
- * Résultat : renvoie l'index de la section dont le nom est passé en paramètre
- */
-int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
-
-/**getSymbolName
- * Paramètres :
- * - une chaine de caractères initialisée dans laquelle écrire le nom
- * - un pointeur sur un fichier ELF
- * - un header ELF
- * - un tableau de sections
- * - un élément de la table des symboles
- * Résultat : le nom de la section (numéro numSection) est écrit dans la chaine de caractères donnée
- */
-void getSymbolName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym symEntry);
 
 /**PrintELFHeader
  * Paramètres :

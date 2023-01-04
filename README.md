@@ -8,8 +8,8 @@ le fichier Makefile et de compiler le projet.
 
 
 # Execution
-Le programme `./oracle <fichier>` permet de lancer une série de tests sur le fichier passé en paramètre, le(s) fichier(s) donné(s)
-doit être au format ELF32 Big-Endian.
+Le programme `./oracle <fichiers>` permet de lancer une série de tests sur les fichiers passés en paramètre, ces 
+fichiers doivent être au format ELF32 Big-Endian.
 
-Le programme `./readELF <fichier>` permet de lire les fichiers passés en paramètre, au format ELF32 Big-Endian de même,
-et d'afficher le résultat de la lecture sur la sortie standard. 
+Le programme `./readELF <fichiers>` permet de lire les fichiers passés en paramètre, au format ELF32 Big-Endian de même,
+et d'afficher le résultat de la lecture sur la sortie standard.

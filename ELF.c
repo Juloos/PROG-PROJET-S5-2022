@@ -69,11 +69,6 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
     }
 }
 
-Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr) {
-    return (Elf32_Shdr *)
-            malloc(sizeof(Elf32_Shdr) * ehdr.e_shnum);
-}
-
 void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     fseek(file, ehdr.e_shoff, SEEK_SET);
     for (int i = 0 ; i < ehdr.e_shnum ; i++) {
@@ -120,10 +115,6 @@ void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
             SWAPB(&shdrTable[i].sh_entsize, sizeof(Elf32_Word));
         }
     }
-}
-
-Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
-    return (Elf32_Sym *) malloc(sh_symtab.sh_size);
 }
 
 void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) {

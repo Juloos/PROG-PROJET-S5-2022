@@ -8,7 +8,11 @@
 
 int IS_BIGENDIAN();
 
-void SWAPB(void *ptr, size_t size);
+void SWAPB(void *ptr, int size);
+
+Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr);
+
+Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab);
 
 void getHeaderClass(char *class, Elf32_Ehdr ehdr);
 

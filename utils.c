@@ -7,13 +7,22 @@ int IS_BIGENDIAN() {
 }
 
 // This function will help us swap bytes depending on the endianness of the machine
-void SWAPB(void *ptr, size_t size) {
+void SWAPB(void *ptr, int size) {
     char *tmp = malloc(size);
     memcpy(tmp, ptr, size);
     for (int i = 0 ; i < size ; i++) {
         ((char *) ptr)[i] = tmp[size - i - 1];
     }
     free(tmp);
+}
+
+
+Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr) {
+    return (Elf32_Shdr *) malloc(sizeof(Elf32_Shdr) * ehdr.e_shnum);
+}
+
+Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
+    return (Elf32_Sym *) malloc(sh_symtab.sh_size);
 }
 
 void getHeaderClass(char *class, Elf32_Ehdr ehdr) {
