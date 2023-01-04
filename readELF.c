@@ -17,7 +17,10 @@ int main(int argc, char* argv[]) {
         ReadELFTableSections(file, header, sectionTable);
 //        PrintELFTableSections(file, header, sectionTable);
 
-        PrintELFSectionNum(file, header, sectionTable, 1);
+        for (int i = 0; i < header.e_shnum; i++) {
+            PrintELFSectionNum(file, header, sectionTable, i);
+            printf("\n");
+        }
 //        PrintELFSectionNom(file, header, sectionTable, ".text");
 
         Elf32_Shdr sh_symtab = sectionTable[sectionName2Index(".symtab", file, header, sectionTable)];

@@ -258,46 +258,44 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
         return;
     }
 
-    char *buff = malloc(shdrTable[ehdr.e_shstrndx].sh_size);
-
-    if (buff != NULL) {
-        fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
-        if (!fread(buff, 1, shdrTable[ehdr.e_shstrndx].sh_size, file))
-            fprintf(stderr, "Read error : (ELFSectionNum)\n");
-    }
-
     char name[STR_SIZE];
     getSectionName(name, file, ehdr, shdrTable, numSection);
     printf("Section %d (%s):", numSection, name);
 
-    int i;
-    char buff16[17] = "";
-    for (i = 0 ; i < shdrTable[numSection].sh_size ; i++) {
-        if (i % 16 == 0) {
-            if (i != 0)
+    if (shdrTable[numSection].sh_size) {
+        uint8_t buff[shdrTable[numSection].sh_size];
+        fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
+        if (!fread(buff, 1, shdrTable[numSection].sh_size, file))
+            fprintf(stderr, "Read error : (ELFSectionNum)\n");
+
+        int i;
+        uint8_t buff16[17];
+        buff16[16] = 0;
+        for (i = 0 ; i < shdrTable[numSection].sh_size ; i++) {
+            if (i % 16 == 0)
+                printf("\n  0x%.8x ", i);
+            if (i % 4 == 0)
+                printf(" ");
+            printf("%.2x", buff[i]);
+            buff16[i % 16] = (32 <= buff[i] && buff[i] <= 126) ? buff[i] : '.';
+            if (i % 16 == 15)
                 printf("  |%s|", buff16);
-            printf("\n  0x%.8x ", shdrTable[numSection].sh_addr + i);
         }
-        if (i % 4 == 0)
-            printf(" ");
-        printf("%.2x", buff[i]);
-        buff16[i % 16] = buff[i] == 0 ? '.' : buff[i];
-    }
-    while (i % 16 != 0) {
-        if (i % 4 == 0)
-            printf(" ");
-        printf("  ");
-        buff16[i % 16] = ' ';
-        i++;
-    }
+        int j = i;
+        while (j % 16 != 0) {
+            if (j % 4 == 0)
+                printf(" ");
+            printf("  ");
+            buff16[j % 16] = ' ';
+            j++;
+        }
 
-    if (shdrTable[numSection].sh_size == 0)
+        if (i % 16 != 0)
+            printf("  |%s|", buff16);
+    } else
         printf("\n  No data");
-    else
-        printf("  |%s|", buff16);
-    printf("\n");
 
-    free(buff);
+    printf("\n");
 }
 
 void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection) {
