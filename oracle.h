@@ -47,3 +47,13 @@ void oracleEtape2(char *filename);
  * sinon affiche succes
  */
 void oracleEtape4(char *filename);
+
+/**oracleEtape3
+ * Paramètres:
+ * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
+ * - nomSection: le nom de la section à lire
+ * Résultat: vérifie que la fonction readELFTableSections retourne le même résultat que la commande readelf -S pour le fichier donnée en paramètre
+ * affiche un message d'erreur si ce n'est pas le cas
+ * sinon affiche sucess
+ */
+void oracleEtape3 (char *filename, char numSection);

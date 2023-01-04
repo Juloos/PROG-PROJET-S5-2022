@@ -705,6 +705,42 @@ void oracleEtape4(char *filename) {
 }
 
 
+// Oracle pour l'étape 3 ( PrintELFSectionNum et PrintELFSectionNom dans le fichier elf.c )
+void oracleEtape3 (char *filename, char numSection){
+/* On execute la commande readelf -x nbsection filename et on crée un header avec le résultat */
+    char command[STR_SIZE] = "readelf -x ";
+    strcat(command, &numSection);
+    strcat(command, filename);
+    //FILE *resultCommand = popen(command, "r");
+    //Elf32_Ehdr headerCommand;
+// Chaine de caractères pour lire les lignes de resultCommand
+    //size_t tailleLigne = sizeof(char) * STR_SIZE;
+    //char *ligne = malloc(tailleLigne);
+// Token utilisé lorsqu'on découpé une ligne en tableau
+    //char *token;
+
+// On récupere les valeurs de la commande readelf -x nbsection filename
+    //lireLigne(resultCommand, ligne, tailleLigne); //pour lire une ligne et l'interpréter
+    //passerNLignes(resultCommand, x); pour passer x lignes
+
+
+/* On exécute la fonction ReadELFSectionNum pour le fichier en paramètre */
+    FILE *file = fopen(filename, "r");
+    Elf32_Ehdr header;
+    ReadELFHeader(file, &header);
+    Elf32_Shdr *sectionTable = create_ELFTableSections(header);
+    ReadELFTableSections(file, header, sectionTable);
+
+    PrintELFSectionNum(file, header, sectionTable, numSection);
+    char name[STR_SIZE];
+    getSectionName(name, file, header, sectionTable, numSection);
+    PrintELFSectionNom(file, header, sectionTable, name);
+    fclose(file);
+
+/* On compare les résultats */
+
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2) {
         printf("Il faut au moins un fichier de test\n");
@@ -713,6 +749,7 @@ int main(int argc, char *argv[]) {
             printf("Tests avec le fichier '%s'\n", argv[i]);
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
+            oracleEtape3(argv[i], 13);
             oracleEtape4(argv[i]);
         }
     }
