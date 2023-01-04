@@ -279,7 +279,7 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
             printf("%.2x", buff[i]);
             buff16[i % 16] = (32 <= buff[i] && buff[i] <= 126) ? buff[i] : '.';
             if (i % 16 == 15)
-                printf("  |%s|", buff16);
+                printf(" %s", buff16);
         }
         int j = i;
         while (j % 16 != 0) {
@@ -291,7 +291,7 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
         }
 
         if (i % 16 != 0)
-            printf("  |%s|", buff16);
+            printf(" %s", buff16);
     } else
         printf("\n  No data");
 

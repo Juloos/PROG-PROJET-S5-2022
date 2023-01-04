@@ -524,23 +524,27 @@ void oracleEtape2(char *filename) {
 }
 
 // Oracle pour l'étape 3 ( PrintELFSectionNum et PrintELFSectionNom dans le fichier elf.c )
-void oracleEtape3 (char *filename, char numSection){
+void oracleEtape3 (char *filename, int numSection){
 /* On execute la commande readelf -x nbsection filename et on crée un header avec le résultat */
+// On exécute la commande readelf -x nbsection filename et on affiche le résultat dans le terminal
     char command[STR_SIZE] = "readelf -x ";
-    strcat(command, &numSection);
+    char argument[STR_SIZE];
+    sprintf(argument, "%d ", numSection);
+    strcat(command, argument);
     strcat(command, filename);
-    //FILE *resultCommand = popen(command, "r");
-    //Elf32_Ehdr headerCommand;
-// Chaine de caractères pour lire les lignes de resultCommand
-    //size_t tailleLigne = sizeof(char) * STR_SIZE;
-    //char *ligne = malloc(tailleLigne);
-// Token utilisé lorsqu'on découpé une ligne en tableau
-    //char *token;
-
-// On récupere les valeurs de la commande readelf -x nbsection filename
-    //lireLigne(resultCommand, ligne, tailleLigne); //pour lire une ligne et l'interpréter
-    //passerNLignes(resultCommand, x); pour passer x lignes
-
+    printf("%s", command);
+    //tableau contenant le résultat de la commande
+    char result[STR_SIZE];
+    //on exécute la commande
+    FILE *fp = popen(command, "r");
+    //on récupère le résultat
+    if (!fgets(result, STR_SIZE, fp)) {
+        perror("Erreur lors de l'exécution de la commande readelf -x nbsection filename");
+    }else {
+        printf("\nResultat de la commande readelf -x  %s: %s\n\n", argument, result);
+    }
+    //on ferme le fichier
+    pclose(fp);
 
 /* On exécute la fonction ReadELFSectionNum pour le fichier en paramètre */
     FILE *file = fopen(filename, "r");
@@ -548,7 +552,7 @@ void oracleEtape3 (char *filename, char numSection){
     ReadELFHeader(file, &header);
     Elf32_Shdr *sectionTable = create_ELFTableSections(header);
     ReadELFTableSections(file, header, sectionTable);
-
+// On affiche les valeur de la fonction ReadELF
     PrintELFSectionNum(file, header, sectionTable, numSection);
     char name[STR_SIZE];
     getSectionName(name, file, header, sectionTable, numSection);
@@ -714,10 +718,17 @@ int main(int argc, char *argv[]) {
             printf("Tests avec le fichier '%s'\n", argv[i]);
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
-//            oracleEtape3(argv[i], 13);
+            // on parcours toutes les sections du fichier
+            FILE *file = fopen(argv[i], "r");
+            Elf32_Ehdr header;
+            ReadELFHeader(file, &header);
+            Elf32_Shdr *shdr = create_ELFTableSections(header);
+            ReadELFTableSections(file, header, shdr);
+            for (int j = 1 ; j < header.e_shnum ; j++) {
+                oracleEtape3(argv[i], j);
+            }
             oracleEtape4(argv[i]);
         }
     }
-
     return 0;
 }
