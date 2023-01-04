@@ -36,8 +36,16 @@ void getSymbolName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTabl
 
 void getSymbolType(char *type, Elf32_Sym symEntry);
 
+unsigned char Type2symType(char *type);
+
 void getSymbolBind(char *bind, Elf32_Sym symEntry);
+
+unsigned char Bind2symBind(char *bind);
 
 void getSymbolVis(char *visibility, Elf32_Sym symEntry);
 
+unsigned char Vis2symVis(char *vis);
+
 void getSymbolNdx(char *ndx, Elf32_Sym symEntry);
+
+Elf32_Half Ndx2symNdx(char *ndx);

@@ -305,6 +305,17 @@ void getSymbolType(char *type, Elf32_Sym symEntry) {
     strcpy(type, "UNKNOWN");
 }
 
+unsigned char Type2symType(char *type) {
+    if (strcmp(type, "NOTYPE") == 0) return STT_NOTYPE;
+    if (strcmp(type, "OBJECT") == 0) return STT_OBJECT;
+    if (strcmp(type, "FUNC") == 0) return STT_FUNC;
+    if (strcmp(type, "SECTION") == 0) return STT_SECTION;
+    if (strcmp(type, "FILE") == 0) return STT_FILE;
+    if (strcmp(type, "LOPROC") == 0) return STT_LOPROC;
+    if (strcmp(type, "HIPROC") == 0) return STT_HIPROC;
+    return STT_NOTYPE;
+}
+
 void getSymbolBind(char *bind, Elf32_Sym symEntry) {
     switch (ELF32_ST_BIND(symEntry.st_info)) {
         case STB_LOCAL:
@@ -328,6 +339,15 @@ void getSymbolBind(char *bind, Elf32_Sym symEntry) {
     strcpy(bind, "UNKNOWN");
 }
 
+unsigned char Bind2symBind(char *bind) {
+    if (strcmp(bind, "LOCAL") == 0) return STB_LOCAL;
+    if (strcmp(bind, "GLOBAL") == 0) return STB_GLOBAL;
+    if (strcmp(bind, "WEAK") == 0) return STB_WEAK;
+    if (strcmp(bind, "LOPROC") == 0) return STB_LOPROC;
+    if (strcmp(bind, "HIPROC") == 0) return STB_HIPROC;
+    return STB_LOCAL;
+}
+
 void getSymbolVis(char *visibility, Elf32_Sym symEntry) {
     switch (ELF32_ST_VISIBILITY(symEntry.st_other)) {
         case STV_DEFAULT:
@@ -348,6 +368,14 @@ void getSymbolVis(char *visibility, Elf32_Sym symEntry) {
     strcpy(visibility, "UNKNOWN");
 }
 
+unsigned char Vis2symVis(char *vis) {
+    if (strcmp(vis, "DEFAULT") == 0) return STV_DEFAULT;
+    if (strcmp(vis, "INTERNAL") == 0) return STV_INTERNAL;
+    if (strcmp(vis, "HIDDEN") == 0) return STV_HIDDEN;
+    if (strcmp(vis, "PROTECTED") == 0) return STV_PROTECTED;
+    return STV_DEFAULT;
+}
+
 void getSymbolNdx(char *ndx, Elf32_Sym symEntry) {
     switch (symEntry.st_shndx) {
         case SHN_UNDEF:
@@ -363,4 +391,11 @@ void getSymbolNdx(char *ndx, Elf32_Sym symEntry) {
             break;
     }
     sprintf(ndx, "%d", symEntry.st_shndx);
+}
+
+Elf32_Half Ndx2symNdx(char *ndx) {
+    if (strcmp(ndx, "UND") == 0) return SHN_UNDEF;
+    if (strcmp(ndx, "ABS") == 0) return SHN_ABS;
+    if (strcmp(ndx, "COM") == 0) return SHN_COMMON;
+    return (Elf32_Half) strtol(ndx, NULL, 10);
 }

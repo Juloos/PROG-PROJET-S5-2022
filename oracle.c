@@ -523,39 +523,40 @@ void oracleEtape2(char *filename) {
         printf("Succes pour l'etape 2\n");
 }
 
-unsigned char Type2symType(char *type) {
-    if (strcmp(type, "NOTYPE") == 0) return STT_NOTYPE;
-    if (strcmp(type, "OBJECT") == 0) return STT_OBJECT;
-    if (strcmp(type, "FUNC") == 0) return STT_FUNC;
-    if (strcmp(type, "SECTION") == 0) return STT_SECTION;
-    if (strcmp(type, "FILE") == 0) return STT_FILE;
-    if (strcmp(type, "LOPROC") == 0) return STT_LOPROC;
-    if (strcmp(type, "HIPROC") == 0) return STT_HIPROC;
-    return STT_NOTYPE;
-}
+// Oracle pour l'étape 3 ( PrintELFSectionNum et PrintELFSectionNom dans le fichier elf.c )
+void oracleEtape3 (char *filename, char numSection){
+/* On execute la commande readelf -x nbsection filename et on crée un header avec le résultat */
+    char command[STR_SIZE] = "readelf -x ";
+    strcat(command, &numSection);
+    strcat(command, filename);
+    //FILE *resultCommand = popen(command, "r");
+    //Elf32_Ehdr headerCommand;
+// Chaine de caractères pour lire les lignes de resultCommand
+    //size_t tailleLigne = sizeof(char) * STR_SIZE;
+    //char *ligne = malloc(tailleLigne);
+// Token utilisé lorsqu'on découpé une ligne en tableau
+    //char *token;
 
-unsigned char Bind2symBind(char *bind) {
-    if (strcmp(bind, "LOCAL") == 0) return STB_LOCAL;
-    if (strcmp(bind, "GLOBAL") == 0) return STB_GLOBAL;
-    if (strcmp(bind, "WEAK") == 0) return STB_WEAK;
-    if (strcmp(bind, "LOPROC") == 0) return STB_LOPROC;
-    if (strcmp(bind, "HIPROC") == 0) return STB_HIPROC;
-    return STB_LOCAL;
-}
+// On récupere les valeurs de la commande readelf -x nbsection filename
+    //lireLigne(resultCommand, ligne, tailleLigne); //pour lire une ligne et l'interpréter
+    //passerNLignes(resultCommand, x); pour passer x lignes
 
-unsigned char Vis2symVis(char *vis) {
-    if (strcmp(vis, "DEFAULT") == 0) return STV_DEFAULT;
-    if (strcmp(vis, "INTERNAL") == 0) return STV_INTERNAL;
-    if (strcmp(vis, "HIDDEN") == 0) return STV_HIDDEN;
-    if (strcmp(vis, "PROTECTED") == 0) return STV_PROTECTED;
-    return STV_DEFAULT;
-}
 
-Elf32_Half Ndx2symNdx(char *ndx) {
-    if (strcmp(ndx, "UND") == 0) return SHN_UNDEF;
-    if (strcmp(ndx, "ABS") == 0) return SHN_ABS;
-    if (strcmp(ndx, "COM") == 0) return SHN_COMMON;
-    return (Elf32_Half) strtol(ndx, NULL, 10);
+/* On exécute la fonction ReadELFSectionNum pour le fichier en paramètre */
+    FILE *file = fopen(filename, "r");
+    Elf32_Ehdr header;
+    ReadELFHeader(file, &header);
+    Elf32_Shdr *sectionTable = create_ELFTableSections(header);
+    ReadELFTableSections(file, header, sectionTable);
+
+    PrintELFSectionNum(file, header, sectionTable, numSection);
+    char name[STR_SIZE];
+    getSectionName(name, file, header, sectionTable, numSection);
+    PrintELFSectionNom(file, header, sectionTable, name);
+    fclose(file);
+
+/* On compare les résultats */
+
 }
 
 void oracleEtape4(char *filename) {
@@ -704,42 +705,6 @@ void oracleEtape4(char *filename) {
         printf("Succes pour l'etape 4\n");
 }
 
-
-// Oracle pour l'étape 3 ( PrintELFSectionNum et PrintELFSectionNom dans le fichier elf.c )
-void oracleEtape3 (char *filename, char numSection){
-/* On execute la commande readelf -x nbsection filename et on crée un header avec le résultat */
-    char command[STR_SIZE] = "readelf -x ";
-    strcat(command, &numSection);
-    strcat(command, filename);
-    //FILE *resultCommand = popen(command, "r");
-    //Elf32_Ehdr headerCommand;
-// Chaine de caractères pour lire les lignes de resultCommand
-    //size_t tailleLigne = sizeof(char) * STR_SIZE;
-    //char *ligne = malloc(tailleLigne);
-// Token utilisé lorsqu'on découpé une ligne en tableau
-    //char *token;
-
-// On récupere les valeurs de la commande readelf -x nbsection filename
-    //lireLigne(resultCommand, ligne, tailleLigne); //pour lire une ligne et l'interpréter
-    //passerNLignes(resultCommand, x); pour passer x lignes
-
-
-/* On exécute la fonction ReadELFSectionNum pour le fichier en paramètre */
-    FILE *file = fopen(filename, "r");
-    Elf32_Ehdr header;
-    ReadELFHeader(file, &header);
-    Elf32_Shdr *sectionTable = create_ELFTableSections(header);
-    ReadELFTableSections(file, header, sectionTable);
-
-    PrintELFSectionNum(file, header, sectionTable, numSection);
-    char name[STR_SIZE];
-    getSectionName(name, file, header, sectionTable, numSection);
-    PrintELFSectionNom(file, header, sectionTable, name);
-    fclose(file);
-
-/* On compare les résultats */
-
-}
 
 int main(int argc, char *argv[]) {
     if (argc < 2) {
