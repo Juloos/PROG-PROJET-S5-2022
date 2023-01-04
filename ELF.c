@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <gelf.h>
+#include <libelf.h>
 
 // This will help determine the endianness of the machine
 const int BIG_ENDIAN_THROTTLE = 1;
@@ -719,10 +721,12 @@ void PrintRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr){
             printf(" Offset      Info      Type          Sym.value   Sym.name\n");
             // Iterate through the relocation entries and print them
             for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
-                printf(" %x  %08x  %x \n", rel[j].r_offset, rel[j].r_info,
-                       ELF32_R_TYPE(rel[j].r_info));
+                int r = rel[j].r_info;
+                char nombre[20]="";
+                sprintf(nombre,"%x",r);
+                printf(" %08x  %08x     %c            %08x \n", rel[j].r_offset, rel[j].r_info,
+                       nombre[0], ELF32_R_SYM(i));
             }
-
             free(rel);
         }
     }
