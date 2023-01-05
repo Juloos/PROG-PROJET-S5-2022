@@ -37,7 +37,7 @@ void oracleEtape2(char *filename);
  * affiche un message d'erreur si ce n'est pas le cas
  * sinon affiche sucess
  */
-void oracleEtape3 (char *filename, int numSection);
+void oracleEtape3 (char *filename);
 
 /**oracleEtape4
  * Paramètres:

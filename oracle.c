@@ -549,46 +549,83 @@ void oracleEtape2(char *filename) {
         printf("Succes pour l'etape 2\n");
 }
 
-// Oracle pour l'étape 3 ( PrintELFSectionNum et PrintELFSectionNom dans le fichier elf.c )
-void oracleEtape3 (char *filename, int numSection){
-/* On execute la commande readelf -x nbsection filename et on crée un header avec le résultat */
-// On exécute la commande readelf -x nbsection filename et on affiche le résultat dans le terminal
-    char command[STR_SIZE] = "readelf -x ";
-    char comman2[STR_SIZE] = "./readELF -x ";
-    char argument[STR_SIZE];
-    sprintf(argument, "%d ", numSection);
-    strcat(argument, filename);
-    strcat(command, argument);
-    strcat(comman2, argument);
-    printf("%s\n%s\n\n", command, comman2);
-    //tableau contenant le résultat de la commande
-    char result[STR_SIZE];
-    char result2[STR_SIZE];
-    //on exécute la commande
-    FILE *fp = popen(command, "r");
-    FILE *ff = popen(comman2, "r");
-    if (strlen(fgets(result, STR_SIZE, fp)) == 1 || strlen(fgets(result2, STR_SIZE, ff)) == 1) {
-        passerNLignes(fp, 1);
-        passerNLignes(ff, 1);
-        while (fgets(result, STR_SIZE, fp) != NULL) {
-            printf("%s", result);
-        }
-        while (fgets(result2, STR_SIZE, ff) != NULL) {
-            printf("%s", result2);
-        }
-        printf("_____________________________________________\n\n");
-    } else {
-        //on verifie que la ligne commence par "Section";
-        if (strncmp(result, "Section", 7) == 0) {
-            //on affiche le résultat
-            printf("  No Data\n");
+
+void oracleEtape3 (char *filename) {
+    FILE *file = fopen(filename, "r");
+    Elf32_Ehdr header;
+    ReadELFHeader(file, &header);
+    for (int j = 1 ; j < header.e_shnum ; j++) {
+        char command[STR_SIZE] = "readelf -x ";
+        char comman2[STR_SIZE] = "./readELF -x ";
+        char argument[STR_SIZE];
+        sprintf(argument, "%d ", j);
+        strcat(argument, filename);
+        strcat(command, argument);
+        strcat(comman2, argument);
+        printf("%s\n%s\n\n", command, comman2);
+        //tableau contenant le résultat de la commande
+        char result[STR_SIZE];
+        char result2[STR_SIZE];
+        //on exécute la commande
+        FILE *fp = popen(command, "r");
+        FILE *ff = popen(comman2, "r");
+        char zoumzoum[STR_SIZE];
+        char soumzoum[STR_SIZE];
+        if (strlen(fgets(result, STR_SIZE, fp)) == 1 ||
+            strlen(fgets(result2, STR_SIZE, ff)) == 1) { // si la ligne est vide
+            passerNLignes(fp, 1);
+            passerNLignes(ff, 1);
+            while (fgets(result, STR_SIZE, fp) != NULL &&
+                   fgets(result2, STR_SIZE, ff) != NULL) { //on lit le résultat de la commande
+                //on concatene successivement les charactères de la ligne dans le tableau zoumzoum en enlevant les espaces les tabulations et les retours à la ligne
+                int i = 0;
+                int j = 0;
+                while (result[i] != '\0') {
+                    if (result[i] != ' ' && result[i] != '\n') {
+                        zoumzoum[j] = result[i];
+                        j++;
+                    }
+                    i++;
+                }
+                i = 0;
+                j = 0;
+                while (result2[i] != '\0') {
+                    if (result2[i] != ' ' && result2[i] != '\n') {
+                        soumzoum[j] = result2[i];
+                        j++;
+                    }
+                    i++;
+                }
+                printf("%s\n%s\n\n", result, result2);
+                if (strcmp(zoumzoum, soumzoum) != 0) {
+                    printf("Echec pour l'etape 3\n");
+                    printf(" zoumzoum(commande) : %s\n soumzoum(fonction) : %s\n", zoumzoum, soumzoum);
+                    pclose(fp);
+                    pclose(ff);
+                    exit(0);
+                }
+            }
+            printf("_____________________________________________\n\n");
         } else {
-            perror("Erreur lors de l'exécution de la commande readelf -x nbsection filename");
+            //on verifie que la ligne commence par "Section";
+            if (strncmp(result, "Section", 7) == 0 && strncmp(result2, "Section", 7) == 0) {
+                //on affiche le résultat
+                printf("  No Data\n");
+            } else {
+                perror("Erreur lors de l'exécution de la commande readelf -x nbsection filename");
+                return;
+            }
         }
+        if (strcmp(soumzoum, zoumzoum) != 0) {
+            printf("Echec pour l'etape 3\n");
+            printf(" zoumzoum(commande) : %s\n soumzoum(fonction) : %s\n", zoumzoum, soumzoum);
+        } else {
+            printf("Succes pour l'etape 3\n");
+        }
+        //on ferme le fichier
+        pclose(fp);
+        pclose(ff);
     }
-    //on ferme le fichier
-    pclose(fp);
-    pclose(ff);
 }
 
 void oracleEtape4(char *filename) {
@@ -746,15 +783,7 @@ int main(int argc, char *argv[]) {
             printf("Tests avec le fichier '%s'\n", argv[i]);
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
-            // on parcours toutes les sections du fichier
-//            FILE *file = fopen(argv[i], "r");
-//            Elf32_Ehdr header;
-//            ReadELFHeader(file, &header);
-//            Elf32_Shdr *shdr = create_ELFTableSections(header);
-//            ReadELFTableSections(file, header, shdr);
-//            for (int j = 1 ; j < header.e_shnum ; j++) {
-//                oracleEtape3(argv[i], j);
-//            }
+            oracleEtape3(argv[i]);
             oracleEtape4(argv[i]);
         }
     }
