@@ -2,8 +2,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include <gelf.h>
-#include <libelf.h>
+#include <elf.h>
 
 // This will help determine the endianness of the machine
 const int BIG_ENDIAN_THROTTLE = 1;
@@ -13,7 +12,7 @@ const int BIG_ENDIAN_THROTTLE = 1;
 void SWAPB(void *ptr, size_t size) {
     char *tmp = malloc(size);
     memcpy(tmp, ptr, size);
-    for (int i = 0 ; i < size ; i++) {
+    for (int i = 0; i < size; i++) {
         ((char *) ptr)[i] = tmp[size - i - 1];
     }
     free(tmp);
@@ -26,7 +25,7 @@ void ReadELFile(FILE *file) {
 void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
     fseek(file, 0, SEEK_SET);
 
-    for (int i = 0 ; i < EI_NIDENT ; i++) {
+    for (int i = 0; i < EI_NIDENT; i++) {
         if (!fread(&ehdr->e_ident[i], sizeof(unsigned char), 1, file))
             fprintf(stderr, "Read error\n");
     }
@@ -95,7 +94,7 @@ Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr) {
 
 void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     fseek(file, ehdr.e_shoff, SEEK_SET);
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error\n");
 
@@ -152,7 +151,7 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     }
     fseek(file, sh_symtab.sh_offset, SEEK_SET);
     int nbEntries = sh_symtab.sh_size / sh_symtab.sh_entsize;
-    for (int i = 0 ; i < nbEntries ; i++) {
+    for (int i = 0; i < nbEntries; i++) {
         if (!fread(&symTable[i].st_name, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error\n");
 
@@ -173,7 +172,7 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     }
 
     if (!IS_BIGENDIAN()) {
-        for (int i = 0 ; i < nbEntries ; i++) {
+        for (int i = 0; i < nbEntries; i++) {
             SWAPB(&symTable[i].st_name, sizeof(Elf32_Word));
             SWAPB(&symTable[i].st_value, sizeof(Elf32_Addr));
             SWAPB(&symTable[i].st_size, sizeof(Elf32_Word));
@@ -337,7 +336,7 @@ void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTab
 
 int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     char sectionName[STR_SIZE];
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         getSectionName(sectionName, file, ehdr, shdrTable, i);
         if (strcmp(sectionName, name) == 0)
             return i;
@@ -529,7 +528,7 @@ void getSymbolNdx(char *ndx, Elf32_Sym symEntry) {
 void PrintELFHeader(Elf32_Ehdr ehdr) {
     printf("ELF File's Header:");
     printf("\n  Ident: ");
-    for (int i = 0 ; i < EI_NIDENT ; i++) {
+    for (int i = 0; i < EI_NIDENT; i++) {
         printf("%.2x ", ehdr.e_ident[i]);
     }
 
@@ -596,7 +595,7 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     char name[STR_SIZE];
     char type[STR_SIZE];
     char flags[16];
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         getSectionName(name, file, ehdr, shdrTable, i);
         getSectionType(type, shdrTable[i]);
         getSectionFlags(flags, shdrTable[i]);
@@ -641,7 +640,7 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
 
     int i;
     char buff16[17] = "";
-    for (i = 0 ; i < shdrTable[numSection].sh_size ; i++) {
+    for (i = 0; i < shdrTable[numSection].sh_size; i++) {
         if (i % 16 == 0) {
             if (i != 0)
                 printf("  |%s|", buff16);
@@ -682,7 +681,7 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
     char vis[STR_SIZE];
     char ndx[STR_SIZE];
     Elf32_Shdr sh_symtab = shdrTable[sectionName2Index(".symtab", file, ehdr, shdrTable)];
-    for (int i = 0 ; i < sh_symtab.sh_size / sh_symtab.sh_entsize ; i++) {
+    for (int i = 0; i < sh_symtab.sh_size / sh_symtab.sh_entsize; i++) {
         getSymbolName(name, file, ehdr, shdrTable, symTable[i]);
         getSymbolType(type, symTable[i]);
         getSymbolBind(bind, symTable[i]);
@@ -700,58 +699,74 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
     }
 }
 
-char *getSymType(char c){
-    switch(c){
-        case 'd':
-            return "R_ARM_JUMP_24";
-        case '2':
-            return "R_ARM_ABS_32";
-        case 'c':
-            return "R_ARM_CALL";
-        case '4':
-            return "ARM_ABS_8";
+void getSymType(char *type, Elf32_Rel rel) {
+    switch (ELF32_R_TYPE(rel.r_info)) {
+        case R_ARM_NONE:
+            strcpy(type, "R_ARM_NONE");
+            return;
+        case R_ARM_JUMP24:
+            strcpy(type, "R_ARM_JUMP24");
+            return;
+        case R_ARM_ABS32:
+            strcpy(type, "R_ARM_ABS32");
+            return;
+        case R_ARM_CALL:
+            strcpy(type, "R_ARM_CALL");
+            return;
         default:
-            return strcat(" ",&c);
+            break;
     }
+    strcpy(type, "UNKNOWN");
 }
-void PrintRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable){
-    int shstrndx = ehdr->e_shstrndx;
-    Elf32_Shdr *shstrhdr = &shdr[shstrndx];
 
-    // Get the section header string table
-    char *shstrtab = malloc(shstrhdr->sh_size);
-    fseek(file, shstrhdr->sh_offset, SEEK_SET);
-    if(!fread(shstrtab, shstrhdr->sh_size, 1, file))
-        fprintf(stderr, "Read error\n");
+Elf32_Rel * create_ELFTableRel(Elf32_Shdr shdr) {
+    return (Elf32_Rel *) malloc(shdr.sh_size);
+}
+
+void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable) {
+    char name[STR_SIZE];
+    char type[STR_SIZE];
 
     // Iterate through the section headers and print the relocation sections
     for (int i = 0; i <= ehdr->e_shnum; i++) {
         if (shdr[i].sh_type == SHT_REL) {
+            strcpy(name, "");
+            getSectionName(name, file, *ehdr, shdr, i);
             printf("Relocation section '%s' at offset 0x%x contains %d entries:\n",
-                   &shstrtab[shdr[i].sh_name], shdr[i].sh_offset, shdr[i].sh_size / shdr[i].sh_entsize);
-            Elf32_Rel *rel = malloc(shdr[i].sh_size);
+                   name, shdr[i].sh_offset, shdr[i].sh_size / shdr[i].sh_entsize);
+
+            Elf32_Rel *relTable = create_ELFTableRel(shdr[i]);
             fseek(file, shdr[i].sh_offset, SEEK_SET);
-            if(!fread(rel, shdr[i].sh_size, 1, file))
-                fprintf(stderr, "Read error\n");
             printf(" Offset      Info         Type          Sym.value   Sym.name\n");
-            char name[STR_SIZE]="";
+            strcpy(name, "");
             // Iterate through the relocation entries and print them
             for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
-                int r = rel[j].r_info;
-                char nombre[STR_SIZE]="";
-                sprintf(nombre,"%x",r);
-                if(nombre[0]=='1'){
-                    nombre[0]=nombre[1];
+
+                if (!fread(&relTable[j].r_offset, sizeof(Elf32_Addr), 1, file))
+                    fprintf(stderr, "Read error : PrintELFRelocationTable\n");
+
+                if (!fread(&relTable[j].r_info, sizeof(Elf32_Word), 1, file))
+                    fprintf(stderr, "Read error : PrintELFRelocationTable\n");
+
+                if (!IS_BIGENDIAN()) {
+                    SWAPB(&relTable[j].r_offset, sizeof(Elf32_Addr));
+                    SWAPB(&relTable[j].r_info, sizeof(Elf32_Word));
                 }
-                strcpy(name,"");
-                r = (r << 8) >> 24;
-                getSymbolName(name, file, *ehdr, shdr, symTable[r]);
-                printf(" %08x  %08x    %s      %08x    %s\n", rel[j].r_offset, rel[j].r_info,
-                       getSymType(nombre[0]), symTable[r].st_value, name);
+
+                int rsym = ELF32_R_SYM(relTable[j].r_info);
+                strcpy(name, "");
+                getSymbolName(name, file, *ehdr, shdr, symTable[rsym]);
+                strcpy(type, "");
+                getSymType(type, relTable[j]);
+                printf(" %.8x  %.8x    %s      %.8x    %s\n",
+                       relTable[j].r_offset,
+                       relTable[j].r_info,
+                       type,
+                       symTable[rsym].st_value,
+                       name);
             }
-            free(rel);
+
+            free(relTable);
         }
     }
-
-    free(shstrtab);
 }

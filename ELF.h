@@ -128,5 +128,6 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
  * Résultat : affiche sur la sortie standard le contenu de la table des symboles
  */
 void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);
-char *getSymType(char c);
-void PrintRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr,Elf32_Sym *symTable);
+
+void getSymType(char *type, Elf32_Rel rel);
+void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr,Elf32_Sym *symTable);
