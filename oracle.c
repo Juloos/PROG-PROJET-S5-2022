@@ -61,6 +61,8 @@ void oracleEtape1(char *filename) {
         headerCommand.e_type = ET_LOPROC;
     else if (strcmp(token, "HIPROC") == 0)
         headerCommand.e_type = ET_HIPROC;
+    else
+        headerCommand.e_type = ET_NONE;
 
     // Ligne Machine
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
@@ -84,6 +86,8 @@ void oracleEtape1(char *filename) {
         headerCommand.e_machine = EM_MIPS;
     else if (strcmp(token, "ARM\n") == 0)
         headerCommand.e_machine = EM_ARM;
+    else
+        headerCommand.e_machine = ET_NONE;
 
     // Ligne Version
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
@@ -202,21 +206,21 @@ void oracleEtape1(char *filename) {
         echec = 1;
     }
 
-//    // Champ e_type
-//    if (headerProgram.e_type != headerCommand.e_type) {
-//        printf("Erreur sur le champ e_type\n");
-//        printf("  e_type obtenu avec la commande readelf -h : %d\n", headerCommand.e_type);
-//        printf("  e_type obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_type);
-//        echec = 1;
-//    }
-//
-//    // Champ e_machine
-//    if (headerProgram.e_machine != headerCommand.e_machine) {
-//        printf("Erreur sur le champ e_machine\n");
-//        printf("  e_machine obtenu avec la commande readelf -h : %d\n", headerCommand.e_machine);
-//        printf("  e_machine obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_machine);
-//        echec = 1;
-//    }
+    // Champ e_type
+    if (headerProgram.e_type != headerCommand.e_type) {
+        printf("Erreur sur le champ e_type\n");
+        printf("  e_type obtenu avec la commande readelf -h : %d\n", headerCommand.e_type);
+        printf("  e_type obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_type);
+        echec = 1;
+    }
+
+    // Champ e_machine
+    if (headerProgram.e_machine != headerCommand.e_machine) {
+        printf("Erreur sur le champ e_machine\n");
+        printf("  e_machine obtenu avec la commande readelf -h : %d\n", headerCommand.e_machine);
+        printf("  e_machine obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_machine);
+        echec = 1;
+    }
 
     // Champ e_version
     if (headerProgram.e_version != headerCommand.e_version) {
@@ -550,39 +554,41 @@ void oracleEtape3 (char *filename, int numSection){
 /* On execute la commande readelf -x nbsection filename et on crée un header avec le résultat */
 // On exécute la commande readelf -x nbsection filename et on affiche le résultat dans le terminal
     char command[STR_SIZE] = "readelf -x ";
+    char comman2[STR_SIZE] = "./readELF -x ";
     char argument[STR_SIZE];
     sprintf(argument, "%d ", numSection);
+    strcat(argument, filename);
     strcat(command, argument);
-    strcat(command, filename);
-    printf("%s", command);
+    strcat(comman2, argument);
+    printf("%s\n%s\n\n", command, comman2);
     //tableau contenant le résultat de la commande
     char result[STR_SIZE];
+    char result2[STR_SIZE];
     //on exécute la commande
     FILE *fp = popen(command, "r");
-    //on récupère le résultat
-    if (!fgets(result, STR_SIZE, fp)) {
-        perror("Erreur lors de l'exécution de la commande readelf -x nbsection filename");
+    FILE *ff = popen(comman2, "r");
+    if (strlen(fgets(result, STR_SIZE, fp)) == 1 || strlen(fgets(result2, STR_SIZE, ff)) == 1) {
+        passerNLignes(fp, 1);
+        passerNLignes(ff, 1);
+        while (fgets(result, STR_SIZE, fp) != NULL) {
+            printf("%s", result);
+        }
+        while (fgets(result2, STR_SIZE, ff) != NULL) {
+            printf("%s", result2);
+        }
+        printf("_____________________________________________\n\n");
     } else {
-        printf("\nResultat de la commande readelf -x  %s: %s\n\n", argument, result);
+        //on verifie que la ligne commence par "Section";
+        if (strncmp(result, "Section", 7) == 0) {
+            //on affiche le résultat
+            printf("  No Data\n");
+        } else {
+            perror("Erreur lors de l'exécution de la commande readelf -x nbsection filename");
+        }
     }
     //on ferme le fichier
     pclose(fp);
-
-/* On exécute la fonction ReadELFSectionNum pour le fichier en paramètre */
-    FILE *file = fopen(filename, "r");
-    Elf32_Ehdr header;
-    ReadELFHeader(file, &header);
-    Elf32_Shdr *sectionTable = create_ELFTableSections(header);
-    ReadELFTableSections(file, header, sectionTable);
-// On affiche les valeur de la fonction ReadELF
-    PrintELFSectionNum(file, header, sectionTable, numSection);
-    char name[STR_SIZE];
-    getSectionName(name, file, header, sectionTable, numSection);
-    PrintELFSectionNom(file, header, sectionTable, name);
-    fclose(file);
-
-/* On compare les résultats */
-
+    pclose(ff);
 }
 
 void oracleEtape4(char *filename) {

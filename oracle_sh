@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ $# -ne 1 ];
+then
+  echo "Il faut un fichier pour utiliser cet oracle"
+  exit 1
+fi
+
+readelf -r $1 > resultatCommande.txt
+
+./readELF 5 $1 > resultatProgramme.txt
+
+python3 oracleEtape5.py resultatCommande.txt resultatProgramme.txt
+
+rm resultatCommande.txt
+rm resultatProgramme.txt
