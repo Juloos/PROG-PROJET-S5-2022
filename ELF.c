@@ -364,10 +364,10 @@ void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
                 fprintf(stderr, "Write error : (LinkELFRenumSections) section %d of input1\n", i);
         }
 
-        strcpy(name1, "");
-        getSectionName(name1, input1, ehdr1, shdrTable1, i);
-
         if (shdrTable1[i].sh_type == SHT_PROGBITS) {
+            strcpy(name1, "");
+            getSectionName(name1, input1, ehdr1, shdrTable1, i);
+
             for (int j = 1 ; j < ehdr2.e_shnum ; j++) {
                 strcpy(name2, "");
                 getSectionName(name2, input2, ehdr2, shdrTable2, j);

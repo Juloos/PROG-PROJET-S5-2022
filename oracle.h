@@ -9,15 +9,6 @@
  */
 void passerNLignes(FILE *file, uint n);
 
-/**lireLigne
- * Paramètres:
- * - file: un pointeur sur un fichier en mode lecture
- * - ligne: une chaine de caractères
- * - tailleLigne: la taille de ligne
- * Résultat: le contenu de la ligne lue dans le fichier est mis dans le paramètre ligne
- */
-void lireLigne(FILE *file, char *ligne, size_t tailleLigne);
-
 /**oracleEtape1
  * Paramètres:
  * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
@@ -38,16 +29,6 @@ void oracleEtape1(char *filename);
  */
 void oracleEtape2(char *filename);
 
-/**oracleEtape4
- * Paramètres:
- * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
- * Résultat: vérifie que la fonction ReadELFTableSymbols retourne le même résultat que la commande readelf -s
- *           pour le fichier donnée en paramètre.
- * Affiche un message d'erreur si ce n'est pas le cas.
- * sinon affiche succes
- */
-void oracleEtape4(char *filename);
-
 /**oracleEtape3
  * Paramètres:
  * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
@@ -57,3 +38,13 @@ void oracleEtape4(char *filename);
  * sinon affiche sucess
  */
 void oracleEtape3 (char *filename, int numSection);
+
+/**oracleEtape4
+ * Paramètres:
+ * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
+ * Résultat: vérifie que la fonction ReadELFTableSymbols retourne le même résultat que la commande readelf -s
+ *           pour le fichier donnée en paramètre.
+ * Affiche un message d'erreur si ce n'est pas le cas.
+ * sinon affiche succes
+ */
+void oracleEtape4(char *filename);
