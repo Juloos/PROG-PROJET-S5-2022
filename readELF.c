@@ -24,7 +24,7 @@ int main(int argc, char* argv[]) {
         Elf32_Sym *symbolTable = create_ELFTableSymbols(sh_symtab);
         ReadELFTableSymbols(file, symbolTable, sh_symtab);
 //        PrintELFTableSymbols(file, header, sectionTable, symbolTable);
-        PrintRelocationTable(file, &header, sectionTable);
+        PrintRelocationTable(file, &header, sectionTable, symbolTable);
         free(sectionTable);
         free(symbolTable);
     }

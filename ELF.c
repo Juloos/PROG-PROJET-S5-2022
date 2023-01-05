@@ -699,7 +699,22 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
         );
     }
 }
-void PrintRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr){
+
+char *getSymType(char c){
+    switch(c){
+        case 'd':
+            return "R_ARM_JUMP_24";
+        case '2':
+            return "R_ARM_ABS_32";
+        case 'c':
+            return "R_ARM_CALL";
+        case '4':
+            return "ARM_ABS_8";
+        default:
+            return strcat(" ",&c);
+    }
+}
+void PrintRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable){
     int shstrndx = ehdr->e_shstrndx;
     Elf32_Shdr *shstrhdr = &shdr[shstrndx];
 
@@ -718,14 +733,21 @@ void PrintRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr){
             fseek(file, shdr[i].sh_offset, SEEK_SET);
             if(!fread(rel, shdr[i].sh_size, 1, file))
                 fprintf(stderr, "Read error\n");
-            printf(" Offset      Info      Type          Sym.value   Sym.name\n");
+            printf(" Offset      Info         Type          Sym.value   Sym.name\n");
+            char name[STR_SIZE]="";
             // Iterate through the relocation entries and print them
             for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
                 int r = rel[j].r_info;
-                char nombre[20]="";
+                char nombre[STR_SIZE]="";
                 sprintf(nombre,"%x",r);
-                printf(" %08x  %08x     %c            %08x \n", rel[j].r_offset, rel[j].r_info,
-                       nombre[0], ELF32_R_SYM(i));
+                if(nombre[0]=='1'){
+                    nombre[0]=nombre[1];
+                }
+                strcpy(name,"");
+                r = (r << 8) >> 24;
+                getSymbolName(name, file, *ehdr, shdr, symTable[r]);
+                printf(" %08x  %08x    %s      %08x    %s\n", rel[j].r_offset, rel[j].r_info,
+                       getSymType(nombre[0]), symTable[r].st_value, name);
             }
             free(rel);
         }
