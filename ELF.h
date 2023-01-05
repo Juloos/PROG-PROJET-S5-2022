@@ -80,6 +80,10 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
  */
 void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);
 
+void getSymType(char *type, Elf32_Rel rel);
+void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr,Elf32_Sym *symTable);
+
+
 /**LinkELFRenumSections
  * Paramètres :
  * - un premier pointeur sur un fichier ELF
@@ -88,4 +92,3 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
  * Résultat : affiche dans le fichier de sortie la fusion et renumerotation des sections des 2 fichiers ELF d'entree
  */
 void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output);
-

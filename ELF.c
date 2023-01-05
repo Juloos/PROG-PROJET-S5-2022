@@ -329,6 +329,78 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
     }
 }
 
+void getSymType(char *type, Elf32_Rel rel) {
+    switch (ELF32_R_TYPE(rel.r_info)) {
+        case R_ARM_NONE:
+            strcpy(type, "R_ARM_NONE");
+            return;
+        case R_ARM_JUMP24:
+            strcpy(type, "R_ARM_JUMP24");
+            return;
+        case R_ARM_ABS32:
+            strcpy(type, "R_ARM_ABS32");
+            return;
+        case R_ARM_CALL:
+            strcpy(type, "R_ARM_CALL");
+            return;
+        default:
+            break;
+    }
+    strcpy(type, "UNKNOWN");
+}
+
+Elf32_Rel * create_ELFTableRel(Elf32_Shdr shdr) {
+    return (Elf32_Rel *) malloc(shdr.sh_size);
+}
+
+void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable) {
+    char name[STR_SIZE];
+    char type[STR_SIZE];
+
+    // Iterate through the section headers and print the relocation sections
+    for (int i = 0; i <= ehdr->e_shnum; i++) {
+        if (shdr[i].sh_type == SHT_REL) {
+            strcpy(name, "");
+            getSectionName(name, file, *ehdr, shdr, i);
+            printf("Relocation section '%s' at offset 0x%x contains %d entries:\n",
+                   name, shdr[i].sh_offset, shdr[i].sh_size / shdr[i].sh_entsize);
+
+            Elf32_Rel *relTable = create_ELFTableRel(shdr[i]);
+            printf(" Offset      Info         Type          Sym.value   Sym.name\n");
+            strcpy(name, "");
+            // Iterate through the relocation entries and print them
+            for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
+                fseek(file, shdr[i].sh_offset + j * sizeof(Elf32_Rel), SEEK_SET);
+                if (!fread(&relTable[j].r_offset, sizeof(Elf32_Addr), 1, file))
+                    fprintf(stderr, "Read error : PrintELFRelocationTable\n");
+                if (!fread(&relTable[j].r_info, sizeof(Elf32_Word), 1, file))
+                    fprintf(stderr, "Read error : PrintELFRelocationTable\n");
+
+
+                if (!IS_BIGENDIAN()) {
+                    SWAPB(&relTable[j].r_offset, sizeof(Elf32_Addr));
+                    SWAPB(&relTable[j].r_info, sizeof(Elf32_Word));
+                }
+
+                int rsym = ELF32_R_SYM(relTable[j].r_info);
+
+                strcpy(name, "");
+                getSymbolName(name, file, *ehdr, shdr, symTable[rsym]);
+                strcpy(type, "");
+                getSymType(type, relTable[j]);
+                printf(" %.8x  %.8x    %s      %.8x    %s\n",
+                       relTable[j].r_offset,
+                       relTable[j].r_info,
+                       type,
+                       symTable[rsym].st_value,
+                       name);
+            }
+
+            free(relTable);
+        }
+    }
+}
+
 
 void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
     Elf32_Ehdr ehdr1, ehdr2;

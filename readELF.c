@@ -35,7 +35,6 @@ int main(int argc, char* argv[]) {
             exit(EXIT_FAILURE);
         }
 
-
         Elf32_Ehdr header;
         ReadELFHeader(file, &header);
         if(!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_HEADER)) {
