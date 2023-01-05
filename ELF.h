@@ -25,6 +25,7 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr);
  */
 void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
 
+
 /**ReadELFSection
  * Paramètres :
  * - un pointeur sur un fichier ELF
@@ -80,8 +81,7 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
  */
 void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);
 
-void getSymType(char *type, Elf32_Rel rel);
-void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr,Elf32_Sym *symTable);
+void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable);
 
 
 /**LinkELFRenumSections

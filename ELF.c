@@ -329,30 +329,6 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
     }
 }
 
-void getSymType(char *type, Elf32_Rel rel) {
-    switch (ELF32_R_TYPE(rel.r_info)) {
-        case R_ARM_NONE:
-            strcpy(type, "R_ARM_NONE");
-            return;
-        case R_ARM_JUMP24:
-            strcpy(type, "R_ARM_JUMP24");
-            return;
-        case R_ARM_ABS32:
-            strcpy(type, "R_ARM_ABS32");
-            return;
-        case R_ARM_CALL:
-            strcpy(type, "R_ARM_CALL");
-            return;
-        default:
-            break;
-    }
-    strcpy(type, "UNKNOWN");
-}
-
-Elf32_Rel * create_ELFTableRel(Elf32_Shdr shdr) {
-    return (Elf32_Rel *) malloc(shdr.sh_size);
-}
-
 void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable) {
     char name[STR_SIZE];
     char type[STR_SIZE];

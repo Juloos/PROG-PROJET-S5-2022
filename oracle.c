@@ -1,13 +1,5 @@
 #include "oracle.h"
 
-void passerNLignes(FILE *file, uint n) {
-    char ligne[200];
-    for (int i = 0 ; i < n ; i++) {
-        if (!fgets(ligne, sizeof(ligne), file)) {
-            printf("Erreur lors de la lecture\n");
-        }
-    }
-}
 
 void oracleEtape1(char *filename) {
     /* On execute la commande readelf -h filename et on crée un header avec le résultat */
@@ -314,47 +306,6 @@ void oracleEtape1(char *filename) {
         printf("Echec pour l'etape 1\n");
     else
         printf("Succes pour l'etape 1\n");
-}
-
-void getSectionFlags2(char *flags, Elf32_Shdr shdr) {
-    strcpy(flags, "");
-    Elf32_Word sh_flags = shdr.sh_flags;
-    strcat(flags, sh_flags & SHF_WRITE ? "W" : "");
-    strcat(flags, sh_flags & SHF_ALLOC ? "A" : "");
-    strcat(flags, sh_flags & SHF_EXECINSTR ? "X" : "");
-    strcat(flags, sh_flags & SHF_MERGE ? "M" : "");
-    strcat(flags, sh_flags & SHF_STRINGS ? "S" : "");
-    strcat(flags, sh_flags & SHF_INFO_LINK ? "I" : "");
-    strcat(flags, sh_flags & SHF_LINK_ORDER ? "L" : "");
-    strcat(flags, sh_flags & SHF_OS_NONCONFORMING ? "O" : "");
-    strcat(flags, sh_flags & SHF_GROUP ? "G" : "");
-    strcat(flags, sh_flags & SHF_TLS ? "T" : "");
-    strcat(flags, sh_flags & SHF_COMPRESSED ? "C" : "");
-    strcat(flags, sh_flags & SHF_MASKOS ? "o" : "");
-    strcat(flags, sh_flags & SHF_MASKPROC ? "p" : "");
-    strcat(flags, sh_flags & SHF_ORDERED ? "R" : "");
-    strcat(flags, sh_flags & SHF_EXCLUDE ? "E" : "");
-}
-
-Elf32_Word Type2shType(char *type) {
-    if (strcmp(type, "NULL") == 0) return SHT_NULL;
-    if (strcmp(type, "PROGBITS") == 0) return SHT_PROGBITS;
-    if (strcmp(type, "SYMTAB") == 0) return SHT_SYMTAB;
-    if (strcmp(type, "STRTAB") == 0) return SHT_STRTAB;
-    if (strcmp(type, "RELA") == 0) return SHT_RELA;
-    if (strcmp(type, "HASH") == 0) return SHT_HASH;
-    if (strcmp(type, "DYNAMIC") == 0) return SHT_DYNAMIC;
-    if (strcmp(type, "NOTE") == 0) return SHT_NOTE;
-    if (strcmp(type, "NOBITS") == 0) return SHT_NOBITS;
-    if (strcmp(type, "REL") == 0) return SHT_REL;
-    if (strcmp(type, "SHLIB") == 0) return SHT_SHLIB;
-    if (strcmp(type, "DYNSYM") == 0) return SHT_DYNSYM;
-    if (strcmp(type, "LOPROC") == 0) return SHT_LOPROC;
-    if (strcmp(type, "HIPROC") == 0) return SHT_HIPROC;
-    if (strcmp(type, "LOUSER") == 0) return SHT_LOUSER;
-    if (strcmp(type, "HIUSER") == 0) return SHT_HIUSER;
-    if (strcmp(type, "ARM_ATTRIBUTES") == 0) return SHT_ARM_ATTRIBUTES;
-    return SHT_NULL;
 }
 
 void oracleEtape2(char *filename) {

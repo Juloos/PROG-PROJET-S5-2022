@@ -25,6 +25,10 @@ Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
     return (Elf32_Sym *) malloc(sh_symtab.sh_size);
 }
 
+Elf32_Rel * create_ELFTableRel(Elf32_Shdr shdr) {
+    return (Elf32_Rel *) malloc(shdr.sh_size);
+}
+
 void getHeaderClass(char *class, Elf32_Ehdr ehdr) {
     switch (ehdr.e_ident[EI_CLASS]) {
         case ELFCLASSNONE:
@@ -265,6 +269,26 @@ void getSectionFlags(char *flags, Elf32_Shdr shdr) {
     strcat(flags, sh_flags & SHF_EXCLUDE ? "E" : "-");
 }
 
+void getSectionFlags2(char *flags, Elf32_Shdr shdr) {
+    strcpy(flags, "");
+    Elf32_Word sh_flags = shdr.sh_flags;
+    strcat(flags, sh_flags & SHF_WRITE ? "W" : "");
+    strcat(flags, sh_flags & SHF_ALLOC ? "A" : "");
+    strcat(flags, sh_flags & SHF_EXECINSTR ? "X" : "");
+    strcat(flags, sh_flags & SHF_MERGE ? "M" : "");
+    strcat(flags, sh_flags & SHF_STRINGS ? "S" : "");
+    strcat(flags, sh_flags & SHF_INFO_LINK ? "I" : "");
+    strcat(flags, sh_flags & SHF_LINK_ORDER ? "L" : "");
+    strcat(flags, sh_flags & SHF_OS_NONCONFORMING ? "O" : "");
+    strcat(flags, sh_flags & SHF_GROUP ? "G" : "");
+    strcat(flags, sh_flags & SHF_TLS ? "T" : "");
+    strcat(flags, sh_flags & SHF_COMPRESSED ? "C" : "");
+    strcat(flags, sh_flags & SHF_MASKOS ? "o" : "");
+    strcat(flags, sh_flags & SHF_MASKPROC ? "p" : "");
+    strcat(flags, sh_flags & SHF_ORDERED ? "R" : "");
+    strcat(flags, sh_flags & SHF_EXCLUDE ? "E" : "");
+}
+
 void getSymbolName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym symEntry) {
     if (symEntry.st_name == STN_UNDEF) {
         getSectionName(name, file, ehdr, shdrTable, symEntry.st_shndx);
@@ -303,6 +327,27 @@ void getSymbolType(char *type, Elf32_Sym symEntry) {
             break;
     }
     strcpy(type, "UNKNOWN");
+}
+
+Elf32_Word Type2shType(char *type) {
+    if (strcmp(type, "NULL") == 0) return SHT_NULL;
+    if (strcmp(type, "PROGBITS") == 0) return SHT_PROGBITS;
+    if (strcmp(type, "SYMTAB") == 0) return SHT_SYMTAB;
+    if (strcmp(type, "STRTAB") == 0) return SHT_STRTAB;
+    if (strcmp(type, "RELA") == 0) return SHT_RELA;
+    if (strcmp(type, "HASH") == 0) return SHT_HASH;
+    if (strcmp(type, "DYNAMIC") == 0) return SHT_DYNAMIC;
+    if (strcmp(type, "NOTE") == 0) return SHT_NOTE;
+    if (strcmp(type, "NOBITS") == 0) return SHT_NOBITS;
+    if (strcmp(type, "REL") == 0) return SHT_REL;
+    if (strcmp(type, "SHLIB") == 0) return SHT_SHLIB;
+    if (strcmp(type, "DYNSYM") == 0) return SHT_DYNSYM;
+    if (strcmp(type, "LOPROC") == 0) return SHT_LOPROC;
+    if (strcmp(type, "HIPROC") == 0) return SHT_HIPROC;
+    if (strcmp(type, "LOUSER") == 0) return SHT_LOUSER;
+    if (strcmp(type, "HIUSER") == 0) return SHT_HIUSER;
+    if (strcmp(type, "ARM_ATTRIBUTES") == 0) return SHT_ARM_ATTRIBUTES;
+    return SHT_NULL;
 }
 
 unsigned char Type2symType(char *type) {
@@ -398,4 +443,54 @@ Elf32_Half Ndx2symNdx(char *ndx) {
     if (strcmp(ndx, "ABS") == 0) return SHN_ABS;
     if (strcmp(ndx, "COM") == 0) return SHN_COMMON;
     return (Elf32_Half) strtol(ndx, NULL, 10);
+}
+
+void getSymType(char *type, Elf32_Rel rel) {
+    switch (ELF32_R_TYPE(rel.r_info)) {
+        case R_ARM_NONE:
+            strcpy(type, "R_ARM_NONE");
+            return;
+        case R_ARM_JUMP24:
+            strcpy(type, "R_ARM_JUMP24");
+            return;
+        case R_ARM_ABS32:
+            strcpy(type, "R_ARM_ABS32");
+            return;
+        case R_ARM_CALL:
+            strcpy(type, "R_ARM_CALL");
+            return;
+        default:
+            break;
+    }
+    strcpy(type, "UNKNOWN");
+}
+
+void getRelType(char *type, Elf32_Rel rel) {
+    switch (ELF32_R_TYPE(rel.r_info)) {
+        case R_ARM_NONE:
+            strcpy(type, "R_ARM_NONE");
+            return;
+        case R_ARM_JUMP24:
+            strcpy(type, "R_ARM_JUMP24");
+            return;
+        case R_ARM_ABS32:
+            strcpy(type, "R_ARM_ABS32");
+            return;
+        case R_ARM_CALL:
+            strcpy(type, "R_ARM_CALL");
+            return;
+        default:
+            break;
+    }
+    strcpy(type, "UNKNOWN");
+}
+
+
+void passerNLignes(FILE *file, uint n) {
+    char ligne[200];
+    for (int i = 0 ; i < n ; i++) {
+        if (!fgets(ligne, sizeof(ligne), file)) {
+            printf("Erreur lors de la lecture\n");
+        }
+    }
 }
