@@ -63,6 +63,8 @@ void oracleEtape1(char *filename) {
         headerCommand.e_type = ET_LOPROC;
     else if (strcmp(token, "HIPROC") == 0)
         headerCommand.e_type = ET_HIPROC;
+    else
+        headerCommand.e_type = ET_NONE;
 
     // Ligne Machine
     lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
@@ -84,6 +86,8 @@ void oracleEtape1(char *filename) {
         headerCommand.e_machine = EM_MIPS;
     else if (strcmp(token, "ARM\n") == 0)
         headerCommand.e_machine = EM_ARM;
+    else
+        headerCommand.e_machine = ET_NONE;
 
     // Ligne Version
     lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
@@ -180,21 +184,21 @@ void oracleEtape1(char *filename) {
         echec = 1;
     }
 
-//    // Champ e_type
-//    if (headerProgram.e_type != headerCommand.e_type) {
-//        printf("Erreur sur le champ e_type\n");
-//        printf("  e_type obtenu avec la commande readelf -h : %d\n", headerCommand.e_type);
-//        printf("  e_type obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_type);
-//        echec = 1;
-//    }
-//
-//    // Champ e_machine
-//    if (headerProgram.e_machine != headerCommand.e_machine) {
-//        printf("Erreur sur le champ e_machine\n");
-//        printf("  e_machine obtenu avec la commande readelf -h : %d\n", headerCommand.e_machine);
-//        printf("  e_machine obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_machine);
-//        echec = 1;
-//    }
+    // Champ e_type
+    if (headerProgram.e_type != headerCommand.e_type) {
+        printf("Erreur sur le champ e_type\n");
+        printf("  e_type obtenu avec la commande readelf -h : %d\n", headerCommand.e_type);
+        printf("  e_type obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_type);
+        echec = 1;
+    }
+
+    // Champ e_machine
+    if (headerProgram.e_machine != headerCommand.e_machine) {
+        printf("Erreur sur le champ e_machine\n");
+        printf("  e_machine obtenu avec la commande readelf -h : %d\n", headerCommand.e_machine);
+        printf("  e_machine obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_machine);
+        echec = 1;
+    }
 
     // Champ e_version
     if (headerProgram.e_version != headerCommand.e_version) {
