@@ -16,14 +16,16 @@ int main(int argc, char* argv[]) {
     char* section = argv[2];
 
     // Pour savoir à partir de quel arguments commmence la liste des fichiers à afficher
-    int firstFile = 1;
-    if(typeAffichage) {
-        firstFile = 2;
-    }
+    int firstFile = 2;
     // Si le 2ième argument n'est pas un fichier
     FILE* file = fopen(argv[2], "r");
     if(file == NULL) {
         firstFile = 3;
+    }
+
+    if(firstFile >= argc) {
+        fprintf(stderr, "Aucun fichier en entrée n'a été fourni\n");
+        exit(EXIT_FAILURE);
     }
 
     for(int i = firstFile; i < argc; i++) {
