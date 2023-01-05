@@ -79,3 +79,13 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
  * Résultat : affiche sur la sortie standard le contenu de la table des symboles
  */
 void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);
+
+/**LinkELFRenumSections
+ * Paramètres :
+ * - un premier pointeur sur un fichier ELF
+ * - un second pointeur sur un fichier ELF
+ * - un pointeur sur le fichier de sortie de la fusion
+ * Résultat : affiche dans le fichier de sortie la fusion et renumerotation des sections des 2 fichiers ELF d'entree
+ */
+void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output);
+

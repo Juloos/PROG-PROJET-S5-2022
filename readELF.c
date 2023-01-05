@@ -30,6 +30,7 @@ int main(int argc, char* argv[]) {
 
         free(sectionTable);
         free(symbolTable);
+        fclose(file);
     }
 
     return 0;

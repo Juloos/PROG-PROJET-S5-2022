@@ -9,12 +9,6 @@ void passerNLignes(FILE *file, uint n) {
     }
 }
 
-void lireLigne(FILE *file, char *ligne, size_t tailleLigne) {
-    if (!fgets(ligne, tailleLigne, file)) {
-        printf("Erreur lors de la lecture\n");
-    }
-}
-
 void oracleEtape1(char *filename) {
     /* On execute la commande readelf -h filename et on crée un header avec le résultat */
     char command[STR_SIZE] = "readelf -h ";
@@ -31,7 +25,9 @@ void oracleEtape1(char *filename) {
     passerNLignes(resultCommand, 1);
 
     // Ligne Magic
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Magic\n");
+    }
     // Découpage de la ligne avec l'espace comme délimiteur
     token = strtok(ligne, ":");
     // On ignore le premier mot
@@ -46,7 +42,9 @@ void oracleEtape1(char *filename) {
     passerNLignes(resultCommand, 5);
 
     // Ligne Type
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Type\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     if (strcmp(token, "NONE") == 0)
@@ -65,7 +63,9 @@ void oracleEtape1(char *filename) {
         headerCommand.e_type = ET_HIPROC;
 
     // Ligne Machine
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Machine\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     if (strcmp(token, "NONE\n") == 0)
@@ -86,67 +86,89 @@ void oracleEtape1(char *filename) {
         headerCommand.e_machine = EM_ARM;
 
     // Ligne Version
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Version\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_version = strtol(token, NULL, 16);
 
     // Entry point address
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Address\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_entry = strtol(token, NULL, 16);
 
     // Start of program headers
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Start of program header\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_phoff = strtol(token, NULL, 16);
 
     // Start of section headers
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Start of section headers\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_shoff = atoi(token);
 
     // Flags
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Flags\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_flags = strtol(token, NULL, 16);
 
     // Size of this header
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Size\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_ehsize = atoi(token);
 
     // Size of program headers
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Size of program headers\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_phentsize = atoi(token);
 
     // Number of program headers
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Number of program headers\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_phnum = atoi(token);
 
     // Size of section headers
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Size of program headers\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_shentsize = atoi(token);
 
     // Number of section headers
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) Number of section headers\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_shnum = atoi(token);
 
     // Section header string table index
-    lireLigne(resultCommand, ligne, sizeof(char)*STR_SIZE);
+    if (!fgets(ligne, STR_SIZE, resultCommand)) {
+        printf("Read error : (oracleEtape1) String table of section headers\n");
+    }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
     headerCommand.e_shstrndx = atoi(token);
@@ -540,7 +562,7 @@ void oracleEtape3 (char *filename, int numSection){
     //on récupère le résultat
     if (!fgets(result, STR_SIZE, fp)) {
         perror("Erreur lors de l'exécution de la commande readelf -x nbsection filename");
-    }else {
+    } else {
         printf("\nResultat de la commande readelf -x  %s: %s\n\n", argument, result);
     }
     //on ferme le fichier
@@ -719,14 +741,14 @@ int main(int argc, char *argv[]) {
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
             // on parcours toutes les sections du fichier
-            FILE *file = fopen(argv[i], "r");
-            Elf32_Ehdr header;
-            ReadELFHeader(file, &header);
-            Elf32_Shdr *shdr = create_ELFTableSections(header);
-            ReadELFTableSections(file, header, shdr);
-            for (int j = 1 ; j < header.e_shnum ; j++) {
-                oracleEtape3(argv[i], j);
-            }
+//            FILE *file = fopen(argv[i], "r");
+//            Elf32_Ehdr header;
+//            ReadELFHeader(file, &header);
+//            Elf32_Shdr *shdr = create_ELFTableSections(header);
+//            ReadELFTableSections(file, header, shdr);
+//            for (int j = 1 ; j < header.e_shnum ; j++) {
+//                oracleEtape3(argv[i], j);
+//            }
             oracleEtape4(argv[i]);
         }
     }
