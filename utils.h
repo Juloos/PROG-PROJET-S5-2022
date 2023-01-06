@@ -43,7 +43,7 @@ Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab);
  */
 Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
 
-Elf32_Rel * create_ELFTableRel(Elf32_Shdr shdr);
+Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
 
 Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
 
@@ -54,6 +54,8 @@ Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
  * Résultat :
  */
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr);
+
+uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr);
 
 
 /* getHeaderClass
