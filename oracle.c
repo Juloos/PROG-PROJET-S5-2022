@@ -1,4 +1,6 @@
 #include "oracle.h"
+#include<unistd.h>
+
 
 
 void oracleEtape1(char *filename) {
@@ -500,12 +502,16 @@ void oracleEtape2(char *filename) {
         printf("Succes pour l'etape 2\n");
 }
 
-
-void oracleEtape3(char *filename) {
+void oracleEtape3 (char *filename) {
+    int reu = 0;
     FILE *file = fopen(filename, "r");
     Elf32_Ehdr header;
     ReadELFHeader(file, &header);
-    for (int j = 1; j < header.e_shnum; j++) {
+
+    // pour chaque section
+    for (int j = 1 ; j < header.e_shnum ; j++) {
+
+
         char command[STR_SIZE] = "readelf -x ";
         char comman2[STR_SIZE] = "./readELF -x ";
         char argument[STR_SIZE];
@@ -513,69 +519,106 @@ void oracleEtape3(char *filename) {
         strcat(argument, filename);
         strcat(command, argument);
         strcat(comman2, argument);
-        printf("%s\n%s\n\n", command, comman2);
         //tableau contenant le résultat de la commande
-        char result[STR_SIZE];
-        char result2[STR_SIZE];
+        char result[STR_SIZE] = "";
+        char result2[STR_SIZE] = "";
         //on exécute la commande
         FILE *fp = popen(command, "r");
         FILE *ff = popen(comman2, "r");
         char zoumzoum[STR_SIZE];
         char soumzoum[STR_SIZE];
-        if (strlen(fgets(result, STR_SIZE, fp)) == 1 ||
-            strlen(fgets(result2, STR_SIZE, ff)) == 1) { // si la ligne est vide
-            passerNLignes(fp, 1);
-            passerNLignes(ff, 1);
+
+
+        // si la 1ere ligne est juste un espace
+        if (strlen(fgets(result, STR_SIZE, fp)) == 1 || strlen(fgets(result2, STR_SIZE, ff)) == 1) {
+
+
+            // tant que les lignes sont pas vides
             while (fgets(result, STR_SIZE, fp) != NULL &&
                    fgets(result2, STR_SIZE, ff) != NULL) { //on lit le résultat de la commande
-                //on concatene successivement les charactères de la ligne dans le tableau zoumzoum en enlevant les espaces les tabulations et les retours à la ligne
-                int i = 0;
-                int j = 0;
-                while (result[i] != '\0') {
-                    if (result[i] != ' ' && result[i] != '\n') {
-                        zoumzoum[j] = result[i];
-                        j++;
+
+                // on passe les ligne qui sont pas de la data
+                while (strncmp(result, " NOTE:", 6) == 0 || strncmp(result, "Hex dump", 8) == 0 || strlen(result) == 1){
+                    if (fgets(result, STR_SIZE, fp) == NULL) {
+                        printf("\nEchec pour l'etape 3\n");
+                        //on ferme le fichier
+                        pclose(fp);
+                        pclose(ff);
+                        exit(0);
                     }
-                    i++;
                 }
-                i = 0;
-                j = 0;
-                while (result2[i] != '\0') {
-                    if (result2[i] != ' ' && result2[i] != '\n') {
-                        soumzoum[j] = result2[i];
-                        j++;
+
+                // on passe les ligne qui sont pas de la data
+                while (strncmp(result2, "Section ", 8) == 0){
+                    if (fgets(result2, STR_SIZE, ff) == NULL) {
+                        printf("\nEchec pour l'etape 3\n");
+                        //on ferme le fichier
+                        pclose(fp);
+                        pclose(ff);
+                        exit(0);
                     }
-                    i++;
                 }
-                printf("%s\n%s\n\n", result, result2);
-                if (strcmp(zoumzoum, soumzoum) != 0) {
-                    printf("Echec pour l'etape 3\n");
+
+                        //on concatene successivement les charactères de la ligne dans le tableau zoumzoum
+                        // en enlevant les espaces les tabulations et les retours à la ligne
+                        int i = 0;
+                        int j = 0;
+                        while (result[i] != '\0') {
+                            if (result[i] != ' ' && result[i] != '\n') {
+                                zoumzoum[j] = result[i];
+                                j++;
+                            }
+                            i++;
+                        }
+                        zoumzoum[j] = '\0';
+                        //on concatene successivement les charactères de la ligne dans le tableau soumzoum
+                        // en enlevant les espaces les tabulations et les retours à la ligne
+                        i = 0;
+                        j = 0;
+                        while (result2[i] != '\0') {
+                            if (result2[i] != ' ' && result2[i] != '\n') {
+                                soumzoum[j] = result2[i];
+                                j++;
+                            }
+                            i++;
+                        }
+                        soumzoum[j] = '\0';
+                if (strcmp(soumzoum, zoumzoum) != 0){
+                    printf("Concatenation differente\n");
                     printf(" zoumzoum(commande) : %s\n soumzoum(fonction) : %s\n", zoumzoum, soumzoum);
-                    pclose(fp);
-                    pclose(ff);
-                    exit(0);
-                }
+                    reu = 1;
+                    }
+                break;
             }
-            printf("_____________________________________________\n\n");
+            //fin de la comparaison des lignes data
+
+            //si il y a pas de data
         } else {
             //on verifie que la ligne commence par "Section";
             if (strncmp(result, "Section", 7) == 0 && strncmp(result2, "Section", 7) == 0) {
-                //on affiche le résultat
-                printf("  No Data\n");
+                reu = 0;
             } else {
-                fprintf(stderr, "Erreur lors de l'exécution de la commande readelf -x nbsection filename");
-                return;
+                // il y a pas de data et pas de "Section"
+                fprintf(stderr,"Erreur lors de l'exécution de la commande readelf -x nbsection filename");
+                reu = 1;
             }
         }
-        if (strcmp(soumzoum, zoumzoum) != 0) {
+        strcpy(result,"");
+        strcpy(result2,"");
+        //fin de la comparaison des sections
+
+        if (reu == 1) {
             printf("Echec pour l'etape 3\n");
-            printf(" zoumzoum(commande) : %s\n soumzoum(fonction) : %s\n", zoumzoum, soumzoum);
-        } else
-            printf("Succes pour l'etape 3\n");
-        //on ferme le fichier
-        pclose(fp);
-        pclose(ff);
+            //on ferme le fichier
+            pclose(fp);
+            pclose(ff);
+            exit(0);
+        }
     }
+    //fin de la comparaison de la section et aucune erreur
+
+    if (reu == 0)
+        printf("Succes pour l'etape 3\n");
 }
 
 void oracleEtape4(char *filename) {
@@ -723,6 +766,7 @@ void oracleEtape4(char *filename) {
     else
         printf("Succes pour l'etape 4\n");
 }
+
 void lire_fichier(FILE* fichier, RelocationSection** relocation_sections, int* num_sections) {
     char ligne[256];
     while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
@@ -762,6 +806,7 @@ void lire_fichier(FILE* fichier, RelocationSection** relocation_sections, int* n
         }
     }
 }
+
 void oracleEtape5(char *fichier){
     char command[STR_SIZE] = "readelf -r ";
     FILE *resultCommand = popen(strcat(command, fichier), "r");
