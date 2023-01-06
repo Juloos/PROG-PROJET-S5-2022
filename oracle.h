@@ -48,3 +48,9 @@ void oracleEtape3 (char *filename);
  * sinon affiche succes
  */
 void oracleEtape4(char *filename);
+
+typedef struct RelocationSection {
+    char* name;
+    int offset;
+    char** inputs;
+} RelocationSection;

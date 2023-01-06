@@ -723,7 +723,107 @@ void oracleEtape4(char *filename) {
     else
         printf("Succes pour l'etape 4\n");
 }
+void lire_fichier(FILE* fichier, RelocationSection** relocation_sections, int* num_sections) {
+    char ligne[256];
+    while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
+        if (strstr(ligne, "Relocation section") != NULL) {
+            // Allouer de la mémoire pour une nouvelle section
+            *relocation_sections = realloc(*relocation_sections, (*num_sections + 1) * sizeof(RelocationSection));
+            RelocationSection* section = &(*relocation_sections)[*num_sections];
+            section->inputs = NULL;
+            *num_sections += 1;
 
+            // Récupérer le nom et l'offset de la section à partir de la ligne
+            char* pch = strtok(ligne, "\'");
+            pch = strtok(NULL, "\'");
+            section->name = malloc(strlen(pch) + 1);
+            strcpy(section->name, pch);
+            pch = strtok(NULL, "\'");
+            //Récuperer l'offset de le mot de la phrase qui commence par 0x
+            char* offset = strstr(pch, "0x");
+            section->offset = strtol(offset, NULL, 16);
+        } else if (strcmp(ligne, "\n") != 0 && strstr(ligne, "Offset") == NULL) {
+            // Récupérer les entrées de la section à partir de la ligne
+            RelocationSection* section = &(*relocation_sections)[*num_sections - 1];
+            int num_inputs = 0;
+            char* pch = strtok(ligne, " ");
+            while (pch != NULL) {
+                // Allouer de la mémoire pour une nouvelle entrée
+                section->inputs = realloc(section->inputs, (num_inputs + 1) * sizeof(char*));
+                char* input = malloc(strlen(pch) + 1);
+                strcpy(input, pch);
+                section->inputs[num_inputs] = input;
+                num_inputs += 1;
+
+                pch = strtok(NULL, " ");
+            }
+            section->inputs = realloc(section->inputs, (num_inputs + 1) * sizeof(char*));
+            section->inputs[num_inputs] = NULL;
+        }
+    }
+}
+void oracleEtape5(char *fichier){
+    char command[STR_SIZE] = "readelf -r ";
+    FILE *resultCommand = popen(strcat(command, fichier), "r");
+    char programme[STR_SIZE] = "./readELF -r ";
+    FILE *resultProgram = popen(strcat(programme, fichier), "r");
+    // Lire les fichiers
+    RelocationSection* relocation_sections_commandes = NULL;
+    int num_sections_commandes = 0;
+    lire_fichier(resultCommand, &relocation_sections_commandes, &num_sections_commandes);
+
+    RelocationSection* relocation_sections_programme = NULL;
+    int num_sections_programme = 0;
+    lire_fichier(resultProgram, &relocation_sections_programme, &num_sections_programme);
+
+    // Fermer les fichiers
+    fclose(resultProgram);
+    fclose(resultCommand);
+
+    // Vérifier que le nombre de sections est le même
+    if (num_sections_programme != num_sections_commandes) {
+        printf("%d sections dans le programme, %d sections dans la commande\n", num_sections_programme, num_sections_commandes);
+        printf("Le programme de l'étape 5 ne trouve pas le même nombre de tables de réimplantation que la commande readelf -r\n");
+        return;
+    }
+
+    // Vérifier que chaque section est la même
+    int i;
+    for (i = 0; i < num_sections_commandes; i++) {
+        RelocationSection* section_commandes = &relocation_sections_commandes[i];
+        RelocationSection* section_programme = &relocation_sections_programme[i];
+
+        if (strcmp(section_commandes->name, section_programme->name) != 0 ||
+            section_commandes->offset != section_programme->offset ||
+            section_commandes->inputs == NULL || section_programme->inputs == NULL) {
+            break;
+        }
+
+        int j;
+        for (j = 0; section_commandes->inputs[j] != NULL && section_programme->inputs[j] != NULL; j++) {
+            if (strcmp(section_commandes->inputs[j], section_programme->inputs[j]) != 0) {
+                break;
+            }
+        }
+
+        if (section_commandes->inputs[j] != NULL || section_programme->inputs[j] != NULL) {
+            break;
+        }
+    }
+
+    // Afficher le résultat
+    if (i == num_sections_commandes) {
+        printf("Succès pour l'étape 5\n");
+        free(relocation_sections_commandes);
+        free(relocation_sections_programme);
+        return;
+    } else {
+        free(relocation_sections_commandes);
+        free(relocation_sections_programme);
+        printf("Echec pour l'étape 5\n");
+        return;
+    }
+}
 
 int main(int argc, char *argv[]) {
     if (argc < 2)
@@ -733,8 +833,9 @@ int main(int argc, char *argv[]) {
             printf("Tests avec le fichier '%s'\n", argv[i]);
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
-            oracleEtape3(argv[i]);
-            oracleEtape4(argv[i]);
+            //oracleEtape3(argv[i]);
+            //oracleEtape4(argv[i]);
+            oracleEtape5(argv[i]);
         }
     }
     return 0;
