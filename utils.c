@@ -33,6 +33,13 @@ Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
     return (Elf32_Rel **) malloc(ehdr.e_shnum * sizeof(Elf32_Rel * ));
 }
 
+uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr) {
+    uint8_t *content = (uint8_t *) malloc(shdr.sh_size);
+    fseek(file, shdr.sh_offset, SEEK_SET);
+    fread(content, 1, shdr.sh_size, file);
+    return content;
+}
+
 void getHeaderClass(char *class, Elf32_Ehdr ehdr) {
     switch (ehdr.e_ident[EI_CLASS]) {
         case ELFCLASSNONE:

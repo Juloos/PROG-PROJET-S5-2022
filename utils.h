@@ -20,6 +20,8 @@ Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
 
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr);
 
+uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr);
+
 void getHeaderClass(char *class, Elf32_Ehdr ehdr);
 
 void getHeaderData(char *data, Elf32_Ehdr ehdr);
