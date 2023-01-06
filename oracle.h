@@ -1,14 +1,5 @@
 #include "ELF.h"
 
-
-/**lireNLignes
- * Paramètres:
- * - file: un pointeur sur un fichier en mode lecture
- * - n: un entier >= 0
- * Résultat: passe les n lignes suivants dans le fichier
- */
-void passerNLignes(FILE *file, uint n);
-
 /**oracleEtape1
  * Paramètres:
  * - fileName : le nom du fichier utilisé pour le test doit être un fichier .o
