@@ -25,7 +25,7 @@ EXTRA_DIST=filtre.pl
 Options_and_debug_example_SOURCES=Options_and_debug_example.c debug.c debug.h
 readELF_SOURCES=readELF.c ELF.c ELF.h $(COMMON)
 linkELF_SOURCES=linkELF.c ELF.c ELF.h $(COMMON)
-oracle_SOURCES=oracle.c oracle.h ELF.c ELF.h $(COMMON)
+oracle_SOURCES=oracle.c ELF.c ELF.h $(COMMON)
 
 EXTRA_DIST+=
 

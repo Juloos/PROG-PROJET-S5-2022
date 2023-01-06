@@ -1,4 +1,4 @@
-#include "oracle.h"
+#include "ELF.h"
 
 
 void oracleEtape1(char *filename) {
@@ -728,12 +728,60 @@ void oracleEtape4(char *filename) {
         printf("Succes pour l'etape 4\n");
 }
 
-void oracleEtape5(char *fichier) {
+void oracleEtape5(char *filename) {
     char command[STR_SIZE] = "readelf -r ";
-    FILE *resultCommand = popen(strcat(command, fichier), "r");
-    char programme[STR_SIZE] = "./readELF -r ";
-    FILE *resultProgram = popen(strcat(programme, fichier), "r");
+    FILE *resultCommand = popen(strcat(command, filename), "r");
 
+    FILE *file = fopen(filename, "r");
+    Elf32_Ehdr ehdr;
+    ReadELFHeader(file, &ehdr);
+    Elf32_Shdr *shdrTable = create_ELFTableSections(ehdr);
+    ReadELFTableSections(file, ehdr, shdrTable);
+    Elf32_Shdr sh_symtab = shdrTable[sectionName2Index(".symtab", file, ehdr, shdrTable)];
+    Elf32_Sym *symTable = create_ELFTableSymbols(sh_symtab);
+    ReadELFTableSymbols(file, symTable, sh_symtab);
+    Elf32_Rel **relTables = create_ELFTablesRel(ehdr);
+    ReadELFRelocationTable(file, relTables, ehdr, shdrTable, symTable);
+
+    char ligne[STR_SIZE];
+    char name[STR_SIZE];
+    int index = 0;
+    int k = 0;
+    Elf32_Addr r_offset;
+    Elf32_Word r_info;
+    int echec = 0;
+    while (fgets(ligne, STR_SIZE, resultCommand)) {
+        if (strcmp(ligne, "\n") == 0)
+            continue;
+        else if (strncmp(ligne, "Relocation section", 18) == 0) {
+            sscanf(ligne, "Relocation section '%[^']s'", name);
+            index = sectionName2Index(name, file, ehdr, shdrTable);
+            passerNLignes(resultCommand, 1);
+            k = 0;
+            continue;
+        }
+        sscanf(ligne, "%8x %8x", &r_offset, &r_info);
+        if (r_offset != relTables[index][k].r_offset) {
+            printf("Erreur sur l'entrée %d de la table de relocation %s\n", k, name);
+            printf("  r_offset obtenu avec la commande readelf -r : %.8x\n", r_offset);
+            printf("  r_offset obtenu avec la fonction ReadELFRelocationTable : %.8x\n\n", relTables[index][k].r_offset);
+            echec = 1;
+        }
+        if (r_info != relTables[index][k].r_info) {
+            printf("Erreur sur l'entrée %d de la table de relocation %s\n", k, name);
+            printf("  r_info obtenu avec la commande readelf -r : %.8x\n", r_info);
+            printf("  r_info obtenu avec la fonction ReadELFRelocationTable : %.8x\n\n", relTables[index][k].r_info);
+            echec = 1;
+        }
+        k++;
+    }
+
+    if (echec)
+        printf("Echec pour l'etape 5\n");
+    else
+        printf("Succes pour l'etape 5\n");
+
+    pclose(resultCommand);
 }
 
 int main(int argc, char *argv[]) {
@@ -746,7 +794,7 @@ int main(int argc, char *argv[]) {
             oracleEtape2(argv[i]);
             oracleEtape3(argv[i]);
             oracleEtape4(argv[i]);
-//            oracleEtape5(argv[i]);
+            oracleEtape5(argv[i]);
         }
     }
     return 0;
