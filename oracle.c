@@ -25,7 +25,7 @@ void oracleEtape1(char *filename) {
     // On ignore le premier mot
     token = strtok(NULL, " ");
     // Champ e_ident
-    for (int i = 0 ; i < EI_NIDENT ; i++) {
+    for (int i = 0; i < EI_NIDENT; i++) {
         headerCommand.e_ident[i] = (unsigned char) strtol(token, NULL, 16);
         token = strtok(NULL, " ");
     }
@@ -187,11 +187,11 @@ void oracleEtape1(char *filename) {
     if (i < EI_NIDENT) {
         printf("Erreur sur le champ e_ident\n");
         printf("  e_ident obtenu avec la commande readelf -h : ");
-        for (int i = 0 ; i < EI_NIDENT ; i++) {
+        for (int i = 0; i < EI_NIDENT; i++) {
             printf("%d ", headerCommand.e_ident[i]);
         }
         printf("\n  e_ident obtenu avec la fonction ReadELFHeader : ");
-        for (int i = 0 ; i < EI_NIDENT ; i++) {
+        for (int i = 0; i < EI_NIDENT; i++) {
             printf("%d ", headerCommand.e_ident[i]);
         }
         printf("\n");
@@ -326,7 +326,7 @@ void oracleEtape2(char *filename) {
     int espaces[11];
     int iespaces = 0;
     int nb_espace = 0;
-    for (int i = 0 ; i < strlen(buffer) ; i++) {
+    for (int i = 0; i < strlen(buffer); i++) {
         if (buffer[i] == ' ')
             nb_espace++;
         else if (nb_espace > 0) {
@@ -422,7 +422,7 @@ void oracleEtape2(char *filename) {
     char flag[STR_SIZE];
     char beforecmp[2];
     int echec = 0;
-    for (i = 0 ; i < imax ; i++) {
+    for (i = 0; i < imax; i++) {
         getSectionName(name, file, header, shdrProgram, i);
         if (strcmp(names[i], name) != 0) {
             beforecmp[0] = names[i][colonnes[0] - 6];  // - 5 (pour '[...]') - 1 (pour le décalage entre colonnes)
@@ -501,11 +501,11 @@ void oracleEtape2(char *filename) {
 }
 
 
-void oracleEtape3 (char *filename) {
+void oracleEtape3(char *filename) {
     FILE *file = fopen(filename, "r");
     Elf32_Ehdr header;
     ReadELFHeader(file, &header);
-    for (int j = 1 ; j < header.e_shnum ; j++) {
+    for (int j = 1; j < header.e_shnum; j++) {
         char command[STR_SIZE] = "readelf -x ";
         char comman2[STR_SIZE] = "./readELF -x ";
         char argument[STR_SIZE];
@@ -563,16 +563,15 @@ void oracleEtape3 (char *filename) {
                 //on affiche le résultat
                 printf("  No Data\n");
             } else {
-                perror("Erreur lors de l'exécution de la commande readelf -x nbsection filename");
+                fprintf(stderr, "Erreur lors de l'exécution de la commande readelf -x nbsection filename");
                 return;
             }
         }
         if (strcmp(soumzoum, zoumzoum) != 0) {
             printf("Echec pour l'etape 3\n");
             printf(" zoumzoum(commande) : %s\n soumzoum(fonction) : %s\n", zoumzoum, soumzoum);
-        } else {
+        } else
             printf("Succes pour l'etape 3\n");
-        }
         //on ferme le fichier
         pclose(fp);
         pclose(ff);
@@ -598,7 +597,7 @@ void oracleEtape4(char *filename) {
     int espaces[8];
     int iespaces = 0;
     int nb_espace = 0;
-    for (int i = 0 ; i < strlen(buffer) ; i++) {
+    for (int i = 0; i < strlen(buffer); i++) {
         if (buffer[i] == ' ')
             nb_espace++;
         else if (nb_espace > 0) {
@@ -680,7 +679,7 @@ void oracleEtape4(char *filename) {
 //    PrintELFTableSymbols(file, header, shdr, stProgram);
     char name[STR_SIZE];
     int echec = 0;
-    for (i = 0 ; i < imax ; i++) {
+    for (i = 0; i < imax; i++) {
         getSymbolName(name, file, header, shdrProgram, stProgram[i]);
         if (strcmp(names[i], name) != 0) {
             printf("Erreur sur le nom de l'entrée %d\n", i);
@@ -727,10 +726,10 @@ void oracleEtape4(char *filename) {
 
 
 int main(int argc, char *argv[]) {
-    if (argc < 2) {
+    if (argc < 2)
         printf("Il faut au moins un fichier de test\n");
-    } else {
-        for (int i = 1 ; i < argc ; i++) {
+    else {
+        for (int i = 1; i < argc; i++) {
             printf("Tests avec le fichier '%s'\n", argv[i]);
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
