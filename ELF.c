@@ -7,7 +7,7 @@ void ReadELFile(FILE *file) {
 void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
     fseek(file, 0, SEEK_SET);
 
-    for (int i = 0 ; i < EI_NIDENT ; i++) {
+    for (int i = 0; i < EI_NIDENT; i++) {
         if (!fread(&ehdr->e_ident[i], sizeof(unsigned char), 1, file))
             fprintf(stderr, "Read error : (header) magic\n");
     }
@@ -22,7 +22,8 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
         fprintf(stderr, "Read error : (header) version\n");
 
     if (!fread(&ehdr->e_entry, sizeof(Elf32_Addr), 1, file))
-        fprintf(stderr, "Read error : (header) address to which the system first transfers control, thus starting the process\n");
+        fprintf(stderr,
+                "Read error : (header) address to which the system first transfers control, thus starting the process\n");
 
     if (!fread(&ehdr->e_phoff, sizeof(Elf32_Off), 1, file))
         fprintf(stderr, "Read error : (header) program header table's file\n");
@@ -49,7 +50,8 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
         fprintf(stderr, "Read error : (header) number of entries in the section header table\n");
 
     if (!fread(&ehdr->e_shstrndx, sizeof(Elf32_Half), 1, file))
-        fprintf(stderr, "Read error : (header) section header table index of the entry associated with the section name string table\n");
+        fprintf(stderr,
+                "Read error : (header) section header table index of the entry associated with the section name string table\n");
 
     if (!IS_BIGENDIAN()) {
         // Not swapping Magic because apparently it's not endian dependent
@@ -71,7 +73,7 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
 
 void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     fseek(file, ehdr.e_shoff, SEEK_SET);
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         if (!fread(&shdrTable[i].sh_name, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error : (table section) name\n");
 
@@ -85,7 +87,8 @@ void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
             fprintf(stderr, "Read error : (table section) address at which the section's first byte should reside\n");
 
         if (!fread(&shdrTable[i].sh_offset, sizeof(Elf32_Off), 1, file))
-            fprintf(stderr, "Read error : (table section) value gives the byte offset from the beginning of the file to the first byte in the section\n");
+            fprintf(stderr,
+                    "Read error : (table section) value gives the byte offset from the beginning of the file to the first byte in the section\n");
 
         if (!fread(&shdrTable[i].sh_size, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error : (table section) section's size\n");
@@ -124,7 +127,7 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     }
     fseek(file, sh_symtab.sh_offset, SEEK_SET);
     int nbEntries = sh_symtab.sh_size / sh_symtab.sh_entsize;
-    for (int i = 0 ; i < nbEntries ; i++) {
+    for (int i = 0; i < nbEntries; i++) {
         if (!fread(&symTable[i].st_name, sizeof(Elf32_Word), 1, file))
             fprintf(stderr, "Read error : (TableSymbols) name\n");
 
@@ -145,7 +148,7 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     }
 
     if (!IS_BIGENDIAN()) {
-        for (int i = 0 ; i < nbEntries ; i++) {
+        for (int i = 0; i < nbEntries; i++) {
             SWAPB(&symTable[i].st_name, sizeof(Elf32_Word));
             SWAPB(&symTable[i].st_value, sizeof(Elf32_Addr));
             SWAPB(&symTable[i].st_size, sizeof(Elf32_Word));
@@ -156,11 +159,34 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     }
 }
 
+void ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
+        if (shdr[i].sh_type == SHT_REL) {
+            relTables[i] = create_ELFTableRel(shdr[i]);
+            for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
+                fseek(file, shdr[i].sh_offset + j * sizeof(Elf32_Rel), SEEK_SET);
+
+                if (!fread(&relTables[i][j].r_offset, sizeof(Elf32_Addr), 1, file))
+                    fprintf(stderr, "Read error : (ReadELFRelocationTable) r_offset\n");
+
+                if (!fread(&relTables[i][j].r_info, sizeof(Elf32_Word), 1, file))
+                    fprintf(stderr, "Read error : (ReadELFRelocationTable) r_info\n");
+            }
+            if (!IS_BIGENDIAN()) {
+                for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
+                    SWAPB(&relTables[i][j].r_offset, sizeof(Elf32_Addr));
+                    SWAPB(&relTables[i][j].r_info, sizeof(Elf32_Word));
+                }
+            }
+        }
+    }
+}
+
 
 void PrintELFHeader(Elf32_Ehdr ehdr) {
     printf("ELF File's Header:");
     printf("\n  Ident: ");
-    for (int i = 0 ; i < EI_NIDENT ; i++) {
+    for (int i = 0; i < EI_NIDENT; i++) {
         printf("%.2x ", ehdr.e_ident[i]);
     }
 
@@ -227,7 +253,7 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     char name[STR_SIZE];
     char type[STR_SIZE];
     char flags[16];
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         getSectionName(name, file, ehdr, shdrTable, i);
         getSectionType(type, shdrTable[i]);
         getSectionFlags(flags, shdrTable[i]);
@@ -271,7 +297,7 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
         int i;
         uint8_t buff16[17];
         buff16[16] = 0;
-        for (i = 0 ; i < shdrTable[numSection].sh_size ; i++) {
+        for (i = 0; i < shdrTable[numSection].sh_size; i++) {
             if (i % 16 == 0)
                 printf("\n  0x%.8x ", i);
             if (i % 4 == 0)
@@ -311,7 +337,7 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
     char vis[STR_SIZE];
     char ndx[STR_SIZE];
     Elf32_Shdr sh_symtab = shdrTable[sectionName2Index(".symtab", file, ehdr, shdrTable)];
-    for (int i = 0 ; i < sh_symtab.sh_size / sh_symtab.sh_entsize ; i++) {
+    for (int i = 0; i < sh_symtab.sh_size / sh_symtab.sh_entsize; i++) {
         getSymbolName(name, file, ehdr, shdrTable, symTable[i]);
         getSymbolType(type, symTable[i]);
         getSymbolBind(bind, symTable[i]);
@@ -329,50 +355,34 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
     }
 }
 
-void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable) {
+void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable, Elf32_Rel **relTables) {
     char name[STR_SIZE];
     char type[STR_SIZE];
 
-    // Iterate through the section headers and print the relocation sections
-    for (int i = 0; i <= ehdr->e_shnum; i++) {
-        if (shdr[i].sh_type == SHT_REL) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
+        if (relTables[i] != NULL) {
             strcpy(name, "");
-            getSectionName(name, file, *ehdr, shdr, i);
-            printf("Relocation section '%s' at offset 0x%x contains %d entries:\n",
-                   name, shdr[i].sh_offset, shdr[i].sh_size / shdr[i].sh_entsize);
+            getSectionName(name, file, ehdr, shdrTable, i);
+            printf("\nRelocation section '%s' at offset 0x%x contains %d entries:\n",
+                   name,
+                   shdrTable[i].sh_offset,
+                   shdrTable[i].sh_size / shdrTable[i].sh_entsize);
 
-            Elf32_Rel *relTable = create_ELFTableRel(shdr[i]);
+            int rsym;
             printf(" Offset      Info         Type          Sym.value   Sym.name\n");
-            strcpy(name, "");
-            // Iterate through the relocation entries and print them
-            for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
-                fseek(file, shdr[i].sh_offset + j * sizeof(Elf32_Rel), SEEK_SET);
-                if (!fread(&relTable[j].r_offset, sizeof(Elf32_Addr), 1, file))
-                    fprintf(stderr, "Read error : PrintELFRelocationTable\n");
-                if (!fread(&relTable[j].r_info, sizeof(Elf32_Word), 1, file))
-                    fprintf(stderr, "Read error : PrintELFRelocationTable\n");
-
-
-                if (!IS_BIGENDIAN()) {
-                    SWAPB(&relTable[j].r_offset, sizeof(Elf32_Addr));
-                    SWAPB(&relTable[j].r_info, sizeof(Elf32_Word));
-                }
-
-                int rsym = ELF32_R_SYM(relTable[j].r_info);
-
+            for (int j = 0; j < shdrTable[i].sh_size / sizeof(Elf32_Rel); j++) {
+                rsym = ELF32_R_SYM(relTables[i][j].r_info);
                 strcpy(name, "");
-                getSymbolName(name, file, *ehdr, shdr, symTable[rsym]);
+                getSymbolName(name, file, ehdr, shdrTable, symTable[rsym]);
                 strcpy(type, "");
-                getSymType(type, relTable[j]);
+                getSymType(type, relTables[i][j]);
                 printf(" %.8x  %.8x    %s      %.8x    %s\n",
-                       relTable[j].r_offset,
-                       relTable[j].r_info,
+                       relTables[i][j].r_offset,
+                       relTables[i][j].r_info,
                        type,
                        symTable[rsym].st_value,
                        name);
             }
-
-            free(relTable);
         }
     }
 }
@@ -391,19 +401,19 @@ void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
     ReadELFTableSections(input2, ehdr2, shdrTable2);
 
     int maxs = 0;
-    for (int i = 0 ; i < ehdr1.e_shnum ; i++)
+    for (int i = 0; i < ehdr1.e_shnum; i++)
         maxs = (shdrTable1[i].sh_size > maxs) ? shdrTable1[i].sh_size : maxs;
-    for (int j = 0 ; j < ehdr2.e_shnum ; j++)
+    for (int j = 0; j < ehdr2.e_shnum; j++)
         maxs = (shdrTable2[j].sh_size > maxs) ? shdrTable2[j].sh_size : maxs;
     char buff[maxs];
 
     int renum[ehdr2.e_shnum];
     renum[0] = 0;
     int cat_offsets[ehdr2.e_shnum];
-    for (int j = 0 ; j < ehdr2.e_shnum ; j++)
+    for (int j = 0; j < ehdr2.e_shnum; j++)
         cat_offsets[j] = -1;
 
-    for (int i = 0 ; i < ehdr1.e_shnum ; i++) {
+    for (int i = 0; i < ehdr1.e_shnum; i++) {
         if (shdrTable1[i].sh_size) {
             fseek(input1, shdrTable1[i].sh_offset, SEEK_SET);
             if (!fread(buff, 1, shdrTable1[i].sh_size, input1))
@@ -416,7 +426,7 @@ void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
             strcpy(name1, "");
             getSectionName(name1, input1, ehdr1, shdrTable1, i);
 
-            for (int j = 1 ; j < ehdr2.e_shnum ; j++) {
+            for (int j = 1; j < ehdr2.e_shnum; j++) {
                 strcpy(name2, "");
                 getSectionName(name2, input2, ehdr2, shdrTable2, j);
                 if (strcmp(name1, name2) == 0 && shdrTable2[j].sh_size) {
@@ -433,7 +443,7 @@ void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
     }
 
     int e_shnum_acc = 0;
-    for (int j = 1 ; j < ehdr2.e_shnum ; j++) {
+    for (int j = 1; j < ehdr2.e_shnum; j++) {
         if (cat_offsets[j] == -1) {
             e_shnum_acc++;
             renum[j] = ehdr1.e_shnum + e_shnum_acc;
@@ -448,10 +458,10 @@ void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
     }
 
     printf("Offsets de concaténation du deuxième fichiers : \n  ");
-    for (int j = 0 ; j < ehdr2.e_shnum ; j++)
+    for (int j = 0; j < ehdr2.e_shnum; j++)
         printf("%d ", cat_offsets[j]);
     printf("\nRenumérotation des sections du deuxième fichier : \n  ");
-    for (int j = 0 ; j < ehdr2.e_shnum ; j++)
+    for (int j = 0; j < ehdr2.e_shnum; j++)
         printf("%d ", renum[j]);
     printf("\n");
 }

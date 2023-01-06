@@ -10,7 +10,7 @@ int IS_BIGENDIAN() {
 void SWAPB(void *ptr, int size) {
     char *tmp = malloc(size);
     memcpy(tmp, ptr, size);
-    for (int i = 0 ; i < size ; i++) {
+    for (int i = 0; i < size; i++) {
         ((char *) ptr)[i] = tmp[size - i - 1];
     }
     free(tmp);
@@ -25,8 +25,12 @@ Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab) {
     return (Elf32_Sym *) malloc(sh_symtab.sh_size);
 }
 
-Elf32_Rel * create_ELFTableRel(Elf32_Shdr shdr) {
+Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr) {
     return (Elf32_Rel *) malloc(shdr.sh_size);
+}
+
+Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
+    return (Elf32_Rel **) malloc(ehdr.e_shnum * sizeof(Elf32_Rel * ));
 }
 
 void getHeaderClass(char *class, Elf32_Ehdr ehdr) {
@@ -181,7 +185,7 @@ void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTab
 
 int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
     char sectionName[STR_SIZE];
-    for (int i = 0 ; i < ehdr.e_shnum ; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
         getSectionName(sectionName, file, ehdr, shdrTable, i);
         if (strcmp(sectionName, name) == 0)
             return i;
@@ -488,7 +492,7 @@ void getRelType(char *type, Elf32_Rel rel) {
 
 void passerNLignes(FILE *file, uint n) {
     char ligne[200];
-    for (int i = 0 ; i < n ; i++) {
+    for (int i = 0; i < n; i++) {
         if (!fgets(ligne, sizeof(ligne), file)) {
             printf("Erreur lors de la lecture\n");
         }

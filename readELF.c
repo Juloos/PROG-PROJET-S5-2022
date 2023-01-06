@@ -65,8 +65,10 @@ int main(int argc, char *argv[]) {
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_SYMBOL_TABLE))
             PrintELFTableSymbols(file, header, sectionTable, symbolTable);
 
+        Elf32_Rel **relTables = create_ELFTablesRel(header);
+        ReadELFRelocationTable(file, relTables, header, sectionTable, symbolTable);
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_RELOCATION_TABLE))
-            PrintELFRelocationTable(file, &header, sectionTable, symbolTable);
+            PrintELFRelocationTable(file, header, sectionTable, symbolTable, relTables);
 
         printf("\n");
 

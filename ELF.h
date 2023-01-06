@@ -25,6 +25,17 @@ void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr);
  */
 void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
 
+/**ReadELFRelocationTable
+ * Paramètres :
+ * - un pointeur sur un fichier ELF
+ * - la table des entrées de réimplantation
+ * - un header ELF
+ * - un tableau des headers de section
+ * - la table des symboles
+ * Résultat : affiche sur la sortie standard le contenu des tables de réimplantation
+ */
+void ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);
+
 
 /**ReadELFSection
  * Paramètres :
@@ -81,7 +92,16 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
  */
 void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);
 
-void PrintELFRelocationTable(FILE *file, Elf32_Ehdr *ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable);
+/**PrintELFRelocationTable
+ * Paramètres :
+ * - un pointeur sur un fichier ELF
+ * - un header ELF
+ * - un tableau des headers de section
+ * - la table des symboles
+ * - la table des entrées de réimplantation
+ * Résultat : affiche sur la sortie standard le contenu des tables de réimplantation
+ */
+void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable, Elf32_Rel **relTables);
 
 
 /**LinkELFRenumSections
