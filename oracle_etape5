@@ -2,15 +2,19 @@
 
 if [ $# -ne 1 ];
 then
-  echo "Il faut un fichier pour utiliser cet oracle"
+  echo "Il faut un seul fichier pour utiliser cet oracle"
   exit 1
 fi
 
+# Etape 5
+
 readelf -r $1 > resultatCommande.txt
 
-./readELF 5 $1 > resultatProgramme.txt
+./readELF -r $1 > resultatProgramme.txt
 
 python3 oracleEtape5.py resultatCommande.txt resultatProgramme.txt
+
+# Fin de l'oracle
 
 rm resultatCommande.txt
 rm resultatProgramme.txt
