@@ -499,7 +499,7 @@ void getRelType(char *type, Elf32_Rel rel) {
 
 
 void passerNLignes(FILE *file, uint n) {
-    char ligne[200];
+    char ligne[STR_SIZE];
     for (int i = 0; i < n; i++) {
         if (!fgets(ligne, sizeof(ligne), file)) {
             printf("Erreur lors de la lecture\n");
