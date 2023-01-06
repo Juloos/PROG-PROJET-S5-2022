@@ -1,6 +1,5 @@
 #include "utils.h"
 
-
 int IS_BIGENDIAN() {
     static int one = 1;
     return ((*(char *) &one) == 0);
@@ -36,7 +35,11 @@ Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
 uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr) {
     uint8_t *content = (uint8_t *) malloc(shdr.sh_size);
     fseek(file, shdr.sh_offset, SEEK_SET);
-    fread(content, 1, shdr.sh_size, file);
+    if(!fread(content, 1, shdr.sh_size, file)) {
+        for(int i = 0; i < shdr.sh_size; i++) {
+            content[i] = 0;
+        }
+    }
     return content;
 }
 
@@ -504,4 +507,88 @@ void passerNLignes(FILE *file, uint n) {
             printf("Erreur lors de la lecture\n");
         }
     }
+}
+
+Elf32_Shdr ReadOneSection(FILE* file) {
+    Elf32_Shdr  section;
+    if (!fread(&section.sh_name, sizeof(Elf32_Word), 1, file))
+        fprintf(stderr, "Read error : (table section) name\n");
+
+    if (!fread(&section.sh_type, sizeof(Elf32_Word), 1, file))
+        fprintf(stderr, "Read error : (table section) type\n");
+
+    if (!fread(&section.sh_flags, sizeof(Elf32_Word), 1, file))
+        fprintf(stderr, "Read error : (table section) flags\n");
+
+    if (!fread(&section.sh_addr, sizeof(Elf32_Addr), 1, file))
+        fprintf(stderr, "Read error : (table section) address at which the section's first byte should reside\n");
+
+    if (!fread(&section.sh_offset, sizeof(Elf32_Off), 1, file))
+        fprintf(stderr,
+                "Read error : (table section) value gives the byte offset from the beginning of the file to the first byte in the section\n");
+
+    if (!fread(&section.sh_size, sizeof(Elf32_Word), 1, file))
+        fprintf(stderr, "Read error : (table section) section's size\n");
+
+    if (!fread(&section.sh_link, sizeof(Elf32_Word), 1, file))
+        fprintf(stderr, "Read error : (table section) section header table index link\n");
+
+    if (!fread(&section.sh_info, sizeof(Elf32_Word), 1, file))
+        fprintf(stderr, "Read error : (table section) extra information\n");
+
+    if (!fread(&section.sh_addralign, sizeof(Elf32_Word), 1, file))
+        fprintf(stderr, "Read error : (table section) address alignment constraints\n");
+
+    if (!fread(&section.sh_entsize, sizeof(Elf32_Word), 1, file))
+        fprintf(stderr, "Read error : (table section) table of fixed-size entries\n");
+
+    if (!IS_BIGENDIAN()) {
+        SWAPB(&section.sh_name, sizeof(Elf32_Word));
+        SWAPB(&section.sh_type, sizeof(Elf32_Word));
+        SWAPB(&section.sh_flags, sizeof(Elf32_Word));
+        SWAPB(&section.sh_addr, sizeof(Elf32_Addr));
+        SWAPB(&section.sh_offset, sizeof(Elf32_Off));
+        SWAPB(&section.sh_size, sizeof(Elf32_Word));
+        SWAPB(&section.sh_link, sizeof(Elf32_Word));
+        SWAPB(&section.sh_info, sizeof(Elf32_Word));
+        SWAPB(&section.sh_addralign, sizeof(Elf32_Word));
+        SWAPB(&section.sh_entsize, sizeof(Elf32_Word));
+    }
+
+    return section;
+}
+
+int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2) {
+    if(section1.sh_name != section2.sh_name) {
+        return 0;
+    }
+    if(section1.sh_type != section2.sh_type) {
+        return 0;
+    }
+    if(section1.sh_flags != section2.sh_flags) {
+        return 0;
+    }
+    if(section1.sh_addr != section2.sh_addr) {
+        return 0;
+    }
+    if(section1.sh_offset != section2.sh_offset) {
+        return 0;
+    }
+    if(section1.sh_size != section2.sh_size) {
+        return 0;
+    }
+    if(section1.sh_link != section2.sh_link) {
+        return 0;
+    }
+    if(section1.sh_info != section2.sh_info) {
+        return 0;
+    }
+    if(section1.sh_addralign != section2.sh_addralign) {
+        return 0;
+    }
+    if(section1.sh_entsize != section2.sh_entsize) {
+        return 0;
+    }
+
+    return 1;
 }

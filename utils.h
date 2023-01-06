@@ -67,3 +67,7 @@ void getSymType(char *type, Elf32_Rel rel);
 void getRelType(char *type, Elf32_Rel rel);
 
 void passerNLignes(FILE *file, uint n);
+
+Elf32_Shdr ReadOneSection(FILE* file);
+
+int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2);

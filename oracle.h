@@ -40,6 +40,16 @@ void oracleEtape3 (char *filename);
  */
 void oracleEtape4(char *filename);
 
+/**oracleEtape6
+ * Paramètres:
+ * - filename1 : le nom du premier fichier utilisé pour le test doit être un fichier .o
+ * - filename2 : le nom du deuxième fichier utilisé pour le test doit être un fichier .o
+ * Résultat: vérifie que la fonction LinkELFRenumSections fonctionne correctement
+ * Affiche un message d'erreur en cas d'échec
+ * Sinon affiche Succès
+ */
+void oracleEtape6(char* filename1, char* filename2);
+
 typedef struct RelocationSection {
     char* name;
     int offset;
