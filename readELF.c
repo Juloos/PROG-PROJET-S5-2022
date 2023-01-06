@@ -62,7 +62,6 @@ int main(int argc, char* argv[]) {
             else {
                 PrintELFSectionNum(file, header, sectionTable, numSection);
             }
-            printf("\n");
         }
 
         Elf32_Shdr sh_symtab = sectionTable[sectionName2Index(".symtab", file, header, sectionTable)];
