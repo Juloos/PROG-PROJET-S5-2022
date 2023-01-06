@@ -777,8 +777,8 @@ void oracleEtape5(char *fichier){
     lire_fichier(resultProgram, &relocation_sections_programme, &num_sections_programme);
 
     // Fermer les fichiers
-    fclose(resultProgram);
-    fclose(resultCommand);
+    pclose(resultProgram);
+    pclose(resultCommand);
 
     // Vérifier que le nombre de sections est le même
     if (num_sections_programme != num_sections_commandes) {

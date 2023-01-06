@@ -244,7 +244,7 @@ void PrintELFHeader(Elf32_Ehdr ehdr) {
 
     printf("\n  Number of section headers: \t\t%d", ehdr.e_shnum);
 
-    printf("\n  Section header string table index: \t%d\n", ehdr.e_shstrndx);
+    printf("\n  Section header string table index: \t%d\n\n", ehdr.e_shstrndx);
 }
 
 void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
@@ -275,7 +275,7 @@ void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable) {
            "  W: WRITE, A: ALLOC, X: EXECINSTR, M: MERGE, S: STRINGS\n"
            "  I: INFO_LINK, L: LINK_ORDER, O: OS_NONCONFORMING\n"
            "  G: GROUP, T: TLS, C: COMPRESSED, o: MASKOS\n"
-           "  p: MASKPROC, g: GNU_RETAIN, R: ORDERED, E: EXCLUDE\n");
+           "  p: MASKPROC, g: GNU_RETAIN, R: ORDERED, E: EXCLUDE\n\n");
 }
 
 void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection) {
@@ -289,12 +289,8 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
     printf("Section %d (%s):", numSection, name);
 
     if (shdrTable[numSection].sh_size) {
-        uint8_t buff[shdrTable[numSection].sh_size];
-        fseek(file, shdrTable[numSection].sh_offset, SEEK_SET);
-        if (!fread(buff, 1, shdrTable[numSection].sh_size, file))
-            fprintf(stderr, "Read error : (ELFSectionNum)\n");
-
         int i;
+        uint8_t *buff = getSectionContent(file, shdrTable[numSection]);
         uint8_t buff16[17];
         buff16[16] = 0;
         for (i = 0; i < shdrTable[numSection].sh_size; i++) {
@@ -315,9 +311,11 @@ void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int 
             buff16[j % 16] = ' ';
             j++;
         }
-
         if (i % 16 != 0)
             printf("  %s", buff16);
+
+        free(buff);
+
     } else
         printf("\n  No data");
 
@@ -353,6 +351,7 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
                name
         );
     }
+    printf("\n");
 }
 
 void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable, Elf32_Rel **relTables) {
@@ -363,7 +362,7 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
         if (relTables[i] != NULL) {
             strcpy(name, "");
             getSectionName(name, file, ehdr, shdrTable, i);
-            printf("\nRelocation section '%s' at offset 0x%x contains %d entries:\n",
+            printf("Relocation section '%s' at offset 0x%x contains %d entries:\n",
                    name,
                    shdrTable[i].sh_offset,
                    shdrTable[i].sh_size / shdrTable[i].sh_entsize);
@@ -383,6 +382,7 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
                        symTable[rsym].st_value,
                        name);
             }
+            printf("\n");
         }
     }
 }
