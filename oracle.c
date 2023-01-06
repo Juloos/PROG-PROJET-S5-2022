@@ -500,82 +500,86 @@ void oracleEtape2(char *filename) {
         printf("Succes pour l'etape 2\n");
 }
 
-
 void oracleEtape3(char *filename) {
     FILE *file = fopen(filename, "r");
     Elf32_Ehdr header;
     ReadELFHeader(file, &header);
-    for (int j = 1; j < header.e_shnum; j++) {
-        char command[STR_SIZE] = "readelf -x ";
-        char comman2[STR_SIZE] = "./readELF -x ";
-        char argument[STR_SIZE];
-        sprintf(argument, "%d ", j);
-        strcat(argument, filename);
-        strcat(command, argument);
-        strcat(comman2, argument);
-        printf("%s\n%s\n\n", command, comman2);
-        //tableau contenant le résultat de la commande
-        char result[STR_SIZE];
-        char result2[STR_SIZE];
-        //on exécute la commande
-        FILE *fp = popen(command, "r");
-        FILE *ff = popen(comman2, "r");
-        char zoumzoum[STR_SIZE];
-        char soumzoum[STR_SIZE];
-        if (strlen(fgets(result, STR_SIZE, fp)) == 1 ||
-            strlen(fgets(result2, STR_SIZE, ff)) == 1) { // si la ligne est vide
-            passerNLignes(fp, 1);
-            passerNLignes(ff, 1);
-            while (fgets(result, STR_SIZE, fp) != NULL &&
-                   fgets(result2, STR_SIZE, ff) != NULL) { //on lit le résultat de la commande
-                //on concatene successivement les charactères de la ligne dans le tableau zoumzoum en enlevant les espaces les tabulations et les retours à la ligne
-                int i = 0;
-                int j = 0;
-                while (result[i] != '\0') {
-                    if (result[i] != ' ' && result[i] != '\n') {
-                        zoumzoum[j] = result[i];
-                        j++;
-                    }
-                    i++;
-                }
-                i = 0;
-                j = 0;
-                while (result2[i] != '\0') {
-                    if (result2[i] != ' ' && result2[i] != '\n') {
-                        soumzoum[j] = result2[i];
-                        j++;
-                    }
-                    i++;
-                }
-                printf("%s\n%s\n\n", result, result2);
-                if (strcmp(zoumzoum, soumzoum) != 0) {
-                    printf("Echec pour l'etape 3\n");
-                    printf(" zoumzoum(commande) : %s\n soumzoum(fonction) : %s\n", zoumzoum, soumzoum);
-                    pclose(fp);
-                    pclose(ff);
-                    exit(0);
-                }
+    Elf32_Shdr *shdr = create_ELFTableSections(header);
+    ReadELFTableSections(file, header, shdr);
+
+    char command[2 * STR_SIZE];
+    char ligne[STR_SIZE];
+    FILE *resultCommand;
+    uint8_t *resultProgram;
+    uint8_t octet;
+    int k;
+    int echec = 0;
+    for (int i = 1; i < header.e_shnum; i++) {
+        sprintf(command, "readelf -x %d %s", i, filename);
+        resultCommand = popen(command, "r");
+
+        if (!fgets(ligne, STR_SIZE, resultCommand))
+            fprintf(stderr, "Read error : (oracleEtape3) fgets\n");
+
+        if (shdr[i].sh_size)
+            resultProgram = getSectionContent(file, shdr[i]);
+        else {
+            char name[STR_SIZE] = "";
+            getSectionName(name, file, header, shdr, i);
+            char nodata[2 * STR_SIZE];
+            sprintf(nodata, "Section '%s' has no data to dump.\n", name);
+            if (strcmp(nodata, ligne) != 0) {
+                printf("Erreur sur la section %d\n", i);
+                printf("  contenu obtenue avec readelf -x : %s\n", ligne);
+                printf("  est vide avec le programme\n\n");
+                echec = 1;
             }
-            printf("_____________________________________________\n\n");
-        } else {
-            //on verifie que la ligne commence par "Section";
-            if (strncmp(result, "Section", 7) == 0 && strncmp(result2, "Section", 7) == 0) {
-                //on affiche le résultat
-                printf("  No Data\n");
-            } else {
-                fprintf(stderr, "Erreur lors de l'exécution de la commande readelf -x nbsection filename");
-                return;
-            }
+            continue;
         }
-        if (strcmp(soumzoum, zoumzoum) != 0) {
-            printf("Echec pour l'etape 3\n");
-            printf(" zoumzoum(commande) : %s\n soumzoum(fonction) : %s\n", zoumzoum, soumzoum);
-        } else
-            printf("Succes pour l'etape 3\n");
-        //on ferme le fichier
-        pclose(fp);
-        pclose(ff);
+
+        passerNLignes(resultCommand, 1);  // On passe la ligne "Hex dump of section '...':"
+        if (!fgets(ligne, STR_SIZE, resultCommand))
+            fprintf(stderr, "Read error : (oracleEtape3) fgets\n");
+
+        if (strcmp(" NOTE: This section has relocations against it, but these have NOT been applied to this dump.\n", ligne) == 0) {
+            if (!fgets(ligne, STR_SIZE, resultCommand))
+                fprintf(stderr, "Read error : (oracleEtape3) fgets\n");
+        }
+
+        k = 0;
+        do {
+            for (int j = 13; j < 48; j++)
+                ligne[j - 13] = ligne[j];  // On supprime l'adresse
+            ligne[36] = 0;
+
+            for (int j = 0; j < 35; j += 2) {
+                if (ligne[j] == ' ') {
+                    if (ligne[j - 1] == ' ')
+                        break;
+                    j--;
+                } else {
+                    sscanf(ligne + j, "%2hhx", &octet);
+                    if (octet != resultProgram[k]) {
+                        printf("Erreur sur la section %d (offset 0x%.8x)\n", i, k);
+                        printf("  octet obtenu avec readelf -x : %.2x\n", octet);
+                        printf("  octet obtenu avec le programme : %.2x\n\n", resultProgram[k]);
+                        echec = 1;
+                        break;
+                    }
+                    k++;
+                }
+            }
+        } while (fgets(ligne, STR_SIZE, resultCommand) && ligne[0] != '\n' && echec == 0);
+
+        pclose(resultCommand);
+        free(resultProgram);
     }
+    fclose(file);
+
+    if (echec)
+        printf("Echec pour l'etape 3\n");
+    else
+        printf("Succes pour l'etape 3\n");
 }
 
 void oracleEtape4(char *filename) {
@@ -723,106 +727,13 @@ void oracleEtape4(char *filename) {
     else
         printf("Succes pour l'etape 4\n");
 }
-void lire_fichier(FILE* fichier, RelocationSection** relocation_sections, int* num_sections) {
-    char ligne[256];
-    while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
-        if (strstr(ligne, "Relocation section") != NULL) {
-            // Allouer de la mémoire pour une nouvelle section
-            *relocation_sections = realloc(*relocation_sections, (*num_sections + 1) * sizeof(RelocationSection));
-            RelocationSection* section = &(*relocation_sections)[*num_sections];
-            section->inputs = NULL;
-            *num_sections += 1;
 
-            // Récupérer le nom et l'offset de la section à partir de la ligne
-            char* pch = strtok(ligne, "\'");
-            pch = strtok(NULL, "\'");
-            section->name = malloc(strlen(pch) + 1);
-            strcpy(section->name, pch);
-            pch = strtok(NULL, "\'");
-            //Récuperer l'offset de le mot de la phrase qui commence par 0x
-            char* offset = strstr(pch, "0x");
-            section->offset = strtol(offset, NULL, 16);
-        } else if (strcmp(ligne, "\n") != 0 && strstr(ligne, "Offset") == NULL) {
-            // Récupérer les entrées de la section à partir de la ligne
-            RelocationSection* section = &(*relocation_sections)[*num_sections - 1];
-            int num_inputs = 0;
-            char* pch = strtok(ligne, " ");
-            while (pch != NULL) {
-                // Allouer de la mémoire pour une nouvelle entrée
-                section->inputs = realloc(section->inputs, (num_inputs + 1) * sizeof(char*));
-                char* input = malloc(strlen(pch) + 1);
-                strcpy(input, pch);
-                section->inputs[num_inputs] = input;
-                num_inputs += 1;
-
-                pch = strtok(NULL, " ");
-            }
-            section->inputs = realloc(section->inputs, (num_inputs + 1) * sizeof(char*));
-            section->inputs[num_inputs] = NULL;
-        }
-    }
-}
-void oracleEtape5(char *fichier){
+void oracleEtape5(char *fichier) {
     char command[STR_SIZE] = "readelf -r ";
     FILE *resultCommand = popen(strcat(command, fichier), "r");
     char programme[STR_SIZE] = "./readELF -r ";
     FILE *resultProgram = popen(strcat(programme, fichier), "r");
-    // Lire les fichiers
-    RelocationSection* relocation_sections_commandes = NULL;
-    int num_sections_commandes = 0;
-    lire_fichier(resultCommand, &relocation_sections_commandes, &num_sections_commandes);
 
-    RelocationSection* relocation_sections_programme = NULL;
-    int num_sections_programme = 0;
-    lire_fichier(resultProgram, &relocation_sections_programme, &num_sections_programme);
-
-    // Fermer les fichiers
-    pclose(resultProgram);
-    pclose(resultCommand);
-
-    // Vérifier que le nombre de sections est le même
-    if (num_sections_programme != num_sections_commandes) {
-        printf("%d sections dans le programme, %d sections dans la commande\n", num_sections_programme, num_sections_commandes);
-        printf("Le programme de l'étape 5 ne trouve pas le même nombre de tables de réimplantation que la commande readelf -r\n");
-        return;
-    }
-
-    // Vérifier que chaque section est la même
-    int i;
-    for (i = 0; i < num_sections_commandes; i++) {
-        RelocationSection* section_commandes = &relocation_sections_commandes[i];
-        RelocationSection* section_programme = &relocation_sections_programme[i];
-
-        if (strcmp(section_commandes->name, section_programme->name) != 0 ||
-            section_commandes->offset != section_programme->offset ||
-            section_commandes->inputs == NULL || section_programme->inputs == NULL) {
-            break;
-        }
-
-        int j;
-        for (j = 0; section_commandes->inputs[j] != NULL && section_programme->inputs[j] != NULL; j++) {
-            if (strcmp(section_commandes->inputs[j], section_programme->inputs[j]) != 0) {
-                break;
-            }
-        }
-
-        if (section_commandes->inputs[j] != NULL || section_programme->inputs[j] != NULL) {
-            break;
-        }
-    }
-
-    // Afficher le résultat
-    if (i == num_sections_commandes) {
-        printf("Succès pour l'étape 5\n");
-        free(relocation_sections_commandes);
-        free(relocation_sections_programme);
-        return;
-    } else {
-        free(relocation_sections_commandes);
-        free(relocation_sections_programme);
-        printf("Echec pour l'étape 5\n");
-        return;
-    }
 }
 
 int main(int argc, char *argv[]) {
@@ -830,12 +741,12 @@ int main(int argc, char *argv[]) {
         printf("Il faut au moins un fichier de test\n");
     else {
         for (int i = 1; i < argc; i++) {
-            printf("Tests avec le fichier '%s'\n", argv[i]);
+            printf("\nTests avec le fichier '%s'\n", argv[i]);
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
-            //oracleEtape3(argv[i]);
-            //oracleEtape4(argv[i]);
-            oracleEtape5(argv[i]);
+            oracleEtape3(argv[i]);
+            oracleEtape4(argv[i]);
+//            oracleEtape5(argv[i]);
         }
     }
     return 0;
