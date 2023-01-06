@@ -55,6 +55,13 @@ Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
  */
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr);
 
+
+/* getSectionContent
+ * Paramètres :
+ *  - file : un pointeur sur un fichier ELF
+ *  - shdr : une section
+ * Résultat : Permet de récupérer le contenu d'une section
+ */
 uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr);
 
 
