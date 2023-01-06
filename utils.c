@@ -36,7 +36,7 @@ Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
 uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr) {
     uint8_t *content = (uint8_t *) malloc(shdr.sh_size);
     fseek(file, shdr.sh_offset, SEEK_SET);
-    if (!fread(content, 1, shdr.sh_size, file))
+    if (!fread(content, 1, shdr.sh_size, file) || content == NULL)
         fprintf(stderr, "Read error : (getSectionContent) content of section\n");
     return content;
 }
