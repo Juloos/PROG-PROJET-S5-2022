@@ -33,6 +33,14 @@ Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
     return (Elf32_Rel **) malloc(ehdr.e_shnum * sizeof(Elf32_Rel * ));
 }
 
+uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr) {
+    uint8_t *content = (uint8_t *) malloc(shdr.sh_size);
+    fseek(file, shdr.sh_offset, SEEK_SET);
+    if (!fread(content, 1, shdr.sh_size, file))
+        fprintf(stderr, "Read error : (getSectionContent) content of section\n");
+    return content;
+}
+
 void getHeaderClass(char *class, Elf32_Ehdr ehdr) {
     switch (ehdr.e_ident[EI_CLASS]) {
         case ELFCLASSNONE:
@@ -491,7 +499,7 @@ void getRelType(char *type, Elf32_Rel rel) {
 
 
 void passerNLignes(FILE *file, uint n) {
-    char ligne[200];
+    char ligne[STR_SIZE];
     for (int i = 0; i < n; i++) {
         if (!fgets(ligne, sizeof(ligne), file)) {
             printf("Erreur lors de la lecture\n");
