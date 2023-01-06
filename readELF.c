@@ -72,6 +72,10 @@ int main(int argc, char* argv[]) {
             PrintELFTableSymbols(file, header, sectionTable, symbolTable);
         }
 
+        if(!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_RELOCATION_TABLE)) {
+            PrintELFRelocationTable(file, &header, sectionTable, symbolTable);
+        }
+
         printf("\n");
 
         free(sectionTable);
