@@ -784,6 +784,86 @@ void oracleEtape5(char *filename) {
     pclose(resultCommand);
 }
 
+void oracleEtape6(char* filename1, char* filename2) {
+    // Ouverture des fichiers
+    FILE* file1 = fopen(filename1, "r");
+    FILE* file2 = fopen(filename2, "r");
+    char resultatName[] = "resultatOracleEtape6.txt";
+    FILE* resultat = fopen(resultatName, "w");
+
+    // Récupération du header et de la table des sections du fichier 1
+    Elf32_Ehdr headerF1;
+    ReadELFHeader(file1, &headerF1);
+    Elf32_Shdr* sectionsTableF1 = create_ELFTableSections(headerF1);
+    ReadELFTableSections(file1, headerF1, sectionsTableF1);
+
+    // Récupération du header et de la table des sections du fichier 2
+    Elf32_Ehdr headerF2;
+    ReadELFHeader(file2, &headerF2);
+    Elf32_Shdr* sectionsTableF2 = create_ELFTableSections(headerF2);
+    ReadELFTableSections(file2, headerF2, sectionsTableF2);
+
+    // Appel à la fonction Link et écriture de son résultat dans le fichier resultat
+    LinkELFRenumSections(file1, file2, resultat);
+
+    // Passage du fichier resultat en mode lecture
+    fclose(resultat);
+    resultat = fopen(resultatName, "r");
+
+    // Comparaison des sections des deux fichiers file1 et file2 avec celles du fichier resultat
+    // Vérification des sections de file1
+    int i = 0;
+    int echec = 0;
+    while(i < headerF1.e_shnum && !echec) {
+        fseek(file1, sectionsTableF1[i].sh_offset, SEEK_SET);
+        Elf32_Shdr section = ReadOneSection(resultat);
+
+        echec = SectionCmp(section, sectionsTableF1[i]);
+        // Pour une section de type PROGBITS
+        if(!echec && sectionsTableF1[i].sh_type == SHT_PROGBITS) {
+            Elf32_Shdr sectionSuivante = ReadOneSection(resultat);
+
+            // Vérifie que la section suivante est une section de file2
+            int j = 0;
+            while (j < headerF2.e_shnum && sectionSuivante.sh_name != sectionsTableF2[i].sh_name) {
+                j++;
+            }
+
+            echec = j < headerF2.e_shnum && section.sh_name == sectionSuivante.sh_name;
+        }
+
+        i += 1;
+    }
+
+    if(!echec) {
+        i = 0;
+        while(i < headerF2.e_shnum && !echec) {
+            fseek(file1, sectionsTableF2[i].sh_offset, SEEK_SET);
+            Elf32_Shdr section = ReadOneSection(resultat);
+
+            echec = SectionCmp(section, sectionsTableF2[i]);
+
+            i += 1;
+        }
+    }
+
+    if(echec) {
+        printf("Echec pour l'étape 6\n");
+    } else {
+        printf("Succès pour l'étape 6\n");
+    }
+
+    // Fermeture des fichiers
+    fclose(file1);
+    fclose(file2);
+    fclose(resultat);
+
+    // Libération de la mémoire
+    free(sectionsTableF1);
+    free(sectionsTableF2);
+}
+
+
 int main(int argc, char *argv[]) {
     if (argc < 2)
         printf("Il faut au moins un fichier de test\n");
@@ -796,6 +876,7 @@ int main(int argc, char *argv[]) {
             oracleEtape4(argv[i]);
             oracleEtape5(argv[i]);
         }
+        // check for 2 arguments for oracle 6
     }
     return 0;
 }
