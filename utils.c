@@ -457,26 +457,6 @@ Elf32_Half Ndx2symNdx(char *ndx) {
     return (Elf32_Half) strtol(ndx, NULL, 10);
 }
 
-void getSymType(char *type, Elf32_Rel rel) {
-    switch (ELF32_R_TYPE(rel.r_info)) {
-        case R_ARM_NONE:
-            strcpy(type, "R_ARM_NONE");
-            return;
-        case R_ARM_JUMP24:
-            strcpy(type, "R_ARM_JUMP24");
-            return;
-        case R_ARM_ABS32:
-            strcpy(type, "R_ARM_ABS32");
-            return;
-        case R_ARM_CALL:
-            strcpy(type, "R_ARM_CALL");
-            return;
-        default:
-            break;
-    }
-    strcpy(type, "UNKNOWN");
-}
-
 void getRelType(char *type, Elf32_Rel rel) {
     switch (ELF32_R_TYPE(rel.r_info)) {
         case R_ARM_NONE:

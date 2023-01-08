@@ -6,281 +6,252 @@
 #define STR_SIZE 256
 
 /* IS_BIGENDIAN
- * Résultat : Vérifie *...* bien au format Big Endian
+ * Resultat : renvoie 1 si le systeme operand est au format Big Endian
  */
 int IS_BIGENDIAN();
 
 
 /* SWAPB
- * Paramètres :
+ * Parametres :
  *  - ptr : un pointeur
- *  - size : un taille
- * Résultat : Change le format en Big Endian si ce n'est pas déjà le cas
+ *  - size : la taille pointee par ptr
+ * Resultat : inverse l'ordre des octets de ptr
  */
 void SWAPB(void *ptr, int size);
 
 
 /* create_ELFTableSections
- * Paramètre :
- *  - ehdr : un header ELF
- * Résultat : Alloue la mémoire nécessaire pour pouvoir afficher par la suite la table des sections d'un fichier ELF
+ * Parametre :
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : alloue la memoire necessaire a la creation de la table des sections
  */
 Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr);
 
 
 /* create_ELFTableSymbols
- * Paramètre :
+ * Parametre :
  *  - sh_symtab : le header de la table des symboles
- * Résultat : Alloue la mémoire nécessaire pour pouvoir afficher par la suite la table des symboles d'un fichier ELF
+ * Resultat : alloue la memoire necessaire a la creation de la table des symboles
  */
 Elf32_Sym *create_ELFTableSymbols(Elf32_Shdr sh_symtab);
 
 
 /* create_ELFTableRel
- * Paramètre :
- *  - shdr : Une section
- * Résultat : Alloue la mémoire nécessaire pour pouvoir afficher par la suite les tables des réimplantations d'un fichier ELF
+ * Parametre :
+ *  - shdr : l'en-tete d'une section
+ * Resultat : alloue la memoire necessaire a la creation de la table des relocations d'une section
  */
-Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
-
-Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
-
 Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
 
 
 /* create_ELFTablesRel
- * Paramètre :
- *  - ehdr : un header ELF
- * Résultat :
+ * Parametre :
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : alloue la memoire necessaire a la creation de la table des relocations de toutes les sections concernees
  */
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr);
 
 
 /* getSectionContent
- * Paramètres :
+ * Parametres :
  *  - file : un pointeur sur un fichier ELF
- *  - shdr : une section
- * Résultat : Permet de récupérer le contenu d'une section
+ *  - shdr : l'en-tete d'une section
+ * Resultat : alloue, ecrit et renvoie le contenue d'une section sous la forme d'un tableau d'octets
  */
 uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr);
 
 
 /* getHeaderClass
- * Paramètres :
- *  - class : un pointeur sur class
- *  - ehdr : un header ELF
- * Résultat : Permet d'obtenir la capacité d'un fichier ELF
- *  - invalide si ELFNONE
- *  - 32 bits si ELF32
- *  - 64 bits si ELF64
+ * Parametres :
+ *  - class : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : la classe du fichier ELF est ecrit dans la chaine class
  */
 void getHeaderClass(char *class, Elf32_Ehdr ehdr);
 
 
 /* getHeaderData
- * Paramètres :
- *  - data : un pointeur sur data
- *  - ehdr : un header ELF
- * Résultat : Permet d'obtenir la spécification d'encodage d'un fichier ELF
- *  - invalide
- *  - Little endian
- *  - Big endian
+ * Parametres :
+ *  - data : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : l'endianness et la complementarite du fichier ELF est ecrit dans la chaine data
  */
 void getHeaderData(char *data, Elf32_Ehdr ehdr);
 
 
 /* getHeaderOSABI
- * Paramètres :
- *  - osabi : un pointeur sur osabi
- *  - ehdr : un header ELF
- * Résultat : Permet de connaitre (pas trop compris ce que ça fait, obtenir le type de systeme d'exploitation necessaire?)
+ * Parametres :
+ *  - osabi : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : l'architecture logicielle pour laquelle a ete concue le fichier ELF est ecrit dans la chaine osabi
  */
 void getHeaderOSABI(char *osabi, Elf32_Ehdr ehdr);
 
 
 /* getHeaderType
- * Paramètres :
- *  - type : un pointeur sur type
- *  - ehdr : un header ELF
- * Résultat : Permet d'obtenir le type d'un fichier ELF
- *              (ennumerer tout les type possible ?)
+ * Parametres :
+ *  - type : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : le type du fichier ELF est ecrit dans la chaine type
  */
 void getHeaderType(char *type, Elf32_Ehdr ehdr);
 
 
 /* getHeaderMachine
- * Paramètres :
- *  - machine : un pointeur sur machine
- *  - ehdr : un header ELF
- * Résultat : Permet de connaitre l'architecture necessaire d'un fichier ELF
+ * Parametres :
+ *  - machine : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : l'architecture materielle pour laquelle a ete concue le fichier ELF est ecrit dans la chaine machine
  */
 void getHeaderMachine(char *machine, Elf32_Ehdr ehdr);
 
 
 /* getSectionName
- * Paramètres :
- *  - name :
+ * Parametres :
+ *  - name : une chaine de characteres initialisee dans laquelle mettre le resultat
  *  - file : pointeur sur un fichier ELF
- *  - ehdr : un header ELF
- *  - shdrTable : un tableau de sections
- *  - numSection : un entier définissant le numéro de la section
- * Résultat : Obtenir le nom de la section voulue
+ *  - ehdr : l'en-tete d'un fichier ELF
+ *  - shdrTable : la table des sections
+ *  - numSection : le numero de la section recherchee
+ * Resultat : le nom de la section est ecrit dans la chaine name
  */
 void getSectionName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection);
 
 
 /* getSectionName2Index
- * Paramètres :
- *  - name :
+ * Parametres :
+ *  - name : le nom de la section a chercher, chaine de characteres
  *  - file : pointeur sur un fichier ELF
- *  - ehdr : un header ELF
- *  - shdrTable : un tableau de sections
- * Résultat : Obtenir l'indice du nom de la section voulue
+ *  - ehdr : l'en-tete d'un fichier ELF
+ *  - shdrTable : la table des sections
+ * Resultat : renvoie l'indice de la section portant le nom recherhe dans le fichier ELF
  */
 int sectionName2Index(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
 
 
 /* getSectionType
- * Paramètres :
- *  - type : pointeur sur le type de section
- *  - shdr : Une section
- * Résultat : Obtenir le type de la section voulue
+ * Parametres :
+ *  - type : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - shdr : l'en-tete d'une section
+ * Resultat : le type de la section est ecrit dans la chaine type
  */
 void getSectionType(char *type, Elf32_Shdr shdr);
 
 
 /* getSectionFlags
- * Paramètres :
- *  - flags : pointeur sur les flags de section
- *  - shdr : Une section
- * Résultat : Obtenir le flag de la section voulue
+ * Parametres :
+ *  - flags : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - shdr : l'en-tete d'une section
+ * Resultat : les flags de la section sont ecrits dans la chaine flags (des '-' remplacent les flags manquants)
  */
 void getSectionFlags(char *flags, Elf32_Shdr shdr);
 
 
-/* getSectionFlags2
- * Paramètres :
- *  - flags : pointeur sur les flags de section
- *  - shdr : Une section
- * Résultat : Obtenir le second flag de la section voulue
- */
+// Meme chose que getSectionFlags, avec les characteres '-' en moins
 void getSectionFlags2(char *flags, Elf32_Shdr shdr);
 
 
 /* getSymbolName
- * Paramètres :
- *  - name : pointeur
+ * Parametres :
+ *  - name : une chaine de characteres initialisee dans laquelle mettre le resultat
  *  - file : pointeur sur un fichier ELF
- *  - ehdr : un header ELF
- *  - shdrTable : un tableau de sections
- *  - symEntry :
- * Résultat : Obtenir le nom de la table des symboles
+ *  - ehdr : l'en-tete d'un fichier ELF
+ *  - shdrTable : la table des sections
+ *  - symEntry : un symbole, de la table des symboles du fichier ELF
+ * Resultat : le nom du symbole est ecrit dans la chaine name
  */
 void getSymbolName(char *name, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym symEntry);
 
 
 /* getSymbolType
- * Paramètres :
- *  - type : pointeur sur la partie du type de la table des symboles
- *  - symEntry :
- * Résultat : Obtenir le type de la table des symboles
+ * Parametres :
+ *  - type : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - symEntry : un symbole, de la table des symboles du fichier ELF
+ * Resultat : le type du symbole est ecrit dans la chaine type
  */
 void getSymbolType(char *type, Elf32_Sym symEntry);
 
 
 /* Type2symType
- * Paramètre :
- *  - type : pointeur sur la partie du type de la table des symboles
- * Résultat : Fournit le type de symbole nécessaire à l'édition de liens
+ * Parametre :
+ *  - type : le type d'un symbole sous la forme d'une chaine de characteres
+ * Resultat : renvoie la valeur correspondant au type
  */
 unsigned char Type2symType(char *type);
 
 
 /* Type2shType
- * Paramètre :
- *  - type : pointeur sur la partie du type de la table des sections
- * Résultat : Fournit le type de la section nécessaire à l'édition de liens
+ * Parametre :
+ *  - type : le type d'une section sous la forme d'une chaine de characteres
+ * Resultat : renvoie la valeur correspondant au type
  */
 Elf32_Word Type2shType(char *type);
 
 
 /* getSymbolBind
- * Paramètres :
- *  - bind : pointeur sur la partie bind de la table des symboles
- *  - symEntry :
- * Résultat :
+ * Parametres :
+ *  - bind : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - symEntry : un symbole, de la table des symboles du fichier ELF
+ * Resultat : la liaison du symbole est ecrit dans la chaine bind
  */
 void getSymbolBind(char *bind, Elf32_Sym symEntry);
 
 
 /* Bind2SymBind
- * Paramètre :
- *  - bind : pointeur sur la partie bind de la table des symboles
- * Résultat : Obtenir le type de liaison (?)
+ * Parametre :
+ *  - bind : la liaison d'un symbole sous la forme d'une chaine de characteres
+ * Resultat : renvoie la valeur correspondant a la liaison
  */
 unsigned char Bind2symBind(char *bind);
 
 
-/* getSymBolVis ?
- * Paramètres :
- *  - visibility :
- *  - symEntry :
- * Résultat :
+/* getSymBolVis
+ * Parametres :
+ *  - visibility : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - symEntry : un symbole, de la table des symboles du fichier ELF
+ * Resultat : la visibilite du symbole est ecrit dans la chaine visibility
  */
 void getSymbolVis(char *visibility, Elf32_Sym symEntry);
 
 
-/* Vis2symVis ?
- * Paramètre :
- *  - vis :
- * Résultat :
+/* Vis2symVis
+ * Parametre :
+ *  - vis : la visibilite d'un symbole sous la forme d'une chaine de characteres
+ * Resultat : renvoie la valeur correspondant a la visibilite
  */
 unsigned char Vis2symVis(char *vis);
 
 
 /* getSymBolNdx
- * Paramètres :
- *  - ndx : pointeur sur l'indice de section (moyen sûre)
- *  - symEntry :
- * Résultat :
+ * Parametres :
+ *  - ndx : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - symEntry : un symbole, de la table des symboles du fichier ELF
+ * Resultat : le ndx du symbole est ecrit dans la chaine ndx
  */
 void getSymbolNdx(char *ndx, Elf32_Sym symEntry);
 
 
 /* Ndx2symNdx
- * Paramètre :
- *  - ndx : pointeur sur l'indice de section
- * Résultat :
+ * Parametre :
+ *  - ndx : le ndx d'un symbole sous la forme d'une chaine de characteres
+ * Resultat : renvoie la valeur correspondant au ndx
  */
 Elf32_Half Ndx2symNdx(char *ndx);
 
 
-/* getSymType
- * Paramètres :
- *  - type :
- *  - rel :
- * Résultat :
- */
-void getSymType(char *type, Elf32_Rel rel);
-
-
 /* getRelType
- * Paramètres :
- *  - type :
- *  - rel :
- * Résultat : Obtenir le type des tables de réimplantation
+ * Parametres :
+ *  - type : une chaine de characteres initialisee dans laquelle mettre le resultat
+ *  - rel : une relocation, de la table des relocations d'une section
+ * Resultat : le type de la relocation est ecrit dans la chaine type
  */
 void getRelType(char *type, Elf32_Rel rel);
 
 
 /* passerNLignes
- * Paramètres :
+ * Parametres :
  *  - file : un pointeur sur un fichier
- *  - n : un entier >= 0
- * Résultat : passe les n lignes suivants dans le fichier
+ *  - n : un entier positif
+ * Resultat : passe les n lignes suivants dans le fichier
  */
 void passerNLignes(FILE *file, uint n);
-
-Elf32_Shdr ReadOneSection(FILE* file);
-
-int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2);

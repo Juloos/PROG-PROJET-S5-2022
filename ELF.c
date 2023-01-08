@@ -374,7 +374,7 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
                 strcpy(name, "");
                 getSymbolName(name, file, ehdr, shdrTable, symTable[rsym]);
                 strcpy(type, "");
-                getSymType(type, relTables[i][j]);
+                getRelType(type, relTables[i][j]);
                 printf(" %.8x  %.8x    %s      %.8x    %s\n",
                        relTables[i][j].r_offset,
                        relTables[i][j].r_info,
