@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
     if (argc != 4) {
-        fprintf(stderr, "Usage: %s <input1> <input1> <output>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <input1> <input2> <output>\n", argv[0]);
         exit(EXIT_FAILURE);
     }
     FILE *input1 = fopen(argv[1], "r");
