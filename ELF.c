@@ -159,12 +159,12 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     }
 }
 
-void ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32_Shdr *shdr, Elf32_Sym *symTable) {
+void ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable) {
     for (int i = 0; i < ehdr.e_shnum; i++) {
-        if (shdr[i].sh_type == SHT_REL) {
-            relTables[i] = create_ELFTableRel(shdr[i]);
-            for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
-                fseek(file, shdr[i].sh_offset + j * sizeof(Elf32_Rel), SEEK_SET);
+        if (shdrTable[i].sh_type == SHT_REL) {
+            relTables[i] = create_ELFTableRel(shdrTable[i]);
+            for (int j = 0; j < shdrTable[i].sh_size / shdrTable[i].sh_entsize; j++) {
+                fseek(file, shdrTable[i].sh_offset + j * sizeof(Elf32_Rel), SEEK_SET);  // erreur mystique quand en dehors de la boucle, TODO: corriger ça
 
                 if (!fread(&relTables[i][j].r_offset, sizeof(Elf32_Addr), 1, file))
                     fprintf(stderr, "Read error : (ReadELFRelocationTable) r_offset\n");
@@ -173,7 +173,7 @@ void ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, 
                     fprintf(stderr, "Read error : (ReadELFRelocationTable) r_info\n");
             }
             if (!IS_BIGENDIAN()) {
-                for (int j = 0; j < shdr[i].sh_size / sizeof(Elf32_Rel); j++) {
+                for (int j = 0; j < shdrTable[i].sh_size / shdrTable[i].sh_entsize; j++) {
                     SWAPB(&relTables[i][j].r_offset, sizeof(Elf32_Addr));
                     SWAPB(&relTables[i][j].r_info, sizeof(Elf32_Word));
                 }
@@ -358,6 +358,7 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
     char name[STR_SIZE];
     char type[STR_SIZE];
 
+    int nbRel = 0;
     for (int i = 0; i < ehdr.e_shnum; i++) {
         if (relTables[i] != NULL) {
             strcpy(name, "");
@@ -368,14 +369,14 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
                    shdrTable[i].sh_size / shdrTable[i].sh_entsize);
 
             int rsym;
-            printf(" Offset      Info         Type          Sym.value   Sym.name\n");
-            for (int j = 0; j < shdrTable[i].sh_size / sizeof(Elf32_Rel); j++) {
+            printf(" Offset      Info         Type           Sym.value   Sym.name\n");
+            for (int j = 0; j < shdrTable[i].sh_size / shdrTable[i].sh_entsize; j++) {
                 rsym = ELF32_R_SYM(relTables[i][j].r_info);
                 strcpy(name, "");
                 getSymbolName(name, file, ehdr, shdrTable, symTable[rsym]);
                 strcpy(type, "");
                 getRelType(type, relTables[i][j]);
-                printf(" %.8x  %.8x    %s      %.8x    %s\n",
+                printf(" %.8x  %.8x    %-12s      %.8x    %s\n",
                        relTables[i][j].r_offset,
                        relTables[i][j].r_info,
                        type,
@@ -383,8 +384,11 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
                        name);
             }
             printf("\n");
+            nbRel++;
         }
     }
+    if (nbRel == 0)
+        printf("There are no relocations in this file.\n\n");
 }
 
 

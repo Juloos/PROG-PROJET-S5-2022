@@ -590,7 +590,7 @@ void oracleEtape4(char *filename) {
     int imax;
     passerNLignes(resultCommand, 1);
     if (fscanf(resultCommand, "Symbol table '%*[^']' contains %d", &imax) != 1)
-        fprintf(stderr, "Erreur de lecture du nombre d'entrees\n");
+        fprintf(stderr, "Erreur de lecture du nombre d'entrées\n");
     passerNLignes(resultCommand, 1);
 
     Elf32_Sym st[imax];
@@ -754,6 +754,17 @@ void oracleEtape5(char *filename) {
     while (fgets(ligne, STR_SIZE, resultCommand)) {
         if (strcmp(ligne, "\n") == 0)
             continue;
+        else if (strcmp(ligne, "There are no relocations in this file.\n") == 0) {
+            for (int i = 0; i < ehdr.e_shnum; i++) {
+                if (relTables[i] != NULL && shdrTable[i].sh_size) {
+                    fprintf(stderr, "Erreur sur la table des relocation\n");
+                    fprintf(stderr, "  pas de relocation avec la commande readelf -r\n");
+                    fprintf(stderr, "  section %d contient des relocations avec la fonction ReadELFRelocationTable\n\n", i);
+                    echec = 1;
+                }
+            }
+            continue;
+        }
         else if (strncmp(ligne, "Relocation section", 18) == 0) {
             sscanf(ligne, "Relocation section '%[^']s'", name);
             index = sectionName2Index(name, file, ehdr, shdrTable);
@@ -762,17 +773,23 @@ void oracleEtape5(char *filename) {
             continue;
         }
         sscanf(ligne, "%8x %8x", &r_offset, &r_info);
-        if (r_offset != relTables[index][k].r_offset) {
-            fprintf(stderr, "Erreur sur l'entrée %d de la table de relocation %s\n", k, name);
-            fprintf(stderr, "  r_offset obtenu avec la commande readelf -r : %.8x\n", r_offset);
-            fprintf(stderr, "  r_offset obtenu avec la fonction ReadELFRelocationTable : %.8x\n\n",
-                   relTables[index][k].r_offset);
-            echec = 1;
-        }
-        if (r_info != relTables[index][k].r_info) {
-            fprintf(stderr, "Erreur sur l'entrée %d de la table de relocation %s\n", k, name);
-            fprintf(stderr, "  r_info obtenu avec la commande readelf -r : %.8x\n", r_info);
-            fprintf(stderr, "  r_info obtenu avec la fonction ReadELFRelocationTable : %.8x\n\n", relTables[index][k].r_info);
+        if (relTables[index] != NULL) {
+            if (r_offset != relTables[index][k].r_offset) {
+                fprintf(stderr, "Erreur sur l'entrée %d de la table des relocations %s\n", k, name);
+                fprintf(stderr, "  r_offset obtenu avec la commande readelf -r : %.8x\n", r_offset);
+                fprintf(stderr, "  r_offset obtenu avec la fonction ReadELFRelocationTable : %.8x\n\n", relTables[index][k].r_offset);
+                echec = 1;
+            }
+            if (r_info != relTables[index][k].r_info) {
+                fprintf(stderr, "Erreur sur l'entrée %d de la table des relocations %s\n", k, name);
+                fprintf(stderr, "  r_info obtenu avec la commande readelf -r : %.8x\n", r_info);
+                fprintf(stderr, "  r_info obtenu avec la fonction ReadELFRelocationTable : %.8x\n\n", relTables[index][k].r_info);
+                echec = 1;
+            }
+        } else {
+            fprintf(stderr, "Erreur sur la table des relocation\n");
+            fprintf(stderr, "  section %d contient des relocations avec la commande readelf -r\n", index);
+            fprintf(stderr, "  pas de relocation avec la fonction ReadELFRelocationTable\n\n");
             echec = 1;
         }
         k++;

@@ -30,7 +30,11 @@ Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr) {
 }
 
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
-    return (Elf32_Rel **) malloc(ehdr.e_shnum * sizeof(Elf32_Rel * ));
+    Elf32_Rel **res = (Elf32_Rel **) malloc(sizeof(Elf32_Rel *) * ehdr.e_shnum);
+    for (int i = 0; i < ehdr.e_shnum; i++) {
+        res[i] = NULL;
+    }
+    return res;
 }
 
 uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr) {
