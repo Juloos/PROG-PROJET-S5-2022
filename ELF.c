@@ -163,8 +163,8 @@ void ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, 
     for (int i = 0; i < ehdr.e_shnum; i++) {
         if (shdrTable[i].sh_type == SHT_REL) {
             relTables[i] = create_ELFTableRel(shdrTable[i]);
+            fseek(file, shdrTable[i].sh_offset, SEEK_SET);
             for (int j = 0; j < shdrTable[i].sh_size / shdrTable[i].sh_entsize; j++) {
-                fseek(file, shdrTable[i].sh_offset + j * sizeof(Elf32_Rel), SEEK_SET);  // erreur mystique quand en dehors de la boucle, TODO: corriger ça
 
                 if (!fread(&relTables[i][j].r_offset, sizeof(Elf32_Addr), 1, file))
                     fprintf(stderr, "Read error : (ReadELFRelocationTable) r_offset\n");
