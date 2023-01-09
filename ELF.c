@@ -555,7 +555,7 @@ void LinkELFSymbols(FILE* input1, FILE* input2, FILE* output) {
         }
 
     } else {
-        fprintf(stderr, "Erreur deux symboles avec le même sont définis dans les deux tables des symboles des fichiers d'entrées")
+        fprintf(stderr, "Erreur deux symboles avec le même sont définis dans les deux tables des symboles des fichiers d'entrées");
     }
 
 
