@@ -624,7 +624,7 @@ void oracleEtape4(char *filename) {
     char bind[STR_SIZE];
     char vis[STR_SIZE];
     char ndx[STR_SIZE];
-    char names[STR_SIZE][imax];
+    char names[imax][STR_SIZE];
     while (i < imax) {
         if (fgets(buffer, 8 + colonnes[0] + 1, resultCommand) == NULL)
             fprintf(stderr, "Read error\n");
