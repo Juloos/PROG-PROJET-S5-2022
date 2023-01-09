@@ -5,6 +5,7 @@
 
 #define STR_SIZE 256
 
+
 /* IS_BIGENDIAN
  * Resultat : renvoie 1 si le systeme operand est au format Big Endian
  */
