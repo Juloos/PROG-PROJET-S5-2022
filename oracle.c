@@ -954,14 +954,21 @@ int main(int argc, char *argv[]) {
     else {
         for (int i = 1; i < argc; i++) {
             printf("Tests avec le fichier '%s'\n", argv[i]);
-            oracleEtape1(argv[i]);
-            oracleEtape2(argv[i]);
-            oracleEtape3(argv[i]);
-            //oracleEtape4(argv[i]);
-            oracleEtape5(argv[i]);
-            if(i + 1 < argc) {
-                oracleEtape6(argv[i], argv[i+1]);
+
+            if(fopen(argv[i], "r")) {
+                oracleEtape1(argv[i]);
+                oracleEtape2(argv[i]);
+                oracleEtape3(argv[i]);
+                //oracleEtape4(argv[i]);
+                oracleEtape5(argv[i]);
+                if(i + 1 < argc) {
+                    oracleEtape6(argv[i], argv[i+1]);
+                }
+            } else {
+                printf("Erreur le fichier %s est introuvable ou impossible à ouvrir\n", argv[i]);
             }
+
+
         }
     }
     return 0;
