@@ -880,6 +880,7 @@ void oracleEtape6(char *filename1, char *filename2) {
         printf("\033[0;32mSucces\033[0m pour l'etape 6\n");
 
     fclose(output);
+    remove("output.tmp");
     fclose(file2);
     fclose(file1);
 }
