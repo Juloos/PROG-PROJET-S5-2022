@@ -112,3 +112,12 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
  * Résultat : affiche dans le fichier de sortie la fusion et renumerotation des sections des 2 fichiers ELF d'entree
  */
 void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output);
+
+/**LinkELFSymbols
+ * Paramètres:
+ * - un premier pointeur sur un fichier ELF ouvert en mode lecture
+ * - un second pointeur sur un fichier ELF ouvert en mode lecture
+ * - un pointeur sur le fichier de sortie de la fusion ouvert en écriture
+ * Résultat: écrit dans le fichier de sortie la fusion et renumérotation des tables des symboles des 2 fichiers ELF en entrée
+ */
+void LinkELFSymbols(FILE* input1, FILE* input2, FILE* output);
