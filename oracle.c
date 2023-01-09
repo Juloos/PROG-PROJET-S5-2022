@@ -350,16 +350,15 @@ void oracleEtape2(char *filename) {
     colonnes[9] = 2;
 
     int i = 0;
-    char names[STR_SIZE][imax];
+    char names[imax][STR_SIZE];
     char type[STR_SIZE];
-    char flags[STR_SIZE][imax];
+    char flags[imax][STR_SIZE];
     while (i < imax) {
         strcpy(names[i], "");
         if (fgets(buffer, 7 + colonnes[0] + 1, resultCommand) == NULL)
             fprintf(stderr, "Read error\n");
         else
-            sscanf(buffer, "  [%*[^]]] %s", names[i]);
-
+            sscanf(buffer, " [%*[^]]] %s", names[i]);
         strcpy(type, "");
         if (fgets(buffer, colonnes[1] + 1, resultCommand) == NULL)
             fprintf(stderr, "Read error\n");
@@ -413,7 +412,6 @@ void oracleEtape2(char *filename) {
         i++;
     }
     pclose(resultCommand);
-
     FILE *file = fopen(filename, "r");
     Elf32_Ehdr header;
     ReadELFHeader(file, &header);
@@ -959,7 +957,7 @@ int main(int argc, char *argv[]) {
             oracleEtape1(argv[i]);
             oracleEtape2(argv[i]);
             oracleEtape3(argv[i]);
-            oracleEtape4(argv[i]);
+            //oracleEtape4(argv[i]);
             oracleEtape5(argv[i]);
             if(i + 1 < argc) {
                 oracleEtape6(argv[i], argv[i+1]);
