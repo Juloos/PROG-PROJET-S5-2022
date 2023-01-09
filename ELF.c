@@ -521,7 +521,7 @@ void LinkELFSymbols(FILE* input1, FILE* input2, FILE* output) {
         for(int i = 0; i < symbsTableSection1.sh_size / symbsTableSection1.sh_entsize; i++) {
             // On écrit le symbole peu importe s'il est local ou global
             symbolsTable1[i].st_name = symb_index;
-            if(!fwrite(symbolsTable1[i], sizeof(Elf32_Sym), 1, output)) {
+            if(!fwrite(&symbolsTable1[i], sizeof(Elf32_Sym), 1, output)) {
                 fprintf(stderr,"Error when writting symbol n°%d from input1\n", i);
             }
         }
@@ -530,7 +530,7 @@ void LinkELFSymbols(FILE* input1, FILE* input2, FILE* output) {
         for(int i = 0; i < nb_symbs2; i++) {
             // Pour un symbole local
             if(symbolsTable1[i].st_info == STB_LOCAL) {
-                if(!fwrite(symbolsTable2[i], sizeof(Elf32_Sym), 1, output)) {
+                if(!fwrite(&symbolsTable2[i], sizeof(Elf32_Sym), 1, output)) {
                     fprintf(stderr,"Error when writting symbol n°%d from input2\n", i);
                 }
                 symb_index++;
@@ -545,7 +545,7 @@ void LinkELFSymbols(FILE* input1, FILE* input2, FILE* output) {
 
                     if(j == nb_symbs1 || ELF32_ST_TYPE(symbolsTable1[j].st_info) == STT_NOTYPE) {
                         symbolsTable2[i].st_name = symb_index;
-                        if(!fwrite(symbolsTable2[i], sizeof(Elf32_Sym), 1, output)) {
+                        if(!fwrite(&symbolsTable2[i], sizeof(Elf32_Sym), 1, output)) {
                             fprintf(stderr,"Error when writting symbol n°%d from input2\n", i);
                         }
                         symb_index++;
