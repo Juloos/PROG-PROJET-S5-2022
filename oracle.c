@@ -348,9 +348,9 @@ void oracleEtape2(char *filename) {
     colonnes[9] = 2;
 
     int i = 0;
-    char names[STR_SIZE][imax];
+    char names[imax][STR_SIZE];
     char type[STR_SIZE];
-    char flags[STR_SIZE][imax];
+    char flags[imax][STR_SIZE];
     while (i < imax) {
         strcpy(names[i], "");
         if (fgets(buffer, 7 + colonnes[0] + 1, resultCommand) == NULL)
@@ -907,13 +907,22 @@ int main(int argc, char *argv[]) {
     if (argc < 2)
         fprintf(stderr, "Il faut au moins un fichier de test\n");
     else {
+        FILE *tmp;
         for (int i = 1; i < argc; i++) {
-            printf("\nTests Phase 1 avec le fichier '%s'\n", argv[i]);
-            oracleEtape1(argv[i]);
-            oracleEtape2(argv[i]);
-            oracleEtape3(argv[i]);
-            oracleEtape4(argv[i]);
-            oracleEtape5(argv[i]);
+            tmp = fopen(argv[i], "r");
+            if (!tmp) {
+                printf("Read error : (FileNotFound) '%s'\n", argv[i]);
+                exit(1);
+            } else
+                fclose(tmp);
+        }
+        for (int i = 1; i < argc; i++) {
+                printf("\nTests Phase 1 avec le fichier '%s'\n", argv[i]);
+                oracleEtape1(argv[i]);
+                oracleEtape2(argv[i]);
+                oracleEtape3(argv[i]);
+                oracleEtape4(argv[i]);
+                oracleEtape5(argv[i]);
         }
         if (argc == 3) {
             printf("\nTests Phase 2 avec la fusion des fichiers '%s' et '%s'\n", argv[1], argv[2]);

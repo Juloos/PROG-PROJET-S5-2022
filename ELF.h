@@ -17,7 +17,7 @@ void ReadELFFile(FILE *file);
 void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr);
 
 /* ReadELFTableSection
- * Parametre : 
+ * Parametre :
  *  - file : un pointeur sur un fichier ELF
  *  - ehdr : l'en-tete du fichier ELF
  *  - shdrTable : une table des sections initialisee
@@ -113,3 +113,13 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
  *             concatenation et les renumerotations des sections de input2
  */
 FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output);
+
+/**LinkELFSymbols
+ * Paramètres:
+ * - un premier pointeur sur un fichier ELF
+ * - un second pointeur sur un fichier ELF
+ * - un pointeur sur le fichier de sortie de la fusion
+ * Résultat: ecrit dans le fichier de sortie la fusion et renumerotation des tables des symboles des 2 fichiers ELF
+ *            en entree
+ */
+void LinkELFSymbols(FILE *input1, FILE *input2, FILE *output);
