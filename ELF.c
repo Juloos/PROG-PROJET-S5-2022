@@ -388,7 +388,7 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
 }
 
 
-void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
+FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
     Elf32_Ehdr ehdr1, ehdr2;
     Elf32_Shdr *shdrTable1, *shdrTable2;
     char name1[STR_SIZE], name2[STR_SIZE];
@@ -400,11 +400,10 @@ void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
     ReadELFTableSections(input1, ehdr1, shdrTable1);
     ReadELFTableSections(input2, ehdr2, shdrTable2);
 
-    int renum[ehdr2.e_shnum];
-    renum[0] = 0;
-    int cat_offsets[ehdr2.e_shnum];
+    FusionELF_Etape6 *res = create_fusion6(ehdr2.e_shnum);
+    res->renum[0] = 0;
     for (int j = 0; j < ehdr2.e_shnum; j++)
-        cat_offsets[j] = -1;
+        res->offsets[j] = -1;
 
     uint8_t *buff;
     for (int i = 0; i < ehdr1.e_shnum; i++) {
@@ -427,8 +426,8 @@ void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
                     if (!fwrite(buff, 1, shdrTable2[j].sh_size, output))
                         fprintf(stderr, "Write error : (LinkELFRenumSections) section %d of input2\n", j);
                     free(buff);
-                    cat_offsets[j] = shdrTable1[i].sh_size;
-                    renum[j] = i;
+                    res->offsets[j] = shdrTable1[i].sh_size;
+                    res->renum[j] = i;
                 }
             }
         }
@@ -436,23 +435,18 @@ void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
 
     int e_shnum_acc = 0;
     for (int j = 1; j < ehdr2.e_shnum; j++) {
-        if (cat_offsets[j] == -1) {
-            e_shnum_acc++;
-            renum[j] = ehdr1.e_shnum + e_shnum_acc;
-            if (shdrTable2[j].sh_type == SHT_PROGBITS && shdrTable2[j].sh_size) {
+        if (res->offsets[j] == -1) {
+            res->renum[j] = ehdr1.e_shnum + e_shnum_acc;
+            if (shdrTable2[j].sh_size) {
                 buff = getSectionContent(input2, shdrTable2[j]);
                 if (!fwrite(buff, 1, shdrTable2[j].sh_size, output))
                     fprintf(stderr, "Write error : (LinkELFRenumSections) section %d of input2\n", j);
                 free(buff);
             }
+            e_shnum_acc++;
         }
     }
 
-    printf("Offsets de concaténation du deuxième fichiers : \n  ");
-    for (int j = 0; j < ehdr2.e_shnum; j++)
-        printf("%d ", cat_offsets[j]);
-    printf("\nRenumérotation des sections du deuxième fichier : \n  ");
-    for (int j = 0; j < ehdr2.e_shnum; j++)
-        printf("%d ", renum[j]);
-    printf("\n");
+    res->snb = ehdr1.e_shnum + e_shnum_acc;
+    return res;
 }

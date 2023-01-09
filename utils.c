@@ -486,3 +486,19 @@ void passerNLignes(FILE *file, uint n) {
         }
     }
 }
+
+
+FusionELF_Etape6 *create_fusion6(uint size) {
+    FusionELF_Etape6 *res = malloc(sizeof(FusionELF_Etape6));
+    res->offsets = malloc(size * sizeof(int));
+    res->renum = malloc(size * sizeof(int));
+    res->size = size;
+    res->snb = size;  // le nouveau nombre de section est au minimum le nombre de section de la premiere elf
+    return res;
+}
+
+void free_fusion6(FusionELF_Etape6 *f) {
+    free(f->offsets);
+    free(f->renum);
+    free(f);
+}

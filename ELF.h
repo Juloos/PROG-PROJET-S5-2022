@@ -109,6 +109,7 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
  *  - input1 : un premier pointeur sur un fichier ELF
  *  - input2 : un second pointeur sur un fichier ELF
  *  - output : un pointeur sur le fichier de sortie de la fusion
- * Resultat : fusionne les deux fichiers ELF en parametre et ecrit le resultat dans output, affiche les sections renumerotees
+ * Resultat : fusionne les deux fichiers ELF en parametre et ecrit le resultat dans output, renvoie les offsets de
+ *             concatenation et les renumerotations des sections de input2
  */
-void LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output);
+FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output);

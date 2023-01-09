@@ -786,83 +786,102 @@ void oracleEtape5(char *filename) {
     pclose(resultCommand);
 }
 
-void oracleEtape6(char* filename1, char* filename2) {
-    // Ouverture des fichiers
-    FILE* file1 = fopen(filename1, "r");
-    FILE* file2 = fopen(filename2, "r");
-    char resultatName[] = "resultatOracleEtape6.txt";
-    FILE* resultat = fopen(resultatName, "w");
 
-    // Récupération du header et de la table des sections du fichier 1
-    Elf32_Ehdr headerF1;
-    ReadELFHeader(file1, &headerF1);
-    Elf32_Shdr* sectionsTableF1 = create_ELFTableSections(headerF1);
-    ReadELFTableSections(file1, headerF1, sectionsTableF1);
+void oracleEtape6(char *filename1, char *filename2) {
+    FILE *file1 = fopen(filename1, "r");
+    FILE *file2 = fopen(filename2, "r");
 
-    // Récupération du header et de la table des sections du fichier 2
-    Elf32_Ehdr headerF2;
-    ReadELFHeader(file2, &headerF2);
-    Elf32_Shdr* sectionsTableF2 = create_ELFTableSections(headerF2);
-    ReadELFTableSections(file2, headerF2, sectionsTableF2);
+    Elf32_Ehdr ehdr1, ehdr2;
+    ReadELFHeader(file1, &ehdr1);
+    ReadELFHeader(file2, &ehdr2);
+    Elf32_Shdr *shdrTable1 = create_ELFTableSections(ehdr1);
+    Elf32_Shdr *shdrTable2 = create_ELFTableSections(ehdr2);
+    ReadELFTableSections(file1, ehdr1, shdrTable1);
+    ReadELFTableSections(file2, ehdr2, shdrTable2);
 
-    // Appel à la fonction Link et écriture de son résultat dans le fichier resultat
-    LinkELFRenumSections(file1, file2, resultat);
+    FILE *output = fopen("output.tmp", "w");
+    FusionELF_Etape6 *res = LinkELFRenumSections(file1, file2, output);
+    fclose(output);
 
-    // Passage du fichier resultat en mode lecture
-    fclose(resultat);
-    resultat = fopen(resultatName, "r");
+    output = fopen("output.tmp", "r");
 
-    // Comparaison des sections des deux fichiers file1 et file2 avec celles du fichier resultat
-    // Vérification des sections de file1
-    int i = 0;
+    uint8_t octet;
+    uint8_t *buff;
     int echec = 0;
-    while(i < headerF1.e_shnum && !echec) {
-        fseek(file1, sectionsTableF1[i].sh_offset, SEEK_SET);
-        Elf32_Shdr section = ReadOneSection(resultat);
-
-        echec = SectionCmp(section, sectionsTableF1[i]);
-        // Pour une section de type PROGBITS
-        if(!echec && sectionsTableF1[i].sh_type == SHT_PROGBITS) {
-            Elf32_Shdr sectionSuivante = ReadOneSection(resultat);
-
-            // Vérifie que la section suivante est une section de file2
-            int j = 0;
-            while (j < headerF2.e_shnum && sectionSuivante.sh_name != sectionsTableF2[i].sh_name) {
-                j++;
+    int local_echec;
+    int k;
+    int i = 0;
+    while (i < ehdr1.e_shnum) {
+        if (shdrTable1[i].sh_size) {
+            local_echec = 0;
+            buff = getSectionContent(file1, shdrTable1[i]);
+            for (int j = 0; j < shdrTable1[i].sh_size; j++) {
+                octet = fgetc(output);
+                if (octet != buff[j] && local_echec == 0) {
+                    fprintf(stderr, "Erreur sur la section %d du premier fichier ELF (offset 0x%.8x)\n", i, j);
+                    fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n", octet);
+                    fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
+                    echec = 1;
+                    local_echec = 1;
+                }
             }
-
-            echec = j < headerF2.e_shnum && section.sh_name == sectionSuivante.sh_name;
+            free(buff);
         }
-
-        i += 1;
-    }
-
-    if(!echec) {
-        i = 0;
-        while(i < headerF2.e_shnum && !echec) {
-            fseek(file1, sectionsTableF2[i].sh_offset, SEEK_SET);
-            Elf32_Shdr section = ReadOneSection(resultat);
-
-            echec = SectionCmp(section, sectionsTableF2[i]);
-
-            i += 1;
+        if (shdrTable1[i].sh_type == SHT_PROGBITS) {
+            for (k = 0; k < res->size; k++) {
+                if (res->renum[k] == i)
+                    break;
+            }
+            if (k < res->size && shdrTable2[k].sh_size) {
+                local_echec = 0;
+                buff = getSectionContent(file2, shdrTable2[k]);
+                for (int j = 0; j < shdrTable2[k].sh_size; j++) {
+                    octet = fgetc(output);
+                    if (octet != buff[j] && local_echec == 0) {
+                        fprintf(stderr, "Erreur sur la section %d du second fichier ELF (offset 0x%.8x)\n", k, j);
+                        fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n",
+                                octet);
+                        fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
+                        echec = 1;
+                        local_echec = 1;
+                    }
+                }
+                free(buff);
+            }
         }
+        i++;
+    }
+    while (i < res->snb) {
+        for (k = 0; k < res->size; k++) {
+            if (res->renum[k] == i)
+                break;
+        }
+        if (k < res->size && shdrTable2[k].sh_size) {
+            local_echec = 0;
+            buff = getSectionContent(file2, shdrTable2[k]);
+            for (int j = 0; j < shdrTable2[k].sh_size; j++) {
+                octet = fgetc(output);
+                if (octet != buff[j] && local_echec == 0) {
+                    fprintf(stderr, "Erreur sur la section %d du second fichier ELF (offset 0x%.8x)\n", k, j);
+                    fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n", octet);
+                    fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
+                    echec = 1;
+                    local_echec = 1;
+                }
+            }
+            free(buff);
+        }
+        i++;
     }
 
-    if(echec) {
-        printf("Echec pour l'étape 6\n");
-    } else {
-        printf("Succès pour l'étape 6\n");
-    }
+    if (echec)
+        printf("\033[0;31mEchec\033[0m pour l'etape 6\n");
+    else
+        printf("\033[0;32mSucces\033[0m pour l'etape 6\n");
 
-    // Fermeture des fichiers
-    fclose(file1);
+    fclose(output);
     fclose(file2);
-    fclose(resultat);
-
-    // Libération de la mémoire
-    free(sectionsTableF1);
-    free(sectionsTableF2);
+    fclose(file1);
 }
 
 
@@ -879,7 +898,7 @@ int main(int argc, char *argv[]) {
             oracleEtape5(argv[i]);
         }
         if (argc == 3) {
-            printf("\nTests Phase 2 avec les fichiers '%s' et '%s'\n", argv[1], argv[2]);
+            printf("\nTests Phase 2 avec la fusion des fichiers '%s' et '%s'\n", argv[1], argv[2]);
             oracleEtape6(argv[1], argv[2]);
         }
     }

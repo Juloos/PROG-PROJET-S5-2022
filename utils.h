@@ -255,3 +255,15 @@ void getRelType(char *type, Elf32_Rel rel);
  * Resultat : passe les n lignes suivants dans le fichier
  */
 void passerNLignes(FILE *file, uint n);
+
+
+typedef struct {
+    int *offsets;
+    int *renum;
+    int size;
+    int snb;
+} FusionELF_Etape6;
+
+FusionELF_Etape6 *create_fusion6(uint size);
+
+void free_fusion6(FusionELF_Etape6 *f);
