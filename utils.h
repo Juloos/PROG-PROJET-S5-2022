@@ -1,7 +1,11 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "/usr/include/elf.h"
+#include "ELF.h"
 
 #define STR_SIZE 256
 
@@ -212,6 +216,12 @@ Elf32_Word Type2shType(char *type);
  */
 void getSymbolBind(char *bind, Elf32_Sym symEntry);
 
+/* getSymbolBindValue
+ * Paramètres:
+ * - sym : le symbol dont on veut connaitre la portée
+ * Résultat: la portée du symbol en entrée
+ */
+int getSymbolBindValue(Elf32_Sym sym);
 
 /* Bind2SymBind
  * Paramètre :
@@ -284,3 +294,7 @@ void passerNLignes(FILE *file, uint n);
 Elf32_Shdr ReadOneSection(FILE* file);
 
 int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2);
+
+int SymbolCmp(Elf32_Sym sym1, Elf32_Sym sym2);
+
+#endif

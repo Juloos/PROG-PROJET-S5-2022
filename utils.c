@@ -395,6 +395,23 @@ void getSymbolBind(char *bind, Elf32_Sym symEntry) {
     strcpy(bind, "UNKNOWN");
 }
 
+int getSymbolBindValue(Elf32_Sym sym) {
+    switch (ELF32_ST_BIND(sym.st_info)) {
+        case STB_LOCAL:
+            return STB_LOCAL;
+        case STB_GLOBAL:
+            return STB_GLOBAL;
+        case STB_WEAK:
+            return STB_WEAK;
+        case STB_LOPROC:
+            return STB_LOPROC;
+        case STB_HIPROC:
+            return STB_HIPROC;
+        default:
+            return -1;
+    }
+}
+
 unsigned char Bind2symBind(char *bind) {
     if (strcmp(bind, "LOCAL") == 0) return STB_LOCAL;
     if (strcmp(bind, "GLOBAL") == 0) return STB_GLOBAL;
@@ -588,4 +605,21 @@ int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2) {
     }
 
     return 1;
+}
+
+int SymbolCmp(Elf32_Sym sym1, Elf32_Sym sym2) {
+    if(sym1.st_name != sym2.st_name) {
+        return 1;
+    } else if(sym1.st_value != sym2.st_value) {
+        return 1;
+    } else if(sym1.st_size != sym2.st_size) {
+        return 1;
+    } else if(sym1.st_info != sym2.st_info) {
+        return 1;
+    } else if(sym1.st_other != sym2.st_other) {
+        return 1;
+    } else if(sym1.st_shndx != sym2.st_shndx) {
+        return 1;
+    }
+    return 0;
 }
