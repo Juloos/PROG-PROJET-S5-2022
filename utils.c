@@ -29,13 +29,17 @@ Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr) {
 }
 
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
-    return (Elf32_Rel **) malloc(ehdr.e_shnum * sizeof(Elf32_Rel * ));
+    Elf32_Rel **res = (Elf32_Rel **) malloc(sizeof(Elf32_Rel *) * ehdr.e_shnum);
+    for (int i = 0; i < ehdr.e_shnum; i++) {
+        res[i] = NULL;
+    }
+    return res;
 }
 
 uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr) {
     uint8_t *content = (uint8_t *) malloc(shdr.sh_size);
     fseek(file, shdr.sh_offset, SEEK_SET);
-    if (!fread(content, 1, shdr.sh_size, file))
+    if (!fread(content, 1, shdr.sh_size, file) || content == NULL)
         fprintf(stderr, "Read error : (getSectionContent) content of section\n");
     return content;
 }
@@ -473,26 +477,6 @@ Elf32_Half Ndx2symNdx(char *ndx) {
     return (Elf32_Half) strtol(ndx, NULL, 10);
 }
 
-void getSymType(char *type, Elf32_Rel rel) {
-    switch (ELF32_R_TYPE(rel.r_info)) {
-        case R_ARM_NONE:
-            strcpy(type, "R_ARM_NONE");
-            return;
-        case R_ARM_JUMP24:
-            strcpy(type, "R_ARM_JUMP24");
-            return;
-        case R_ARM_ABS32:
-            strcpy(type, "R_ARM_ABS32");
-            return;
-        case R_ARM_CALL:
-            strcpy(type, "R_ARM_CALL");
-            return;
-        default:
-            break;
-    }
-    strcpy(type, "UNKNOWN");
-}
-
 void getRelType(char *type, Elf32_Rel rel) {
     switch (ELF32_R_TYPE(rel.r_info)) {
         case R_ARM_NONE:
@@ -523,88 +507,20 @@ void passerNLignes(FILE *file, uint n) {
     }
 }
 
-Elf32_Shdr ReadOneSection(FILE* file) {
-    Elf32_Shdr  section;
-    if (!fread(&section.sh_name, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error : (table section) name\n");
 
-    if (!fread(&section.sh_type, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error : (table section) type\n");
-
-    if (!fread(&section.sh_flags, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error : (table section) flags\n");
-
-    if (!fread(&section.sh_addr, sizeof(Elf32_Addr), 1, file))
-        fprintf(stderr, "Read error : (table section) address at which the section's first byte should reside\n");
-
-    if (!fread(&section.sh_offset, sizeof(Elf32_Off), 1, file))
-        fprintf(stderr,
-                "Read error : (table section) value gives the byte offset from the beginning of the file to the first byte in the section\n");
-
-    if (!fread(&section.sh_size, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error : (table section) section's size\n");
-
-    if (!fread(&section.sh_link, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error : (table section) section header table index link\n");
-
-    if (!fread(&section.sh_info, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error : (table section) extra information\n");
-
-    if (!fread(&section.sh_addralign, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error : (table section) address alignment constraints\n");
-
-    if (!fread(&section.sh_entsize, sizeof(Elf32_Word), 1, file))
-        fprintf(stderr, "Read error : (table section) table of fixed-size entries\n");
-
-    if (!IS_BIGENDIAN()) {
-        SWAPB(&section.sh_name, sizeof(Elf32_Word));
-        SWAPB(&section.sh_type, sizeof(Elf32_Word));
-        SWAPB(&section.sh_flags, sizeof(Elf32_Word));
-        SWAPB(&section.sh_addr, sizeof(Elf32_Addr));
-        SWAPB(&section.sh_offset, sizeof(Elf32_Off));
-        SWAPB(&section.sh_size, sizeof(Elf32_Word));
-        SWAPB(&section.sh_link, sizeof(Elf32_Word));
-        SWAPB(&section.sh_info, sizeof(Elf32_Word));
-        SWAPB(&section.sh_addralign, sizeof(Elf32_Word));
-        SWAPB(&section.sh_entsize, sizeof(Elf32_Word));
-    }
-
-    return section;
+FusionELF_Etape6 *create_fusion6(uint size) {
+    FusionELF_Etape6 *res = malloc(sizeof(FusionELF_Etape6));
+    res->offsets = malloc(size * sizeof(int));
+    res->renum = malloc(size * sizeof(int));
+    res->size = size;
+    res->snb = size;  // le nouveau nombre de section est au minimum le nombre de section de la premiere elf
+    return res;
 }
 
-int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2) {
-    if(section1.sh_name != section2.sh_name) {
-        return 0;
-    }
-    if(section1.sh_type != section2.sh_type) {
-        return 0;
-    }
-    if(section1.sh_flags != section2.sh_flags) {
-        return 0;
-    }
-    if(section1.sh_addr != section2.sh_addr) {
-        return 0;
-    }
-    if(section1.sh_offset != section2.sh_offset) {
-        return 0;
-    }
-    if(section1.sh_size != section2.sh_size) {
-        return 0;
-    }
-    if(section1.sh_link != section2.sh_link) {
-        return 0;
-    }
-    if(section1.sh_info != section2.sh_info) {
-        return 0;
-    }
-    if(section1.sh_addralign != section2.sh_addralign) {
-        return 0;
-    }
-    if(section1.sh_entsize != section2.sh_entsize) {
-        return 0;
-    }
-
-    return 1;
+void free_fusion6(FusionELF_Etape6 *f) {
+    free(f->offsets);
+    free(f->renum);
+    free(f);
 }
 
 int SymbolCmp(Elf32_Sym sym1, Elf32_Sym sym2) {

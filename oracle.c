@@ -1,6 +1,4 @@
-#include "oracle.h"
-#include<unistd.h>
-
+#include "ELF.h"
 
 
 void oracleEtape1(char *filename) {
@@ -20,7 +18,7 @@ void oracleEtape1(char *filename) {
 
     // Ligne Magic
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Magic\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Magic\n");
     }
     // Découpage de la ligne avec l'espace comme délimiteur
     token = strtok(ligne, ":");
@@ -37,7 +35,7 @@ void oracleEtape1(char *filename) {
 
     // Ligne Type
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Type\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Type\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -60,7 +58,7 @@ void oracleEtape1(char *filename) {
 
     // Ligne Machine
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Machine\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Machine\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -85,7 +83,7 @@ void oracleEtape1(char *filename) {
 
     // Ligne Version
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Version\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Version\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -93,7 +91,7 @@ void oracleEtape1(char *filename) {
 
     // Entry point address
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Address\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Address\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -101,7 +99,7 @@ void oracleEtape1(char *filename) {
 
     // Start of program headers
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Start of program header\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Start of program header\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -109,7 +107,7 @@ void oracleEtape1(char *filename) {
 
     // Start of section headers
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Start of section headers\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Start of section headers\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -117,7 +115,7 @@ void oracleEtape1(char *filename) {
 
     // Flags
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Flags\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Flags\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -125,7 +123,7 @@ void oracleEtape1(char *filename) {
 
     // Size of this header
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Size\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Size\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -133,7 +131,7 @@ void oracleEtape1(char *filename) {
 
     // Size of program headers
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Size of program headers\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Size of program headers\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -141,7 +139,7 @@ void oracleEtape1(char *filename) {
 
     // Number of program headers
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Number of program headers\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Number of program headers\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -149,7 +147,7 @@ void oracleEtape1(char *filename) {
 
     // Size of section headers
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Size of program headers\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Size of program headers\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -157,7 +155,7 @@ void oracleEtape1(char *filename) {
 
     // Number of section headers
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) Number of section headers\n");
+        fprintf(stderr, "Read error : (oracleEtape1) Number of section headers\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -165,7 +163,7 @@ void oracleEtape1(char *filename) {
 
     // Section header string table index
     if (!fgets(ligne, STR_SIZE, resultCommand)) {
-        printf("Read error : (oracleEtape1) String table of section headers\n");
+        fprintf(stderr, "Read error : (oracleEtape1) String table of section headers\n");
     }
     token = strtok(ligne, ":");
     token = strtok(NULL, " ");
@@ -187,127 +185,127 @@ void oracleEtape1(char *filename) {
         i++;
 
     if (i < EI_NIDENT) {
-        printf("Erreur sur le champ e_ident\n");
-        printf("  e_ident obtenu avec la commande readelf -h : ");
+        fprintf(stderr, "Erreur sur le champ e_ident\n");
+        fprintf(stderr, "  e_ident obtenu avec la commande readelf -h : ");
         for (int i = 0; i < EI_NIDENT; i++) {
-            printf("%d ", headerCommand.e_ident[i]);
+            fprintf(stderr, "%d ", headerCommand.e_ident[i]);
         }
-        printf("\n  e_ident obtenu avec la fonction ReadELFHeader : ");
+        fprintf(stderr, "\n  e_ident obtenu avec la fonction ReadELFHeader : ");
         for (int i = 0; i < EI_NIDENT; i++) {
-            printf("%d ", headerCommand.e_ident[i]);
+            fprintf(stderr, "%d ", headerCommand.e_ident[i]);
         }
-        printf("\n");
+        fprintf(stderr, "\n");
         echec = 1;
     }
 
     // Champ e_type
     if (headerProgram.e_type != headerCommand.e_type) {
-        printf("Erreur sur le champ e_type\n");
-        printf("  e_type obtenu avec la commande readelf -h : %d\n", headerCommand.e_type);
-        printf("  e_type obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_type);
+        fprintf(stderr, "Erreur sur le champ e_type\n");
+        fprintf(stderr, "  e_type obtenu avec la commande readelf -h : %d\n", headerCommand.e_type);
+        fprintf(stderr, "  e_type obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_type);
         echec = 1;
     }
 
     // Champ e_machine
     if (headerProgram.e_machine != headerCommand.e_machine) {
-        printf("Erreur sur le champ e_machine\n");
-        printf("  e_machine obtenu avec la commande readelf -h : %d\n", headerCommand.e_machine);
-        printf("  e_machine obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_machine);
+        fprintf(stderr, "Erreur sur le champ e_machine\n");
+        fprintf(stderr, "  e_machine obtenu avec la commande readelf -h : %d\n", headerCommand.e_machine);
+        fprintf(stderr, "  e_machine obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_machine);
         echec = 1;
     }
 
     // Champ e_version
     if (headerProgram.e_version != headerCommand.e_version) {
-        printf("Erreur sur le champ e_version\n");
-        printf("  e_version obtenu avec la commande readelf -h : 0x%.2x\n", headerCommand.e_version);
-        printf("  e_version obtenu avec la fonction ReadELFHeader : 0x%.2x\n\n", headerProgram.e_version);
+        fprintf(stderr, "Erreur sur le champ e_version\n");
+        fprintf(stderr, "  e_version obtenu avec la commande readelf -h : 0x%.2x\n", headerCommand.e_version);
+        fprintf(stderr, "  e_version obtenu avec la fonction ReadELFHeader : 0x%.2x\n\n", headerProgram.e_version);
         echec = 1;
     }
 
     // Champ e_entry
     if (headerProgram.e_entry != headerCommand.e_entry) {
-        printf("Erreur sur le champ e_entry\n");
-        printf("  e_entry obtenu avec la commande readelf -h : 0x%.2x\n", headerCommand.e_entry);
-        printf("  e_entry obtenu avec la fonction ReadELFHeader : 0x%.2x\n\n", headerProgram.e_entry);
+        fprintf(stderr, "Erreur sur le champ e_entry\n");
+        fprintf(stderr, "  e_entry obtenu avec la commande readelf -h : 0x%.2x\n", headerCommand.e_entry);
+        fprintf(stderr, "  e_entry obtenu avec la fonction ReadELFHeader : 0x%.2x\n\n", headerProgram.e_entry);
         echec = 1;
     }
 
     // Champ e_phoff
     if (headerProgram.e_phoff != headerCommand.e_phoff) {
-        printf("Erreur sur le champ e_phoff\n");
-        printf("  e_phoff obtenu avec la commande readelf -h : %d\n", headerCommand.e_phoff);
-        printf("  e_phoff obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_phoff);
+        fprintf(stderr, "Erreur sur le champ e_phoff\n");
+        fprintf(stderr, "  e_phoff obtenu avec la commande readelf -h : %d\n", headerCommand.e_phoff);
+        fprintf(stderr, "  e_phoff obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_phoff);
         echec = 1;
     }
 
     // Champ e_shoff
     if (headerProgram.e_shoff != headerCommand.e_shoff) {
-        printf("Erreur sur le champ e_shoff\n");
-        printf("  e_shoff obtenu avec la commande readelf -h : %d\n", headerCommand.e_shoff);
-        printf("  e_shoff obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_shoff);
+        fprintf(stderr, "Erreur sur le champ e_shoff\n");
+        fprintf(stderr, "  e_shoff obtenu avec la commande readelf -h : %d\n", headerCommand.e_shoff);
+        fprintf(stderr, "  e_shoff obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_shoff);
         echec = 1;
     }
 
     // Champ e_flags
     if (headerProgram.e_flags != headerCommand.e_flags) {
-        printf("Erreur sur le champ e_flags\n");
-        printf("  e_flags obtenu avec la commande readelf -h : 0x%.2x\n", headerCommand.e_flags);
-        printf("  e_flags obtenu avec la fonction ReadELFHeader : 0x%.2x\n\n", headerProgram.e_flags);
+        fprintf(stderr, "Erreur sur le champ e_flags\n");
+        fprintf(stderr, "  e_flags obtenu avec la commande readelf -h : 0x%.2x\n", headerCommand.e_flags);
+        fprintf(stderr, "  e_flags obtenu avec la fonction ReadELFHeader : 0x%.2x\n\n", headerProgram.e_flags);
         echec = 1;
     }
 
     // Champ e_ehsize
     if (headerProgram.e_ehsize != headerCommand.e_ehsize) {
-        printf("Erreur sur le champ e_ehsize\n");
-        printf("  e_ehsize obtenu avec la commande readelf -h : %d\n", headerCommand.e_ehsize);
-        printf("  e_ehsize obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_ehsize);
+        fprintf(stderr, "Erreur sur le champ e_ehsize\n");
+        fprintf(stderr, "  e_ehsize obtenu avec la commande readelf -h : %d\n", headerCommand.e_ehsize);
+        fprintf(stderr, "  e_ehsize obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_ehsize);
         echec = 1;
     }
 
     // Champ e_phentsize
     if (headerProgram.e_phentsize != headerCommand.e_phentsize) {
-        printf("Erreur sur le champ e_phentsize\n");
-        printf("  e_phentsize obtenu avec la commande readelf -h : %d\n", headerCommand.e_phentsize);
-        printf("  e_phentsize obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_phentsize);
+        fprintf(stderr, "Erreur sur le champ e_phentsize\n");
+        fprintf(stderr, "  e_phentsize obtenu avec la commande readelf -h : %d\n", headerCommand.e_phentsize);
+        fprintf(stderr, "  e_phentsize obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_phentsize);
         echec = 1;
     }
 
     // Champ e_phnum
     if (headerProgram.e_phnum != headerCommand.e_phnum) {
-        printf("Erreur sur le champ e_phnum\n");
-        printf("  e_phnum obtenu avec la commande readelf -h : %d\n", headerCommand.e_phnum);
-        printf("  e_phnum obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_phnum);
+        fprintf(stderr, "Erreur sur le champ e_phnum\n");
+        fprintf(stderr, "  e_phnum obtenu avec la commande readelf -h : %d\n", headerCommand.e_phnum);
+        fprintf(stderr, "  e_phnum obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_phnum);
         echec = 1;
     }
 
     // Champ e_shentsize
     if (headerProgram.e_shentsize != headerCommand.e_shentsize) {
-        printf("Erreur sur le champ e_shentsize\n");
-        printf("  e_shentsize obtenu avec la commande readelf -h : %d\n", headerCommand.e_shentsize);
-        printf("  e_shentsize obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_shentsize);
+        fprintf(stderr, "Erreur sur le champ e_shentsize\n");
+        fprintf(stderr, "  e_shentsize obtenu avec la commande readelf -h : %d\n", headerCommand.e_shentsize);
+        fprintf(stderr, "  e_shentsize obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_shentsize);
         echec = 1;
     }
 
     // Champ e_shnum
     if (headerProgram.e_shnum != headerCommand.e_shnum) {
-        printf("Erreur sur le champ e_shnum\n");
-        printf("  e_shnum obtenu avec la commande readelf -h : %d\n", headerCommand.e_shnum);
-        printf("  e_shnum obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_shnum);
+        fprintf(stderr, "Erreur sur le champ e_shnum\n");
+        fprintf(stderr, "  e_shnum obtenu avec la commande readelf -h : %d\n", headerCommand.e_shnum);
+        fprintf(stderr, "  e_shnum obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_shnum);
         echec = 1;
     }
 
     // Champ e_shstrndx
     if (headerProgram.e_shstrndx != headerCommand.e_shstrndx) {
-        printf("Erreur sur le champ e_shstrndx\n");
-        printf("  e_shstrndx obtenu avec la commande readelf -h : %d\n", headerCommand.e_shstrndx);
-        printf("  e_shstrndx obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_shstrndx);
+        fprintf(stderr, "Erreur sur le champ e_shstrndx\n");
+        fprintf(stderr, "  e_shstrndx obtenu avec la commande readelf -h : %d\n", headerCommand.e_shstrndx);
+        fprintf(stderr, "  e_shstrndx obtenu avec la fonction ReadELFHeader : %d\n\n", headerProgram.e_shstrndx);
         echec = 1;
     }
 
     if (echec)
-        printf("Echec pour l'etape 1\n");
+        printf("\033[0;31mEchec\033[0m pour l'etape 1\n");
     else
-        printf("Succes pour l'etape 1\n");
+        printf("\033[0;32mSucces\033[0m pour l'etape 1\n");
 }
 
 void oracleEtape2(char *filename) {
@@ -358,7 +356,8 @@ void oracleEtape2(char *filename) {
         if (fgets(buffer, 7 + colonnes[0] + 1, resultCommand) == NULL)
             fprintf(stderr, "Read error\n");
         else
-            sscanf(buffer, " [%*[^]]] %s", names[i]);
+            sscanf(buffer, "  [%*[^]]] %s", names[i]);
+
         strcpy(type, "");
         if (fgets(buffer, colonnes[1] + 1, resultCommand) == NULL)
             fprintf(stderr, "Read error\n");
@@ -412,6 +411,7 @@ void oracleEtape2(char *filename) {
         i++;
     }
     pclose(resultCommand);
+
     FILE *file = fopen(filename, "r");
     Elf32_Ehdr header;
     ReadELFHeader(file, &header);
@@ -432,191 +432,155 @@ void oracleEtape2(char *filename) {
             if (strcmp(names[i], name) != 0) {
                 names[i][colonnes[0] - 6] = beforecmp[0];
                 name[colonnes[0] - 6] = beforecmp[1];
-                printf("Erreur sur le nom de la section %d\n", i);
-                printf("  nom obtenu avec la commande readelf -S : '%s'\n", names[i]);
-                printf("  nom obtenu avec la fonction ReadELFTableSections : '%s'\n\n", name);
+                fprintf(stderr, "Erreur sur le nom de la section %d\n", i);
+                fprintf(stderr, "  nom obtenu avec la commande readelf -S : '%s'\n", names[i]);
+                fprintf(stderr, "  nom obtenu avec la fonction ReadELFTableSections : '%s'\n\n", name);
                 echec = 1;
             }
         }
         if (shdr[i].sh_type != shdrProgram[i].sh_type) {
-            printf("Erreur sur le champ sh_type de la section %d\n", i);
-            printf("  sh_type obtenu avec la commande readelf -S : %x\n", shdr[i].sh_type);
-            printf("  sh_type obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_type);
+            fprintf(stderr, "Erreur sur le champ sh_type de la section %d\n", i);
+            fprintf(stderr, "  sh_type obtenu avec la commande readelf -S : %x\n", shdr[i].sh_type);
+            fprintf(stderr, "  sh_type obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_type);
             echec = 1;
         }
         if (shdr[i].sh_addr != shdrProgram[i].sh_addr) {
-            printf("Erreur sur le champ sh_addr de la section %d\n", i);
-            printf("  sh_addr obtenu avec la commande readelf -S : %x\n", shdr[i].sh_addr);
-            printf("  sh_addr obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_addr);
+            fprintf(stderr, "Erreur sur le champ sh_addr de la section %d\n", i);
+            fprintf(stderr, "  sh_addr obtenu avec la commande readelf -S : %x\n", shdr[i].sh_addr);
+            fprintf(stderr, "  sh_addr obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_addr);
             echec = 1;
         }
         if (shdr[i].sh_offset != shdrProgram[i].sh_offset) {
-            printf("Erreur sur le champ sh_offset de la section %d\n", i);
-            printf("  sh_offset obtenu avec la commande readelf -S : %x\n", shdr[i].sh_offset);
-            printf("  sh_offset obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_offset);
+            fprintf(stderr, "Erreur sur le champ sh_offset de la section %d\n", i);
+            fprintf(stderr, "  sh_offset obtenu avec la commande readelf -S : %x\n", shdr[i].sh_offset);
+            fprintf(stderr, "  sh_offset obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_offset);
             echec = 1;
         }
         if (shdr[i].sh_size != shdrProgram[i].sh_size) {
-            printf("Erreur sur le champ sh_size de la section %d\n", i);
-            printf("  sh_size obtenu avec la commande readelf -S : %x\n", shdr[i].sh_size);
-            printf("  sh_size obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_size);
+            fprintf(stderr, "Erreur sur le champ sh_size de la section %d\n", i);
+            fprintf(stderr, "  sh_size obtenu avec la commande readelf -S : %x\n", shdr[i].sh_size);
+            fprintf(stderr, "  sh_size obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_size);
             echec = 1;
         }
         if (shdr[i].sh_entsize != shdrProgram[i].sh_entsize) {
-            printf("Erreur sur le champ sh_entsize de la section %d\n", i);
-            printf("  sh_entsize obtenu avec la commande readelf -S : %x\n", shdr[i].sh_entsize);
-            printf("  sh_entsize obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_entsize);
+            fprintf(stderr, "Erreur sur le champ sh_entsize de la section %d\n", i);
+            fprintf(stderr, "  sh_entsize obtenu avec la commande readelf -S : %x\n", shdr[i].sh_entsize);
+            fprintf(stderr, "  sh_entsize obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_entsize);
             echec = 1;
         }
         getSectionFlags2(flag, shdrProgram[i]);
         if (strcmp(flags[i], flag) != 0) {
-            printf("Erreur sur le champ sh_flags de la section %d\n", i);
-            printf("  sh_flags obtenu avec la commande readelf -S : %s\n", flags[i]);
-            printf("  sh_flags obtenu avec la fonction ReadELFTableSections : %s\n\n", flag);
+            fprintf(stderr, "Erreur sur le champ sh_flags de la section %d\n", i);
+            fprintf(stderr, "  sh_flags obtenu avec la commande readelf -S : %s\n", flags[i]);
+            fprintf(stderr, "  sh_flags obtenu avec la fonction ReadELFTableSections : %s\n\n", flag);
             echec = 1;
         }
         if (shdr[i].sh_link != shdrProgram[i].sh_link) {
-            printf("Erreur sur le champ sh_link de la section %d\n", i);
-            printf("  sh_link obtenu avec la commande readelf -S : %x\n", shdr[i].sh_link);
-            printf("  sh_link obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_link);
+            fprintf(stderr, "Erreur sur le champ sh_link de la section %d\n", i);
+            fprintf(stderr, "  sh_link obtenu avec la commande readelf -S : %x\n", shdr[i].sh_link);
+            fprintf(stderr, "  sh_link obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_link);
             echec = 1;
         }
         if (shdr[i].sh_info != shdrProgram[i].sh_info) {
-            printf("Erreur sur le champ sh_info de la section %d\n", i);
-            printf("  sh_info obtenu avec la commande readelf -S : %x\n", shdr[i].sh_info);
-            printf("  sh_info obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_info);
+            fprintf(stderr, "Erreur sur le champ sh_info de la section %d\n", i);
+            fprintf(stderr, "  sh_info obtenu avec la commande readelf -S : %x\n", shdr[i].sh_info);
+            fprintf(stderr, "  sh_info obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_info);
             echec = 1;
         }
         if (shdr[i].sh_addralign != shdrProgram[i].sh_addralign) {
-            printf("Erreur sur le champ sh_addralign de la section %d\n", i);
-            printf("  sh_addralign obtenu avec la commande readelf -S : %x\n", shdr[i].sh_addralign);
-            printf("  sh_addralign obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_addralign);
+            fprintf(stderr, "Erreur sur le champ sh_addralign de la section %d\n", i);
+            fprintf(stderr, "  sh_addralign obtenu avec la commande readelf -S : %x\n", shdr[i].sh_addralign);
+            fprintf(stderr, "  sh_addralign obtenu avec la fonction ReadELFTableSections : %x\n\n", shdrProgram[i].sh_addralign);
             echec = 1;
         }
     }
     if (echec)
-        printf("Echec pour l'etape 2\n");
+        printf("\033[0;31mEchec\033[0m pour l'etape 2\n");
     else
-        printf("Succes pour l'etape 2\n");
+        printf("\033[0;32mSucces\033[0m pour l'etape 2\n");
 }
 
-void oracleEtape3 (char *filename) {
-    int reu = 0;
+void oracleEtape3(char *filename) {
     FILE *file = fopen(filename, "r");
     Elf32_Ehdr header;
     ReadELFHeader(file, &header);
+    Elf32_Shdr *shdr = create_ELFTableSections(header);
+    ReadELFTableSections(file, header, shdr);
 
-    // pour chaque section
-    for (int j = 1 ; j < header.e_shnum ; j++) {
+    char command[2 * STR_SIZE];
+    char ligne[STR_SIZE];
+    FILE *resultCommand;
+    uint8_t *resultProgram;
+    uint8_t octet;
+    int k;
+    int echec = 0;
+    for (int i = 1; i < header.e_shnum; i++) {
+        sprintf(command, "readelf -x %d %s", i, filename);
+        resultCommand = popen(command, "r");
 
+        if (!fgets(ligne, STR_SIZE, resultCommand))
+            fprintf(stderr, "Read error : (oracleEtape3) fgets\n");
 
-        char command[STR_SIZE] = "readelf -x ";
-        char comman2[STR_SIZE] = "./readELF -x ";
-        char argument[STR_SIZE];
-        sprintf(argument, "%d ", j);
-        strcat(argument, filename);
-        strcat(command, argument);
-        strcat(comman2, argument);
-        //tableau contenant le résultat de la commande
-        char result[STR_SIZE] = "";
-        char result2[STR_SIZE] = "";
-        //on exécute la commande
-        FILE *fp = popen(command, "r");
-        FILE *ff = popen(comman2, "r");
-        char zoumzoum[STR_SIZE];
-        char soumzoum[STR_SIZE];
-
-
-        // si la 1ere ligne est juste un espace
-        if (strlen(fgets(result, STR_SIZE, fp)) == 1 || strlen(fgets(result2, STR_SIZE, ff)) == 1) {
-
-
-            // tant que les lignes sont pas vides
-            while (fgets(result, STR_SIZE, fp) != NULL &&
-                   fgets(result2, STR_SIZE, ff) != NULL) { //on lit le résultat de la commande
-
-                // on passe les ligne qui sont pas de la data
-                while (strncmp(result, " NOTE:", 6) == 0 || strncmp(result, "Hex dump", 8) == 0 || strlen(result) == 1){
-                    if (fgets(result, STR_SIZE, fp) == NULL) {
-                        printf("\nEchec pour l'etape 3\n");
-                        //on ferme le fichier
-                        pclose(fp);
-                        pclose(ff);
-                        exit(0);
-                    }
-                }
-
-                // on passe les ligne qui sont pas de la data
-                while (strncmp(result2, "Section ", 8) == 0){
-                    if (fgets(result2, STR_SIZE, ff) == NULL) {
-                        printf("\nEchec pour l'etape 3\n");
-                        //on ferme le fichier
-                        pclose(fp);
-                        pclose(ff);
-                        exit(0);
-                    }
-                }
-
-                        //on concatene successivement les charactères de la ligne dans le tableau zoumzoum
-                        // en enlevant les espaces les tabulations et les retours à la ligne
-                        int i = 0;
-                        int j = 0;
-                        while (result[i] != '\0') {
-                            if (result[i] != ' ' && result[i] != '\n') {
-                                zoumzoum[j] = result[i];
-                                j++;
-                            }
-                            i++;
-                        }
-                        zoumzoum[j] = '\0';
-                        //on concatene successivement les charactères de la ligne dans le tableau soumzoum
-                        // en enlevant les espaces les tabulations et les retours à la ligne
-                        i = 0;
-                        j = 0;
-                        while (result2[i] != '\0') {
-                            if (result2[i] != ' ' && result2[i] != '\n') {
-                                soumzoum[j] = result2[i];
-                                j++;
-                            }
-                            i++;
-                        }
-                        soumzoum[j] = '\0';
-                if (strcmp(soumzoum, zoumzoum) != 0){
-                    printf("Concatenation differente\n");
-                    printf(" zoumzoum(commande) : %s\n soumzoum(fonction) : %s\n", zoumzoum, soumzoum);
-                    reu = 1;
-                    }
-                break;
+        if (shdr[i].sh_size)
+            resultProgram = getSectionContent(file, shdr[i]);
+        else {
+            char name[STR_SIZE] = "";
+            getSectionName(name, file, header, shdr, i);
+            char nodata[2 * STR_SIZE];
+            sprintf(nodata, "Section '%s' has no data to dump.\n", name);
+            if (strcmp(nodata, ligne) != 0) {
+                fprintf(stderr, "Erreur sur la section %d\n", i);
+                fprintf(stderr, "  contenu obtenue avec readelf -x : %s\n", ligne);
+                fprintf(stderr, "  est vide avec le programme\n\n");
+                echec = 1;
             }
-            //fin de la comparaison des lignes data
+            continue;
+        }
 
-            //si il y a pas de data
-        } else {
-            //on verifie que la ligne commence par "Section";
-            if (strncmp(result, "Section", 7) == 0 && strncmp(result2, "Section", 7) == 0) {
-                reu = 0;
-            } else {
-                // il y a pas de data et pas de "Section"
-                fprintf(stderr,"Erreur lors de l'exécution de la commande readelf -x nbsection filename");
-                reu = 1;
+        passerNLignes(resultCommand, 1);  // On passe la ligne "Hex dump of section '...':"
+        if (!fgets(ligne, STR_SIZE, resultCommand))
+            fprintf(stderr, "Read error : (oracleEtape3) fgets\n");
+
+        if (strcmp(" NOTE: This section has relocations against it, but these have NOT been applied to this dump.\n",
+                   ligne) == 0) {
+            if (!fgets(ligne, STR_SIZE, resultCommand))
+                fprintf(stderr, "Read error : (oracleEtape3) fgets\n");
+        }
+
+        k = 0;
+        do {
+            for (int j = 13; j < 48; j++)
+                ligne[j - 13] = ligne[j];  // On supprime l'adresse
+            ligne[36] = 0;
+
+            for (int j = 0; j < 35; j += 2) {
+                if (ligne[j] == ' ') {
+                    if (ligne[j - 1] == ' ')
+                        break;
+                    j--;
+                } else {
+                    sscanf(ligne + j, "%2hhx", &octet);
+                    if (octet != resultProgram[k]) {
+                        fprintf(stderr, "Erreur sur la section %d (offset 0x%.8x)\n", i, k);
+                        fprintf(stderr, "  octet obtenu avec readelf -x : %.2x\n", octet);
+                        fprintf(stderr, "  octet obtenu avec le programme : %.2x\n\n", resultProgram[k]);
+                        echec = 1;
+                        break;
+                    }
+                    k++;
+                }
             }
-        }
-        strcpy(result,"");
-        strcpy(result2,"");
-        //fin de la comparaison des sections
+        } while (fgets(ligne, STR_SIZE, resultCommand) && ligne[0] != '\n' && echec == 0);
 
-        if (reu == 1) {
-            printf("Echec pour l'etape 3\n");
-            //on ferme le fichier
-            pclose(fp);
-            pclose(ff);
-            exit(0);
-        }
+        pclose(resultCommand);
+        free(resultProgram);
     }
-    //fin de la comparaison de la section et aucune erreur
+    fclose(file);
 
-    if (reu == 0)
-        printf("Succes pour l'etape 3\n");
+    if (echec)
+        printf("\033[0;31mEchec\033[0m pour l'etape 3\n");
+    else
+        printf("\033[0;32mSucces\033[0m pour l'etape 3\n");
 }
 
 void oracleEtape4(char *filename) {
@@ -626,7 +590,7 @@ void oracleEtape4(char *filename) {
     int imax;
     passerNLignes(resultCommand, 1);
     if (fscanf(resultCommand, "Symbol table '%*[^']' contains %d", &imax) != 1)
-        fprintf(stderr, "Erreur de lecture du nombre d'entrees\n");
+        fprintf(stderr, "Erreur de lecture du nombre d'entrées\n");
     passerNLignes(resultCommand, 1);
 
     Elf32_Sym st[imax];
@@ -660,7 +624,7 @@ void oracleEtape4(char *filename) {
     char bind[STR_SIZE];
     char vis[STR_SIZE];
     char ndx[STR_SIZE];
-    char names[STR_SIZE][imax];
+    char names[imax][STR_SIZE];
     while (i < imax) {
         if (fgets(buffer, 8 + colonnes[0] + 1, resultCommand) == NULL)
             fprintf(stderr, "Read error\n");
@@ -723,252 +687,246 @@ void oracleEtape4(char *filename) {
     for (i = 0; i < imax; i++) {
         getSymbolName(name, file, header, shdrProgram, stProgram[i]);
         if (strcmp(names[i], name) != 0) {
-            printf("Erreur sur le nom de l'entrée %d\n", i);
-            printf("  nom obtenu avec la commande readelf -s : '%s'\n", names[i]);
-            printf("  nom obtenu avec la fonction ReadELFTableSymbols : '%s'\n\n", name);
+            fprintf(stderr, "Erreur sur le nom de l'entrée %d\n", i);
+            fprintf(stderr, "  nom obtenu avec la commande readelf -s : '%s'\n", names[i]);
+            fprintf(stderr, "  nom obtenu avec la fonction ReadELFTableSymbols : '%s'\n\n", name);
             echec = 1;
         }
         if (st[i].st_value != stProgram[i].st_value) {
-            printf("Erreur sur le champ st_value de l'entrée %d\n", i);
-            printf("  st_value obtenu avec la commande readelf -s : %x\n", st[i].st_value);
-            printf("  st_value obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_value);
+            fprintf(stderr, "Erreur sur le champ st_value de l'entrée %d\n", i);
+            fprintf(stderr, "  st_value obtenu avec la commande readelf -s : %x\n", st[i].st_value);
+            fprintf(stderr, "  st_value obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_value);
             echec = 1;
         }
         if (st[i].st_size != stProgram[i].st_size) {
-            printf("Erreur sur le champ st_size de l'entrée %d\n", i);
-            printf("  st_size obtenu avec la commande readelf -s : %x\n", st[i].st_size);
-            printf("  st_size obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_size);
+            fprintf(stderr, "Erreur sur le champ st_size de l'entrée %d\n", i);
+            fprintf(stderr, "  st_size obtenu avec la commande readelf -s : %x\n", st[i].st_size);
+            fprintf(stderr, "  st_size obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_size);
             echec = 1;
         }
         if (st[i].st_info != stProgram[i].st_info) {
-            printf("Erreur sur le champ st_info de l'entrée %d\n", i);
-            printf("  st_info obtenu avec la commande readelf -s : %x\n", st[i].st_info);
-            printf("  st_info obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_info);
+            fprintf(stderr, "Erreur sur le champ st_info de l'entrée %d\n", i);
+            fprintf(stderr, "  st_info obtenu avec la commande readelf -s : %x\n", st[i].st_info);
+            fprintf(stderr, "  st_info obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_info);
             echec = 1;
         }
         if (st[i].st_other != stProgram[i].st_other) {
-            printf("Erreur sur le champ st_other de l'entrée %d\n", i);
-            printf("  st_other obtenu avec la commande readelf -s : %x\n", st[i].st_other);
-            printf("  st_other obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_other);
+            fprintf(stderr, "Erreur sur le champ st_other de l'entrée %d\n", i);
+            fprintf(stderr, "  st_other obtenu avec la commande readelf -s : %x\n", st[i].st_other);
+            fprintf(stderr, "  st_other obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_other);
             echec = 1;
         }
         if (st[i].st_shndx != stProgram[i].st_shndx) {
-            printf("Erreur sur le champ st_shndx de l'entrée %d\n", i);
-            printf("  st_shndx obtenu avec la commande readelf -s : %x\n", st[i].st_shndx);
-            printf("  st_shndx obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_shndx);
+            fprintf(stderr, "Erreur sur le champ st_shndx de l'entrée %d\n", i);
+            fprintf(stderr, "  st_shndx obtenu avec la commande readelf -s : %x\n", st[i].st_shndx);
+            fprintf(stderr, "  st_shndx obtenu avec la fonction ReadELFTableSymbols : %x\n\n", stProgram[i].st_shndx);
             echec = 1;
         }
     }
     if (echec)
-        printf("Echec pour l'etape 4\n");
+        printf("\033[0;31mEchec\033[0m pour l'etape 4\n");
     else
-        printf("Succes pour l'etape 4\n");
+        printf("\033[0;32mSucces\033[0m pour l'etape 4\n");
 }
 
-void lire_fichier(FILE* fichier, RelocationSection** relocation_sections, int* num_sections) {
-    char ligne[256];
-    while (fgets(ligne, sizeof(ligne), fichier) != NULL) {
-        if (strstr(ligne, "Relocation section") != NULL) {
-            // Allouer de la mémoire pour une nouvelle section
-            *relocation_sections = realloc(*relocation_sections, (*num_sections + 1) * sizeof(RelocationSection));
-            RelocationSection* section = &(*relocation_sections)[*num_sections];
-            section->inputs = NULL;
-            *num_sections += 1;
-
-            // Récupérer le nom et l'offset de la section à partir de la ligne
-            char* pch = strtok(ligne, "\'");
-            pch = strtok(NULL, "\'");
-            section->name = malloc(strlen(pch) + 1);
-            strcpy(section->name, pch);
-            pch = strtok(NULL, "\'");
-            //Récuperer l'offset de le mot de la phrase qui commence par 0x
-            char* offset = strstr(pch, "0x");
-            section->offset = strtol(offset, NULL, 16);
-        } else if (strcmp(ligne, "\n") != 0 && strstr(ligne, "Offset") == NULL) {
-            // Récupérer les entrées de la section à partir de la ligne
-            RelocationSection* section = &(*relocation_sections)[*num_sections - 1];
-            int num_inputs = 0;
-            char* pch = strtok(ligne, " ");
-            while (pch != NULL) {
-                // Allouer de la mémoire pour une nouvelle entrée
-                section->inputs = realloc(section->inputs, (num_inputs + 1) * sizeof(char*));
-                char* input = malloc(strlen(pch) + 1);
-                strcpy(input, pch);
-                section->inputs[num_inputs] = input;
-                num_inputs += 1;
-
-                pch = strtok(NULL, " ");
-            }
-            section->inputs = realloc(section->inputs, (num_inputs + 1) * sizeof(char*));
-            section->inputs[num_inputs] = NULL;
-        }
-    }
-}
-
-void oracleEtape5(char *fichier){
+void oracleEtape5(char *filename) {
     char command[STR_SIZE] = "readelf -r ";
-    FILE *resultCommand = popen(strcat(command, fichier), "r");
-    char programme[STR_SIZE] = "./readELF -r ";
-    FILE *resultProgram = popen(strcat(programme, fichier), "r");
-    // Lire les fichiers
-    RelocationSection* relocation_sections_commandes = NULL;
-    int num_sections_commandes = 0;
-    lire_fichier(resultCommand, &relocation_sections_commandes, &num_sections_commandes);
+    FILE *resultCommand = popen(strcat(command, filename), "r");
 
-    RelocationSection* relocation_sections_programme = NULL;
-    int num_sections_programme = 0;
-    lire_fichier(resultProgram, &relocation_sections_programme, &num_sections_programme);
+    FILE *file = fopen(filename, "r");
+    Elf32_Ehdr ehdr;
+    ReadELFHeader(file, &ehdr);
+    Elf32_Shdr *shdrTable = create_ELFTableSections(ehdr);
+    ReadELFTableSections(file, ehdr, shdrTable);
+    Elf32_Shdr sh_symtab = shdrTable[sectionName2Index(".symtab", file, ehdr, shdrTable)];
+    Elf32_Sym *symTable = create_ELFTableSymbols(sh_symtab);
+    ReadELFTableSymbols(file, symTable, sh_symtab);
+    Elf32_Rel **relTables = create_ELFTablesRel(ehdr);
+    ReadELFRelocationTable(file, relTables, ehdr, shdrTable, symTable);
 
-    // Fermer les fichiers
-    pclose(resultProgram);
-    pclose(resultCommand);
-
-    // Vérifier que le nombre de sections est le même
-    if (num_sections_programme != num_sections_commandes) {
-        printf("%d sections dans le programme, %d sections dans la commande\n", num_sections_programme, num_sections_commandes);
-        printf("Le programme de l'étape 5 ne trouve pas le même nombre de tables de réimplantation que la commande readelf -r\n");
-        return;
-    }
-
-    // Vérifier que chaque section est la même
-    int i;
-    for (i = 0; i < num_sections_commandes; i++) {
-        RelocationSection* section_commandes = &relocation_sections_commandes[i];
-        RelocationSection* section_programme = &relocation_sections_programme[i];
-
-        if (strcmp(section_commandes->name, section_programme->name) != 0 ||
-            section_commandes->offset != section_programme->offset ||
-            section_commandes->inputs == NULL || section_programme->inputs == NULL) {
-            break;
-        }
-
-        int j;
-        for (j = 0; section_commandes->inputs[j] != NULL && section_programme->inputs[j] != NULL; j++) {
-            if (strcmp(section_commandes->inputs[j], section_programme->inputs[j]) != 0) {
-                break;
+    char ligne[STR_SIZE];
+    char name[STR_SIZE];
+    int index = 0;
+    int k = 0;
+    Elf32_Addr r_offset;
+    Elf32_Word r_info;
+    int echec = 0;
+    while (fgets(ligne, STR_SIZE, resultCommand)) {
+        if (strcmp(ligne, "\n") == 0)
+            continue;
+        else if (strcmp(ligne, "There are no relocations in this file.\n") == 0) {
+            for (int i = 0; i < ehdr.e_shnum; i++) {
+                if (relTables[i] != NULL && shdrTable[i].sh_size) {
+                    fprintf(stderr, "Erreur sur la table des relocation\n");
+                    fprintf(stderr, "  pas de relocation avec la commande readelf -r\n");
+                    fprintf(stderr, "  section %d contient des relocations avec la fonction ReadELFRelocationTable\n\n", i);
+                    echec = 1;
+                }
             }
+            continue;
         }
-
-        if (section_commandes->inputs[j] != NULL || section_programme->inputs[j] != NULL) {
-            break;
+        else if (strncmp(ligne, "Relocation section", 18) == 0) {
+            sscanf(ligne, "Relocation section '%[^']s'", name);
+            index = sectionName2Index(name, file, ehdr, shdrTable);
+            passerNLignes(resultCommand, 1);
+            k = 0;
+            continue;
         }
+        sscanf(ligne, "%8x %8x", &r_offset, &r_info);
+        if (relTables[index] != NULL) {
+            if (r_offset != relTables[index][k].r_offset) {
+                fprintf(stderr, "Erreur sur l'entrée %d de la table des relocations %s\n", k, name);
+                fprintf(stderr, "  r_offset obtenu avec la commande readelf -r : %.8x\n", r_offset);
+                fprintf(stderr, "  r_offset obtenu avec la fonction ReadELFRelocationTable : %.8x\n\n", relTables[index][k].r_offset);
+                echec = 1;
+            }
+            if (r_info != relTables[index][k].r_info) {
+                fprintf(stderr, "Erreur sur l'entrée %d de la table des relocations %s\n", k, name);
+                fprintf(stderr, "  r_info obtenu avec la commande readelf -r : %.8x\n", r_info);
+                fprintf(stderr, "  r_info obtenu avec la fonction ReadELFRelocationTable : %.8x\n\n", relTables[index][k].r_info);
+                echec = 1;
+            }
+        } else {
+            fprintf(stderr, "Erreur sur la table des relocation\n");
+            fprintf(stderr, "  section %d contient des relocations avec la commande readelf -r\n", index);
+            fprintf(stderr, "  pas de relocation avec la fonction ReadELFRelocationTable\n\n");
+            echec = 1;
+        }
+        k++;
     }
 
-    // Afficher le résultat
-    if (i == num_sections_commandes) {
-        printf("Succès pour l'étape 5\n");
-        free(relocation_sections_commandes);
-        free(relocation_sections_programme);
-        return;
-    } else {
-        free(relocation_sections_commandes);
-        free(relocation_sections_programme);
-        printf("Echec pour l'étape 5\n");
-        return;
-    }
+    if (echec)
+        printf("\033[0;31mEchec\033[0m pour l'etape 5\n");
+    else
+        printf("\033[0;32mSucces\033[0m pour l'etape 5\n");
+
+    pclose(resultCommand);
 }
 
-void oracleEtape6(char* filename1, char* filename2) {
-    // Ouverture des fichiers
-    FILE* file1 = fopen(filename1, "r");
-    FILE* file2 = fopen(filename2, "r");
-    char resultatName[] = "resultatOracleEtape6.txt";
-    FILE* resultat = fopen(resultatName, "w");
 
-    // Récupération du header et de la table des sections du fichier 1
-    Elf32_Ehdr headerF1;
-    ReadELFHeader(file1, &headerF1);
-    Elf32_Shdr* sectionsTableF1 = create_ELFTableSections(headerF1);
-    ReadELFTableSections(file1, headerF1, sectionsTableF1);
+void oracleEtape6(char *filename1, char *filename2) {
+    FILE *file1 = fopen(filename1, "r");
+    FILE *file2 = fopen(filename2, "r");
 
-    // Récupération du header et de la table des sections du fichier 2
-    Elf32_Ehdr headerF2;
-    ReadELFHeader(file2, &headerF2);
-    Elf32_Shdr* sectionsTableF2 = create_ELFTableSections(headerF2);
-    ReadELFTableSections(file2, headerF2, sectionsTableF2);
+    Elf32_Ehdr ehdr1, ehdr2;
+    ReadELFHeader(file1, &ehdr1);
+    ReadELFHeader(file2, &ehdr2);
+    Elf32_Shdr *shdrTable1 = create_ELFTableSections(ehdr1);
+    Elf32_Shdr *shdrTable2 = create_ELFTableSections(ehdr2);
+    ReadELFTableSections(file1, ehdr1, shdrTable1);
+    ReadELFTableSections(file2, ehdr2, shdrTable2);
 
-    // Appel à la fonction Link et écriture de son résultat dans le fichier resultat
-    LinkELFRenumSections(file1, file2, resultat);
+    FILE *output = fopen("output.tmp", "w");
+    FusionELF_Etape6 *res = LinkELFRenumSections(file1, file2, output);
+    fclose(output);
 
-    // Passage du fichier resultat en mode lecture
-    fclose(resultat);
-    resultat = fopen(resultatName, "r");
+    output = fopen("output.tmp", "r");
 
-    // Comparaison des sections des deux fichiers file1 et file2 avec celles du fichier resultat
-    // Vérification des sections de file1
-    int i = 0;
+    uint8_t octet;
+    uint8_t *buff;
     int echec = 0;
-    while(i < headerF1.e_shnum && !echec) {
-        fseek(file1, sectionsTableF1[i].sh_offset, SEEK_SET);
-        Elf32_Shdr section = ReadOneSection(resultat);
-
-        echec = SectionCmp(section, sectionsTableF1[i]);
-        // Pour une section de type PROGBITS
-        if(!echec && sectionsTableF1[i].sh_type == SHT_PROGBITS) {
-            Elf32_Shdr sectionSuivante = ReadOneSection(resultat);
-
-            // Vérifie que la section suivante est une section de file2
-            int j = 0;
-            while (j < headerF2.e_shnum && sectionSuivante.sh_name != sectionsTableF2[i].sh_name) {
-                j++;
+    int local_echec;
+    int k;
+    int i = 0;
+    while (i < ehdr1.e_shnum) {
+        if (shdrTable1[i].sh_size) {
+            local_echec = 0;
+            buff = getSectionContent(file1, shdrTable1[i]);
+            for (int j = 0; j < shdrTable1[i].sh_size; j++) {
+                octet = fgetc(output);
+                if (octet != buff[j] && local_echec == 0) {
+                    fprintf(stderr, "Erreur sur la section %d du premier fichier ELF (offset 0x%.8x)\n", i, j);
+                    fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n", octet);
+                    fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
+                    echec = 1;
+                    local_echec = 1;
+                }
             }
-
-            echec = j < headerF2.e_shnum && section.sh_name == sectionSuivante.sh_name;
+            free(buff);
         }
-
-        i += 1;
-    }
-
-    if(!echec) {
-        i = 0;
-        while(i < headerF2.e_shnum && !echec) {
-            fseek(file1, sectionsTableF2[i].sh_offset, SEEK_SET);
-            Elf32_Shdr section = ReadOneSection(resultat);
-
-            echec = SectionCmp(section, sectionsTableF2[i]);
-
-            i += 1;
+        if (shdrTable1[i].sh_type == SHT_PROGBITS) {
+            for (k = 0; k < res->size; k++) {
+                if (res->renum[k] == i)
+                    break;
+            }
+            if (k < res->size && shdrTable2[k].sh_size) {
+                local_echec = 0;
+                buff = getSectionContent(file2, shdrTable2[k]);
+                for (int j = 0; j < shdrTable2[k].sh_size; j++) {
+                    octet = fgetc(output);
+                    if (octet != buff[j] && local_echec == 0) {
+                        fprintf(stderr, "Erreur sur la section %d du second fichier ELF (offset 0x%.8x)\n", k, j);
+                        fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n",
+                                octet);
+                        fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
+                        echec = 1;
+                        local_echec = 1;
+                    }
+                }
+                free(buff);
+            }
         }
+        i++;
+    }
+    while (i < res->snb) {
+        for (k = 0; k < res->size; k++) {
+            if (res->renum[k] == i)
+                break;
+        }
+        if (k < res->size && shdrTable2[k].sh_size) {
+            local_echec = 0;
+            buff = getSectionContent(file2, shdrTable2[k]);
+            for (int j = 0; j < shdrTable2[k].sh_size; j++) {
+                octet = fgetc(output);
+                if (octet != buff[j] && local_echec == 0) {
+                    fprintf(stderr, "Erreur sur la section %d du second fichier ELF (offset 0x%.8x)\n", k, j);
+                    fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n", octet);
+                    fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
+                    echec = 1;
+                    local_echec = 1;
+                }
+            }
+            free(buff);
+        }
+        i++;
     }
 
-    if(echec) {
-        printf("Echec pour l'étape 6\n");
-    } else {
-        printf("Succès pour l'étape 6\n");
-    }
+    if (echec)
+        printf("\033[0;31mEchec\033[0m pour l'etape 6\n");
+    else
+        printf("\033[0;32mSucces\033[0m pour l'etape 6\n");
 
-    // Fermeture des fichiers
-    fclose(file1);
+    fclose(output);
+    remove("output.tmp");
     fclose(file2);
-    fclose(resultat);
-
-    // Libération de la mémoire
-    free(sectionsTableF1);
-    free(sectionsTableF2);
+    fclose(file1);
 }
 
 
 int main(int argc, char *argv[]) {
     if (argc < 2)
-        printf("Il faut au moins un fichier de test\n");
+        fprintf(stderr, "Il faut au moins un fichier de test\n");
     else {
+        FILE *tmp;
         for (int i = 1; i < argc; i++) {
-            printf("Tests avec le fichier '%s'\n", argv[i]);
-
-            if(fopen(argv[i], "r")) {
+            tmp = fopen(argv[i], "r");
+            if (!tmp) {
+                printf("Read error : (FileNotFound) '%s'\n", argv[i]);
+                exit(1);
+            } else
+                fclose(tmp);
+        }
+        for (int i = 1; i < argc; i++) {
+                printf("\nTests Phase 1 avec le fichier '%s'\n", argv[i]);
                 oracleEtape1(argv[i]);
                 oracleEtape2(argv[i]);
                 oracleEtape3(argv[i]);
-                //oracleEtape4(argv[i]);
+                oracleEtape4(argv[i]);
                 oracleEtape5(argv[i]);
-                if(i + 1 < argc) {
-                    oracleEtape6(argv[i], argv[i+1]);
-                }
-            } else {
-                printf("Erreur le fichier %s est introuvable ou impossible à ouvrir\n", argv[i]);
-            }
-
-
+        }
+        if (argc == 3) {
+            printf("\nTests Phase 2 avec la fusion des fichiers '%s' et '%s'\n", argv[1], argv[2]);
+            oracleEtape6(argv[1], argv[2]);
         }
     }
     return 0;

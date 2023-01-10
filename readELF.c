@@ -70,8 +70,6 @@ int main(int argc, char *argv[]) {
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_RELOCATION_TABLE))
             PrintELFRelocationTable(file, header, sectionTable, symbolTable, relTables);
 
-        printf("\n");
-
         free(sectionTable);
         free(symbolTable);
         fclose(file);

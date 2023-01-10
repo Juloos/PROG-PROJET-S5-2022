@@ -1,6 +1,6 @@
 #!/bin/bash
 
-for dir in *
+for dir in [ "Examples_fusion" "." ]
 do
     autoreconf -vif $dir
 done
