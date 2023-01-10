@@ -407,17 +407,8 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
 }
 
 
-FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
-    Elf32_Ehdr ehdr1, ehdr2;
-    Elf32_Shdr *shdrTable1, *shdrTable2;
+FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output, Elf32_Ehdr ehdr1, Elf32_Ehdr ehdr2, Elf32_Shdr *shdrTable1, Elf32_Shdr *shdrTable2) {
     char name1[STR_SIZE], name2[STR_SIZE];
-
-    ReadELFHeader(input1, &ehdr1);
-    ReadELFHeader(input2, &ehdr2);
-    shdrTable1 = create_ELFTableSections(ehdr1);
-    shdrTable2 = create_ELFTableSections(ehdr2);
-    ReadELFTableSections(input1, ehdr1, shdrTable1);
-    ReadELFTableSections(input2, ehdr2, shdrTable2);
 
     FusionELF_Etape6 *res = create_fusion6(ehdr2.e_shnum);
     res->renum[0] = 0;
@@ -469,16 +460,6 @@ FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output)
     res->snb = ehdr1.e_shnum + e_shnum_acc;
     return res;
 }
-
-
-
-
-
-
-
-
-
-
 
 
 SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2) {

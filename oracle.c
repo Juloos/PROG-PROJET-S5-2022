@@ -725,8 +725,7 @@ void oracleEtape5(char *filename, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrT
                 }
             }
             continue;
-        }
-        else if (strncmp(ligne, "Relocation section", 18) == 0) {
+        } else if (strncmp(ligne, "Relocation section", 18) == 0) {
             sscanf(ligne, "Relocation section '%[^']s'", name);
             index = sectionName2Index(name, file, ehdr, shdrTable);
             passerNLignes(resultCommand, 1);
@@ -767,7 +766,7 @@ void oracleEtape5(char *filename, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrT
 
 void oracleEtape6(char *filename1, char *filename2, FILE *file1, FILE *file2, Elf32_Ehdr ehdr1, Elf32_Ehdr ehdr2, Elf32_Shdr *shdrTable1, Elf32_Shdr *shdrTable2) {
     FILE *output = fopen("output.tmp", "w");
-    FusionELF_Etape6 *res = LinkELFRenumSections(file1, file2, output);
+    FusionELF_Etape6 *res = LinkELFRenumSections(file1, file2, output, ehdr1, ehdr2, shdrTable1, shdrTable2);
     fclose(output);
 
     output = fopen("output.tmp", "r");
@@ -850,31 +849,29 @@ void oracleEtape6(char *filename1, char *filename2, FILE *file1, FILE *file2, El
     remove("output.tmp");
 }
 
-void oracleEtape7(char* fileName1, char* fileName2) {
-    FILE* input1 = fopen(fileName1, "r");
-    FILE* input2 = fopen(fileName2, "r");
+void oracleEtape7(char *filename1, char *filename2, FILE *file1, FILE *file2) {
+    // Récupération de la table des symboles de file1
+    SymbolsTable *symTable1 = GetSymbolsTable(file1);
 
-    // Récupération de la table des symboles de input1
-    SymbolsTable * symsTableInput1 = GetSymbolsTable(input1);
-
-    // Récupération de la table des symboles de input2
-    SymbolsTable* symsTableInput2 = GetSymbolsTable(input2);
+    // Récupération de la table des symboles de file2
+    SymbolsTable *symTable2 = GetSymbolsTable(file2);
 
     // Fusion des tables des symboles des deux fichiers en entrées
-    SymbolsTable* symsTableResult = LinkELFSymbols(input1, input2);
+    SymbolsTable *symsTableResult = LinkELFSymbols(file1, file2);
 
     int i = 0;
     int j = 0;
     int error = 0;
 
     // Si la fusion a réussi
-    if(symsTableResult != NULL) {
+    if (symsTableResult != NULL) {
         // On vérifie que tout les symboles locaux des deux fichiers en entrée sont dans la table des symboles finale
         i = 0;
-        while(i < symsTableInput1->nbElems && !error) {
-            if(getSymbolBindValue(symsTableInput1->symbols[i]) == STB_LOCAL) {
+        while (i < symTable1->nbElems && !error) {
+            if (getSymbolBindValue(symTable1->symbols[i]) == STB_LOCAL) {
                 j = 0;
-                while(j < symsTableResult->nbElems && SymbolCmp(symsTableInput1->symbols[i], symsTableResult->symbols[j])) {
+                while (j < symsTableResult->nbElems &&
+                       SymbolCmp(symTable1->symbols[i], symsTableResult->symbols[j])) {
                     j++;
                 }
                 error = j == symsTableResult->nbElems;
@@ -883,10 +880,11 @@ void oracleEtape7(char* fileName1, char* fileName2) {
         }
 
         i = 0;
-        while(i < symsTableInput2->nbElems && !error) {
-            if(getSymbolBindValue(symsTableInput2->symbols[i]) == STB_LOCAL) {
+        while (i < symTable2->nbElems && !error) {
+            if (getSymbolBindValue(symTable2->symbols[i]) == STB_LOCAL) {
                 j = 0;
-                while(j < symsTableResult->nbElems && SymbolCmp(symsTableInput2->symbols[i], symsTableResult->symbols[j])) {
+                while (j < symsTableResult->nbElems &&
+                       SymbolCmp(symTable2->symbols[i], symsTableResult->symbols[j])) {
                     j++;
                 }
                 error = j == symsTableResult->nbElems;
@@ -897,36 +895,32 @@ void oracleEtape7(char* fileName1, char* fileName2) {
 
     // Dans tout les cas on vérifie que les deux fichiers en entrée n'ont aucun symbole global défini avec le même nom
     i = 0;
-    while(i < symsTableInput1->nbElems && !error) {
-        j = i+1;
-        while(j < symsTableInput2->nbElems && !error) {
-            error = symsTableInput1->symbols[i].st_name == symsTableInput2->symbols[j].st_name
-                    && getSymbolBindValue(symsTableInput1->symbols[i]) == STB_GLOBAL
-                    && getSymbolBindValue(symsTableInput2->symbols[j]) == STB_GLOBAL
-                    && ELF32_ST_TYPE(symsTableInput1->symbols[i].st_info) != STT_NOTYPE
-                    && ELF32_ST_TYPE(symsTableInput2->symbols[j].st_info) != STT_NOTYPE;
+    while (i < symTable1->nbElems && !error) {
+        j = i + 1;
+        while (j < symTable2->nbElems && !error) {
+            error = symTable1->symbols[i].st_name == symTable2->symbols[j].st_name
+                    && getSymbolBindValue(symTable1->symbols[i]) == STB_GLOBAL
+                    && getSymbolBindValue(symTable2->symbols[j]) == STB_GLOBAL
+                    && ELF32_ST_TYPE(symTable1->symbols[i].st_info) != STT_NOTYPE
+                    && ELF32_ST_TYPE(symTable2->symbols[j].st_info) != STT_NOTYPE;
             j++;
         }
         i++;
     }
 
-    if((symsTableResult == NULL && error) || (symsTableResult != NULL && !error)) {
+    if ((symsTableResult == NULL && error) || (symsTableResult != NULL && !error))
         printf("\033[0;32mSucces\033[0m pour l'etape 7\n");
-    } else {
+    else
         printf("\033[0;31mEchec\033[0m pour l'etape 7\n");
-    }
 
-    free(symsTableInput1->symbols);
-    free(symsTableInput1);
-    free(symsTableInput2->symbols);
-    free(symsTableInput2);
-    if(symsTableResult != NULL) {
+    free(symTable1->symbols);
+    free(symTable1);
+    free(symTable2->symbols);
+    free(symTable2);
+    if (symsTableResult != NULL) {
         free(symsTableResult->symbols);
         free(symsTableResult);
     }
-
-    fclose(input1);
-    fclose(input2);
 }
 
 int main(int argc, char *argv[]) {
@@ -936,22 +930,22 @@ int main(int argc, char *argv[]) {
         FILE *file1, *file2;
         ELF *elf1, *elf2;
         for (int i = 1; i < argc; i++) {
-                file1 = fopen(argv[i], "r");
-                if (!file1) {
-                    printf("File not found : '%s'\n", argv[i]);
-                    exit(1);
-                }
-                elf1 = ReadELF(file1);
+            file1 = fopen(argv[i], "r");
+            if (!file1) {
+                printf("File not found : '%s'\n", argv[i]);
+                exit(1);
+            }
+            elf1 = ReadELF(file1);
 
-                printf("\nTests Phase 1 avec le fichier '%s'\n", argv[i]);
-                oracleEtape1(argv[i], elf1->ehdr);
-                oracleEtape2(argv[i], file1, elf1->ehdr, elf1->shdrTable);
-                oracleEtape3(argv[i], file1, elf1->ehdr, elf1->shdrTable);
-                oracleEtape4(argv[i], file1, elf1->ehdr, elf1->shdrTable, elf1->symTable);
-                oracleEtape5(argv[i], file1, elf1->ehdr, elf1->shdrTable, elf1->relTables);
+            printf("\nTests Phase 1 avec le fichier '%s'\n", argv[i]);
+            oracleEtape1(argv[i], elf1->ehdr);
+            oracleEtape2(argv[i], file1, elf1->ehdr, elf1->shdrTable);
+            oracleEtape3(argv[i], file1, elf1->ehdr, elf1->shdrTable);
+            oracleEtape4(argv[i], file1, elf1->ehdr, elf1->shdrTable, elf1->symTable);
+            oracleEtape5(argv[i], file1, elf1->ehdr, elf1->shdrTable, elf1->relTables);
 
-                fclose(file1);
-                free_ELF(elf1);
+            fclose(file1);
+            free_ELF(elf1);
         }
         if (argc == 3) {
             file1 = fopen(argv[1], "r");
@@ -969,7 +963,7 @@ int main(int argc, char *argv[]) {
 
             printf("\nTests Phase 2 avec la fusion des fichiers '%s' et '%s'\n", argv[1], argv[2]);
             oracleEtape6(argv[1], argv[2], file1, file2, elf1->ehdr, elf2->ehdr, elf1->shdrTable, elf2->shdrTable);
-            oracleEtape7(argv[1], argv[2]);
+            oracleEtape7(argv[1], argv[2], file1, file2);
 
             fclose(file1);
             fclose(file2);

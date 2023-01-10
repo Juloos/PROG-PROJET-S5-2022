@@ -205,7 +205,7 @@ Elf32_Word Type2shType(char *type);
  * Parametres :
  *  - bind : une chaine de caracteres initialisee dans laquelle mettre le resultat
  *  - symEntry : un symbole, de la table des symboles du fichier ELF
- * Resultat : la liaison du symbole est ecrit dans la chaine bind
+ * Resultat : la portee du symbole est ecrit dans la chaine bind
  */
 void getSymbolBind(char *bind, Elf32_Sym symEntry);
 
@@ -218,7 +218,7 @@ int getSymbolBindValue(Elf32_Sym sym);
 
 /* Bind2SymBind
  * Parametre :
- *  - bind : la liaison d'un symbole sous la forme d'une chaine de caracteres
+ *  - bind : la portee d'un symbole sous la forme d'une chaine de caracteres
  * Resultat : renvoie la valeur correspondant a la liaison
  */
 unsigned char Bind2symBind(char *bind);
