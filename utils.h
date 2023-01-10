@@ -1,3 +1,6 @@
+#ifndef UTILS_H
+#define UTILS_H
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -206,6 +209,12 @@ Elf32_Word Type2shType(char *type);
  */
 void getSymbolBind(char *bind, Elf32_Sym symEntry);
 
+/* getSymbolBindValue
+ * Paramètres:
+ * - sym : le symbol dont on veut connaitre la portée
+ * Résultat: la portée du symbol en entrée
+ */
+int getSymbolBindValue(Elf32_Sym sym);
 
 /* Bind2SymBind
  * Parametre :
@@ -267,7 +276,7 @@ void getRelType(char *type, Elf32_Rel rel);
 void passerNLignes(FILE *file, uint n);
 
 
-typedef struct {
+typedef struct FusionELF_Etape6 {
     int *offsets;
     int *renum;
     int size;
@@ -277,3 +286,9 @@ typedef struct {
 FusionELF_Etape6 *create_fusion6(uint size);
 
 void free_fusion6(FusionELF_Etape6 *f);
+
+int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2);
+
+int SymbolCmp(Elf32_Sym sym1, Elf32_Sym sym2);
+
+#endif

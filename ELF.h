@@ -1,5 +1,12 @@
+#ifndef ELF_H
+#define ELF_H
+
 #include "utils.h"
 
+typedef struct ELFSymbsTable {
+    int nbElems;
+    Elf32_Sym* symbols;
+} SymbolsTable;
 
 typedef struct {
     Elf32_Ehdr ehdr;
@@ -131,4 +138,14 @@ FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output)
  * Résultat: ecrit dans le fichier de sortie la fusion et renumerotation des tables des symboles des 2 fichiers ELF
  *            en entree
  */
-void LinkELFSymbols(FILE *input1, FILE *input2, FILE *output);
+SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2);
+
+/**GetSymbolsTable
+ * Paramètres :
+ * - input : un fichier ELF ouvert en mode lecture
+ * Résultat : retourne un pointeur sur une structure SymbolsTable
+ * Effet de bord : alloue de la mémoire dynamiquement, il faut ensuite la libérée manuellement
+ */
+SymbolsTable* GetSymbolsTable(FILE* input);
+
+#endif
