@@ -35,8 +35,8 @@ Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
     return res;
 }
 
-void free_relTables(Elf32_Rel **relTables, Elf32_Ehdr ehdr) {
-    for (int i = 0; i < ehdr.e_shnum; i++) {
+void free_relTables(Elf32_Rel **relTables, uint nbsh) {
+    for (int i = 0; i < nbsh; i++) {
         if (relTables[i] != NULL)
             free(relTables[i]);
     }

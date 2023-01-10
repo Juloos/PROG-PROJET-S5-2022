@@ -3,10 +3,6 @@
 
 #include "utils.h"
 
-typedef struct ELFSymbsTable {
-    int nbElems;
-    Elf32_Sym* symbols;
-} SymbolsTable;
 
 typedef struct {
     FILE *file;
@@ -30,131 +26,96 @@ ELF *ReadELF(FILE *file);
 
 /* ReadELFHeader
  * Parametres :
- *  - file : un pointeur sur un fichier ELF
- *  - ehdr : un pointeur sur l'en-tete d'un fichier ELF
- * Resultat : lit l'en-tete du fichier ELF et l'ecrit dans ehdr
+ *  - elf : un pointeur sur une structure ELF
+ * Resultat : lit l'en-tete du fichier ELF et l'ecrit dans le champ ehdr de la structure ELF
  */
-void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr);
+void ReadELFHeader(ELF *elf);
 
 /* ReadELFTableSection
  * Parametre :
- *  - file : un pointeur sur un fichier ELF
- *  - ehdr : l'en-tete du fichier ELF
- *  - shdrTable : une table des sections initialisee
- * Resultat : lit la table des sections du fichier ELF et l'ecrit dans shdrTable
+ *  - elf : un pointeur sur une structure ELF
+ * Resultat : lit la table des sections du fichier ELF et l'ecrit dans le champ shdrTable de la structure ELF
  */
-void ReadELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
+void ReadELFTableSections(ELF *elf);
 
 /* ReadELFTableSymbols
  * Parametres :
- *  - file : un pointeur sur un fichier ELF
- *  - symTable : une table des symboles initialisee
- *  - sh_symtab : la section contenant la table des symboles du fichier ELF
- * Resultat : lit la table des symboles du fichier ELF et l'ecrit dans symTable
+ *  - elf : un pointeur sur une structure ELF
+ * Resultat : lit la table des symboles du fichier ELF et l'ecrit dans le champ symTable de la structure ELF
  */
-void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab);
+void ReadELFTableSymbols(ELF *elf);
 
 /* ReadELFRelocationTable
  * Parametres :
- *  - file : un pointeur sur un fichier ELF
- *  - relTables : une table des tables de relocations initialisee
- *  - ehdr : l'en-tete du fichier ELF
- *  - shdrTable : la table des sections du fichier ELF
- *  - symTable : la table des symboles du fichier ELF
- * Resultat : lit la table des relocations du fichier ELF et l'ecrit dans relTables
+ *  - elf : un pointeur sur une structure ELF
+ * Resultat : lit la table des relocations du fichier ELF et l'ecrit dans le champ relTables de la structure ELF
  */
-void ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);
+void ReadELFRelocationTable(ELF *elf);
 
 
 /* PrintELFHeader
  * Parametres :
- *  - ehdr : l'en-tete d'un fichier ELF
+ *  - elf : un pointeur sur une structure ELF
  * Resultat : affiche l'en-tete du fichier ELF
  */
-void PrintELFHeader(Elf32_Ehdr ehdr);
+void PrintELFHeader(ELF *elf);
 
 /* PrintELFTableSection
  * Parametres :
- *  - file : un pointeur sur un fichier ELF
- *  - ehdr : l'en-tete du fichier ELF
- *  - shdrTable : la table des sections du fichier ELF
+ *  - elf : un pointeur sur une structure ELF
  * Resultat : affiche la table des sections du fichier ELF
  */
-void PrintELFTableSections(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable);
+void PrintELFTableSections(ELF *elf);
 
 /* ReadELFSection
  * Parametres :
- *  - file : un pointeur sur un fichier ELF
- *  - ehdr : l'en-tete du fichier ELF
- *  - shdrTable : la table des sections du fichier ELF
- * - le numero de section a lire
+ *  - elf : un pointeur sur une structure ELF
+ *  - le numero de section a lire
  * Resultat : affiche le contenu de la section numero sectionNumber du fichier ELF
  */
-void PrintELFSectionNum(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, int numSection);
+void PrintELFSectionNum(ELF *elf, int numSection);
 
 /* ReadELFSection
  * Parametres :
- *  - file : un pointeur sur un fichier ELF
- *  - ehdr : l'en-tete du fichier ELF
- *  - shdrTable : la table des sections du fichier ELF
+ *  - elf : un pointeur sur une structure ELF
  *  - nomSection : le nom d'une section
  * Resultat : affiche le contenu de la section nomSection du fichier ELF
  */
-void PrintELFSectionNom(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, char *nomSection);
+void PrintELFSectionNom(ELF *elf, char *nomSection);
 
 /* PrintELFTableSymbols
  * Parametres :
- *  - file : un pointeur sur un fichier ELF
- *  - ehdr : l'en-tete du fichier ELF
- *  - shdrTable : la table des sections du fichier ELF
- *  - symTable : la table des symboles du fichier ELF
+ *  - elf : un pointeur sur une structure ELF
  * Resultat : affiche la table des symboles du fichier ELF
  */
-void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable);
+void PrintELFTableSymbols(ELF *elf);
 
 /* PrintELFRelocationTable
  * Parametres :
- *  - file : un pointeur sur un fichier ELF
- *  - ehdr : l'en-tete du fichier ELF
- *  - shdrTable : la table des sections du fichier ELF
- *  - symTable : la table des symboles du fichier ELF
- *  - relTables : la table des tables de relocation du fichier ELF
+ *  - elf : un pointeur sur une structure ELF
  * Resultat : affiche la tables des relocations du fichier ELF
  */
-void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable, Elf32_Rel **relTables);
+void PrintELFRelocationTable(ELF *elf);
 
 
 /* LinkELFRenumSections
  * Parametres :
- *  - input1 : un premier pointeur sur un fichier ELF
- *  - input2 : un second pointeur sur un fichier ELF
+ *  - elf1 : un pointeur sur une premiere structure ELF
+ *  - elf2 : un pointeur sur une seconde structure ELF
  *  - output : un pointeur sur le fichier de sortie de la fusion
- *  - ehdr1 : l'en-tete du premier fichier ELF
- *  - ehdr2 : l'en-tete du second fichier ELF
- *  - shdrTable1 : la table des sections du premier fichier ELF
- *  - shdrTable2 : la table des sections du second fichier ELF
- * Resultat : fusionne les deux fichiers ELF en parametre et ecrit le resultat dans output, renvoie les offsets de
- *             concatenation et les renumerotations des sections de input2
+ * Resultat : fusionne les deux ELF en parametre et ecrit le resultat dans output, renvoie les offsets de
+ *             concatenation et les renumerotations des sections de elf2
  */
-FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output, Elf32_Ehdr ehdr1, Elf32_Ehdr ehdr2, Elf32_Shdr *shdrTable1, Elf32_Shdr *shdrTable2);
+FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2, FILE *output);
 
 /* LinkELFSymbols
- * Paramètres:
- * - un premier pointeur sur un fichier ELF
- * - un second pointeur sur un fichier
- * - un pointeur sur les sections fusionnées et renumérotées des deux fichiers en entrée
- * Résultat: ecrit dans le fichier de sortie la fusion et renumerotation des tables des symboles des 2 fichiers ELF
- *            en entree
+ * Parametres:
+ *  - elf1 : un pointeur sur une premiere structure ELF
+ *  - elf2 : un pointeur sur une seconde structure ELF
+ *  - le resultat de la fusion et renumerotations des sections
+ * Resultat: renvoie la table des symboles fusionnee des 2 ELF en parametre
  */
-SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2, FusionELF_Etape6* sections);
-
-/**GetSymbolsTable
- * Paramètres :
- * - input : un fichier ELF ouvert en mode lecture
- * Résultat : retourne un pointeur sur une structure SymbolsTable
- * Effet de bord : alloue de la mémoire dynamiquement, il faut ensuite la libérée manuellement
- */
-SymbolsTable* GetSymbolsTable(FILE* input);
+ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6);
 
 /**WriteELFFile
  * Paramètres:
