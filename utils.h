@@ -5,7 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include "/usr/include/elf.h"
-#include "ELF.h"
 
 #define STR_SIZE 256
 
@@ -268,7 +267,7 @@ void getRelType(char *type, Elf32_Rel rel);
 void passerNLignes(FILE *file, uint n);
 
 
-typedef struct {
+typedef struct FusionELF_Etape6 {
     int *offsets;
     int *renum;
     int size;

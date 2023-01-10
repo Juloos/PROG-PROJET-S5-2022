@@ -902,7 +902,10 @@ void oracleEtape6(char *filename1, char *filename2) {
     fclose(file1);
 }
 
-void oracleEtape7(FILE* input1, FILE* input2) {
+void oracleEtape7(char* fileName1, char* fileName2) {
+    FILE* input1 = fopen(fileName1, "r");
+    FILE* input2 = fopen(fileName2, "r");
+
     // Récupération de la table des symboles de input1
     SymbolsTable * symsTableInput1 = GetSymbolsTable(input1);
 
@@ -973,6 +976,9 @@ void oracleEtape7(FILE* input1, FILE* input2) {
         free(symsTableResult->symbols);
         free(symsTableResult);
     }
+
+    fclose(input1);
+    fclose(input2);
 }
 
 int main(int argc, char *argv[]) {
