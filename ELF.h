@@ -124,12 +124,12 @@ FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output)
 /**LinkELFSymbols
  * Paramètres:
  * - un premier pointeur sur un fichier ELF
- * - un second pointeur sur un fichier ELF
- * - un pointeur sur le fichier de sortie de la fusion
+ * - un second pointeur sur un fichier
+ * - un pointeur sur les sections fusionnées et renumérotées des deux fichiers en entrée
  * Résultat: ecrit dans le fichier de sortie la fusion et renumerotation des tables des symboles des 2 fichiers ELF
  *            en entree
  */
-SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2);
+SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2, FusionELF_Etape6* sections);
 
 /**GetSymbolsTable
  * Paramètres :

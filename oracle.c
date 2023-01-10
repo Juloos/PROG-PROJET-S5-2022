@@ -912,8 +912,12 @@ void oracleEtape7(char* fileName1, char* fileName2) {
     // Récupération de la table des symboles de input2
     SymbolsTable* symsTableInput2 = GetSymbolsTable(input2);
 
+    FILE *output = fopen("output.tmp", "w");
+    FusionELF_Etape6 *res = LinkELFRenumSections(input1, input2, output);
+    fclose(output);
+
     // Fusion des tables des symboles des deux fichiers en entrées
-    SymbolsTable* symsTableResult = LinkELFSymbols(input1, input2);
+    SymbolsTable* symsTableResult = LinkELFSymbols(input1, input2, res);
 
     int i = 0;
     int j = 0;
@@ -926,7 +930,7 @@ void oracleEtape7(char* fileName1, char* fileName2) {
         while(i < symsTableInput1->nbElems && !error) {
             if(getSymbolBindValue(symsTableInput1->symbols[i]) == STB_LOCAL) {
                 j = 0;
-                while(j < symsTableResult->nbElems && SymbolCmp(symsTableInput1->symbols[i], symsTableResult->symbols[j])) {
+                while(j < symsTableResult->nbElems && symsTableInput1->symbols[i].st_name != symsTableResult->symbols[j].st_name) {
                     j++;
                 }
                 error = j == symsTableResult->nbElems;
@@ -938,7 +942,7 @@ void oracleEtape7(char* fileName1, char* fileName2) {
         while(i < symsTableInput2->nbElems && !error) {
             if(getSymbolBindValue(symsTableInput2->symbols[i]) == STB_LOCAL) {
                 j = 0;
-                while(j < symsTableResult->nbElems && SymbolCmp(symsTableInput2->symbols[i], symsTableResult->symbols[j])) {
+                while(j < symsTableResult->nbElems && symsTableInput2->symbols[i].st_name != symsTableResult->symbols[j].st_name) {
                     j++;
                 }
                 error = j == symsTableResult->nbElems;

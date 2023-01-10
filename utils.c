@@ -470,6 +470,19 @@ void getSymbolNdx(char *ndx, Elf32_Sym symEntry) {
     sprintf(ndx, "%d", symEntry.st_shndx);
 }
 
+int getSymbolNdxValue(Elf32_Sym sym) {
+    switch (sym.st_shndx) {
+        case SHN_UNDEF:
+            return SHN_UNDEF;
+        case SHN_ABS:
+            return SHN_ABS;
+        case SHN_COMMON:
+            return SHN_COMMON;
+        default:
+            return -1;
+    }
+}
+
 Elf32_Half Ndx2symNdx(char *ndx) {
     if (strcmp(ndx, "UND") == 0) return SHN_UNDEF;
     if (strcmp(ndx, "ABS") == 0) return SHN_ABS;

@@ -240,6 +240,12 @@ unsigned char Vis2symVis(char *vis);
  */
 void getSymbolNdx(char *ndx, Elf32_Sym symEntry);
 
+/* getSymbolNdxValue
+ * Paramètres:
+ * - sym: un symbole, d'une table des symboles d'un fichier ELF
+ * Résultat: la valeur du champ NDX du symbole
+ */
+int getSymbolNdxValue(Elf32_Sym sym);
 
 /* Ndx2symNdx
  * Parametre :
