@@ -13,7 +13,7 @@ int main(int argc, char* argv[]) {
     ELF *elf1 = ReadELF(input1);
     ELF *elf2 = ReadELF(input2);
 
-    FusionELF_Etape6 *res = LinkELFRenumSections(input1, input2, output, elf1->ehdr, elf2->ehdr, elf1->shdrTable, elf2->shdrTable);
+    FusionELF_Etape6 *res = LinkELFRenumSections(elf1, elf2, output);
 
     printf("Offsets de concaténation du deuxième fichiers : \n  ");
     for (int j = 0; j < res->size; j++)
@@ -26,9 +26,6 @@ int main(int argc, char* argv[]) {
     free_fusion6(res);
     free_ELF(elf1);
     free_ELF(elf2);
-
-    fclose(input1);
-    fclose(input2);
     fclose(output);
 
     return 0;

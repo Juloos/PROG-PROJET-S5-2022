@@ -59,10 +59,10 @@ Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr);
 /* free_relTables
  * Parametres :
  *  - relTables : une table des tables des relocations
- *  - ehdr : l'en-tete d'un fichier ELF
+ *  - nbsh : le nombre de sections
  * Resultat : libere la memoire allouee aux tables des relocations
  */
-void free_relTables(Elf32_Rel **relTables, Elf32_Ehdr ehdr);
+void free_relTables(Elf32_Rel **relTables, uint nbsh);
 
 
 /* getSectionContent
@@ -269,15 +269,16 @@ void passerNLignes(FILE *file, uint n);
 
 
 typedef struct FusionELF_Etape6 {
-    int *offsets;
-    int *renum;
-    int size;
-    int snb;
+    int *offsets;     // offsets de concatenation des sections PROGBITS du second fichier
+    int *renum;       // renumerations des sections du second fichier
+    int size;         // taille des tableaux offsets et renum
+    int snb;          // nombre de sections apres fusion
 } FusionELF_Etape6;
 
 FusionELF_Etape6 *create_fusion6(uint size);
 
 void free_fusion6(FusionELF_Etape6 *f);
+
 
 int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2);
 

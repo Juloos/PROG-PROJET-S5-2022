@@ -37,31 +37,31 @@ int main(int argc, char *argv[]) {
         ELF *elf = ReadELF(file);
 
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_HEADER))
-            PrintELFHeader(elf->ehdr);
+            PrintELFHeader(elf);
 
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_SECTION_TABLE))
-            PrintELFTableSections(file, elf->ehdr, elf->shdrTable);
+            PrintELFTableSections(elf);
 
         if (!strcmp(typeAffichage, PRINT_ALL)) {
             for (int i = 0; i < elf->ehdr.e_shnum; i++) {
-                PrintELFSectionNum(file, elf->ehdr, elf->shdrTable, i);
+                PrintELFSectionNum(elf, i);
                 printf("\n");
             }
         } else if (!strcmp(typeAffichage, PRINT_SECTION)) {
             int numSection = atoi(section);
             // Affichage en fonction du nom
             if (!numSection)
-                PrintELFSectionNom(file, elf->ehdr, elf->shdrTable, section);
+                PrintELFSectionNom(elf, section);
                 // Affichage en fonction du numéro
             else
-                PrintELFSectionNum(file, elf->ehdr, elf->shdrTable, numSection);
+                PrintELFSectionNum(elf, numSection);
         }
 
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_SYMBOL_TABLE))
-            PrintELFTableSymbols(file, elf->ehdr, elf->shdrTable, elf->symTable);
+            PrintELFTableSymbols(elf);
 
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_RELOCATION_TABLE))
-            PrintELFRelocationTable(file, elf->ehdr, elf->shdrTable, elf->symTable, elf->relTables);
+            PrintELFRelocationTable(elf);
 
         free_ELF(elf);
         fclose(file);
