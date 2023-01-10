@@ -963,9 +963,9 @@ void oracleEtape7(char* fileName1, char* fileName2) {
     }
 
     if((symsTableResult == NULL && error) || (symsTableResult != NULL && !error)) {
-        fprintf(stderr, "Succès pour l'étape 7\n");
+        printf("\033[0;32mSucces\033[0m pour l'etape 7\n");
     } else {
-        fprintf(stderr, "Echec pour l'étape 7\n");
+        printf("\033[0;31mEchec\033[0m pour l'etape 7\n");
     }
 
     free(symsTableInput1->symbols);
