@@ -856,12 +856,20 @@ void oracleEtape7(char *filename1, char *filename2, FILE *file1, FILE *file2) {
     // Récupération de la table des symboles de file2
     SymbolsTable *symTable2 = GetSymbolsTable(file2);
 
+    ELF *elf1 = ReadELF(file1);
+    ELF *elf2 = ReadELF(file1);
+
     FILE *output = fopen("output.tmp", "w");
-    FusionELF_Etape6 *res = LinkELFRenumSections(file1, filet2, output);
+    FusionELF_Etape6 *res = LinkELFRenumSections(file1, file2, output, elf1->ehdr, elf2->ehdr, elf1->shdrTable, elf2->shdrTable);
     fclose(output);
+    remove("output.tmp");
 
     // Fusion des tables des symboles des deux fichiers en entrées
-    SymbolsTable *symsTableResult = LinkELFSymbols(file1, file2);
+    SymbolsTable *symsTableResult = LinkELFSymbols(file1, file2, res);
+
+    free_ELF(elf1);
+    free_ELF(elf2);
+    free_fusion6(res);
 
     int i = 0;
     int j = 0;
