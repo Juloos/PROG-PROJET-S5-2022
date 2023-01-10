@@ -34,21 +34,21 @@ void ReadELFHeader(ELF *elf);
 /* ReadELFTableSection
  * Parametre :
  *  - elf : un pointeur sur une structure ELF
- * Resultat : lit la table des sections du fichier ELF et l'ecrit dans shdrTable
+ * Resultat : lit la table des sections du fichier ELF et l'ecrit dans le champ shdrTable de la structure ELF
  */
 void ReadELFTableSections(ELF *elf);
 
 /* ReadELFTableSymbols
  * Parametres :
  *  - elf : un pointeur sur une structure ELF
- * Resultat : lit la table des symboles du fichier ELF et l'ecrit dans symTable
+ * Resultat : lit la table des symboles du fichier ELF et l'ecrit dans le champ symTable de la structure ELF
  */
 void ReadELFTableSymbols(ELF *elf);
 
 /* ReadELFRelocationTable
  * Parametres :
  *  - elf : un pointeur sur une structure ELF
- * Resultat : lit la table des relocations du fichier ELF et l'ecrit dans relTables
+ * Resultat : lit la table des relocations du fichier ELF et l'ecrit dans le champ relTables de la structure ELF
  */
 void ReadELFRelocationTable(ELF *elf);
 
@@ -113,7 +113,7 @@ FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2, FILE *output);
  *  - elf1 : un pointeur sur une premiere structure ELF
  *  - elf2 : un pointeur sur une seconde structure ELF
  *  - le resultat de la fusion et renumerotations des sections
- * Resultat: renvoie la table des symboles fusionnée des 2 ELF en parametre
+ * Resultat: renvoie la table des symboles fusionnee des 2 ELF en parametre
  */
 ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6);
 
