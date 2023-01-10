@@ -176,7 +176,8 @@ void ReadELFTableSymbols(FILE *file, Elf32_Sym *symTable, Elf32_Shdr sh_symtab) 
     }
 }
 
-void ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable) {
+void
+ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable) {
     for (int i = 0; i < ehdr.e_shnum; i++) {
         if (shdrTable[i].sh_type == SHT_REL) {
             relTables[i] = create_ELFTableRel(shdrTable[i]);
@@ -462,20 +463,22 @@ FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output,
 }
 
 
-SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2) {
+SymbolsTable *LinkELFSymbols(FILE *input1, FILE *input2, FusionELF_Etape6 *sections) {
     // Table des symboles de input1
-    SymbolsTable* input1SymbsTable = GetSymbolsTable(input1);
+    SymbolsTable *input1SymbsTable = GetSymbolsTable(input1);
     // Table des symboles de input2
-    SymbolsTable* input2SymbsTable = GetSymbolsTable(input2);
+    SymbolsTable *input2SymbsTable = GetSymbolsTable(input2);
 
     // Fusion des deux tables des symboles
     // Vérification qu'il n'y a pas deux symboles globaux définis avec le même nom dans les deux tables des symboles
-    int i = 0; int j = 0;
+    int i = 0;
+    int j = 0;
     int error = 0;
-    while(i < input1SymbsTable->nbElems && !error) {
-        j = i+1;
-        while(j < input2SymbsTable->nbElems && !error) {
-            error = getSymbolBindValue(input1SymbsTable->symbols[i]) == STB_GLOBAL && getSymbolBindValue(input2SymbsTable->symbols[i]) == STB_GLOBAL
+    while (i < input1SymbsTable->nbElems && !error) {
+        j = i + 1;
+        while (j < input2SymbsTable->nbElems && !error) {
+            error = getSymbolBindValue(input1SymbsTable->symbols[i]) == STB_GLOBAL &&
+                    getSymbolBindValue(input2SymbsTable->symbols[i]) == STB_GLOBAL
                     && input1SymbsTable->symbols[i].st_name == input2SymbsTable->symbols[i].st_name
                     && ELF32_ST_TYPE(input1SymbsTable->symbols[i].st_info) != STT_NOTYPE
                     && ELF32_ST_TYPE(input2SymbsTable->symbols[j].st_info) != STT_NOTYPE;
@@ -485,32 +488,47 @@ SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2) {
     }
 
     Elf32_Sym symbolsResult[input1SymbsTable->nbElems + input2SymbsTable->nbElems];
-    SymbolsTable* resultTable = NULL;
+    SymbolsTable *resultTable = NULL;
     int nbElems = 0;
 
     // Si la fusion est possible
-    if(!error) {
-        for(int i = 0; i < input1SymbsTable->nbElems; i++) {
+    if (!error) {
+        for (int i = 0; i < input1SymbsTable->nbElems; i++) {
             nbElems++;
-            symbolsResult[nbElems-1] = input1SymbsTable->symbols[i];
+            symbolsResult[nbElems - 1] = input1SymbsTable->symbols[i];
         }
 
-        for(int i = 0; i < input2SymbsTable->nbElems; i++) {
+        for (int i = 0; i < input2SymbsTable->nbElems; i++) {
             // Pour un symbole local
-            if(input2SymbsTable->symbols[i].st_info == STB_LOCAL) {
-                nbElems++;
-                symbolsResult[nbElems-1] = input2SymbsTable->symbols[i];
+            if (input2SymbsTable->symbols[i].st_info == STB_LOCAL) {
+                int j = 0;
+                while (i < input1SymbsTable->nbElems &&
+                       input1SymbsTable->symbols[j].st_name != input2SymbsTable->symbols[i].st_name) {
+                    j++;
+                }
+                if (j == input1SymbsTable->nbElems) {
+                    if(getSymbolNdxValue(input2SymbsTable->symbols[i]) == SHN_COMMON) {
+                        input2SymbsTable->symbols[i].st_shndx = sections->renum[input2SymbsTable->symbols[i].st_shndx];
+                    }
+                    nbElems++;
+                    symbolsResult[nbElems - 1] = input2SymbsTable->symbols[i];
+                }
             }
-            // Pour un symbole global on l'écrit que s'il est défini dans la table des symboles de input2 mais pas dans celle de input1
+                // Pour un symbole global on l'écrit que s'il est défini dans la table des symboles de input2 mais pas dans celle de input1
             else {
-                if(ELF32_ST_TYPE(input2SymbsTable->symbols[i].st_info) != STT_NOTYPE) {
+                if (ELF32_ST_TYPE(input2SymbsTable->symbols[i].st_info) != STT_NOTYPE) {
                     j = 0;
-                    while(j < input1SymbsTable->nbElems && input1SymbsTable->symbols[j].st_name != input2SymbsTable->symbols[i].st_name) {
+                    while (j < input1SymbsTable->nbElems &&
+                           input1SymbsTable->symbols[j].st_name != input2SymbsTable->symbols[i].st_name) {
                         j++;
                     }
-                    if(j == input1SymbsTable->nbElems || ELF32_ST_TYPE(input1SymbsTable->symbols[j].st_info) == STT_NOTYPE) {
+                    if (j == input1SymbsTable->nbElems ||
+                        ELF32_ST_TYPE(input1SymbsTable->symbols[j].st_info) == STT_NOTYPE) {
+                        if(getSymbolNdxValue(input2SymbsTable->symbols[i]) == SHN_COMMON) {
+                            input2SymbsTable->symbols[i].st_shndx = sections->renum[input2SymbsTable->symbols[i].st_shndx];
+                        }
                         nbElems++;
-                        symbolsResult[nbElems-1] = input2SymbsTable->symbols[i];
+                        symbolsResult[nbElems - 1] = input2SymbsTable->symbols[i];
                     }
                 }
             }
@@ -518,13 +536,14 @@ SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2) {
 
         resultTable = malloc(sizeof(SymbolsTable));
         resultTable->nbElems = nbElems;
-        resultTable->symbols = malloc(sizeof(Elf32_Sym)*nbElems);
+        resultTable->symbols = malloc(sizeof(Elf32_Sym) * nbElems);
 
-        for(int i = 0; i < nbElems; i++) {
+        for (int i = 0; i < nbElems; i++) {
             resultTable->symbols[i] = symbolsResult[i];
         }
     } else {
-        fprintf(stderr, "Erreur deux symboles avec le même sont définis dans les deux tables des symboles des fichiers d'entrées\n");
+        fprintf(stderr,
+                "Erreur deux symboles avec le même sont définis dans les deux tables des symboles des fichiers d'entrées\n");
     }
 
     // Libération de la mémoire
@@ -534,22 +553,22 @@ SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2) {
     return resultTable;
 }
 
-SymbolsTable* GetSymbolsTable(FILE* input) {
-    Elf32_Ehdr* header = malloc(sizeof(Elf32_Ehdr));
+SymbolsTable *GetSymbolsTable(FILE *input) {
+    Elf32_Ehdr *header = malloc(sizeof(Elf32_Ehdr));
     ReadELFHeader(input, header);
 
-    Elf32_Shdr* sectionsTable = create_ELFTableSections(*header);
+    Elf32_Shdr *sectionsTable = create_ELFTableSections(*header);
     ReadELFTableSections(input, *header, sectionsTable);
 
     Elf32_Shdr symbolsTableSection = sectionsTable[sectionName2Index(".symtab", input, *header, sectionsTable)];
 
-    Elf32_Sym* symbolsTable = create_ELFTableSymbols(symbolsTableSection);
+    Elf32_Sym *symbolsTable = create_ELFTableSymbols(symbolsTableSection);
     ReadELFTableSymbols(input, symbolsTable, symbolsTableSection);
 
     free(header);
     free(sectionsTable);
 
-    SymbolsTable* table = malloc(sizeof(SymbolsTable));
+    SymbolsTable *table = malloc(sizeof(SymbolsTable));
     table->nbElems = symbolsTableSection.sh_size / symbolsTableSection.sh_entsize;
     table->symbols = symbolsTable;
 
