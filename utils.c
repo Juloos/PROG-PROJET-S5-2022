@@ -31,10 +31,17 @@ Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr) {
 
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr) {
     Elf32_Rel **res = (Elf32_Rel **) malloc(sizeof(Elf32_Rel *) * ehdr.e_shnum);
-    for (int i = 0; i < ehdr.e_shnum; i++) {
+    for (int i = 0; i < ehdr.e_shnum; i++)
         res[i] = NULL;
-    }
     return res;
+}
+
+void free_relTables(Elf32_Rel **relTables, Elf32_Ehdr ehdr) {
+    for (int i = 0; i < ehdr.e_shnum; i++) {
+        if (relTables[i] != NULL)
+            free(relTables[i]);
+    }
+    free(relTables);
 }
 
 uint8_t *getSectionContent(FILE *file, Elf32_Shdr shdr) {

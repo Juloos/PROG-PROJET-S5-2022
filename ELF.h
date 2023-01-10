@@ -1,12 +1,21 @@
 #include "utils.h"
 
 
+typedef struct {
+    Elf32_Ehdr ehdr;
+    Elf32_Shdr *shdrTable;
+    Elf32_Sym *symTable;
+    Elf32_Rel **relTables;
+} ELF;
+
+void free_ELF(ELF *elf);
+
 /* ReadELFFile
  * Parametres :
  * - un pointeur sur un fichier ELF
- * Resultat : lit le contenu du fichier ELF en parametre
+ * Resultat : lit le contenu du fichier ELF en parametre et renvoie un pointeur sur l'ensemble de ce qui a ete lu
  */
-void ReadELFFile(FILE *file);
+ELF *ReadELF(FILE *file);
 
 /* ReadELFHeader
  * Parametres :
@@ -114,7 +123,7 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
  */
 FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output);
 
-/**LinkELFSymbols
+/* LinkELFSymbols
  * Paramètres:
  * - un premier pointeur sur un fichier ELF
  * - un second pointeur sur un fichier ELF

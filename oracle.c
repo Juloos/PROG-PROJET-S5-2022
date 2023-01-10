@@ -1,7 +1,7 @@
 #include "ELF.h"
 
 
-void oracleEtape1(char *filename) {
+void oracleEtape1(char *filename, Elf32_Ehdr headerProgram) {
     /* On execute la commande readelf -h filename et on crée un header avec le résultat */
     char command[STR_SIZE] = "readelf -h ";
     FILE *resultCommand = popen(strcat(command, filename), "r");
@@ -171,12 +171,6 @@ void oracleEtape1(char *filename) {
 
     pclose(resultCommand);
 
-    /* On exécute la fonction ReadELFHeader pour le fichier en paramètre */
-    FILE *file = fopen(filename, "r");
-    Elf32_Ehdr headerProgram;
-    ReadELFHeader(file, &headerProgram);
-    fclose(file);
-
     /* On compare les deux headers */
     int echec = 0;
     // Champ e_ident
@@ -308,7 +302,7 @@ void oracleEtape1(char *filename) {
         printf("\033[0;32mSucces\033[0m pour l'etape 1\n");
 }
 
-void oracleEtape2(char *filename) {
+void oracleEtape2(char *filename, FILE *file, Elf32_Ehdr header, Elf32_Shdr *shdrProgram) {
     char command[STR_SIZE] = "readelf -S ";
     FILE *resultCommand = popen(strcat(command, filename), "r");
 
@@ -412,12 +406,6 @@ void oracleEtape2(char *filename) {
     }
     pclose(resultCommand);
 
-    FILE *file = fopen(filename, "r");
-    Elf32_Ehdr header;
-    ReadELFHeader(file, &header);
-    Elf32_Shdr *shdrProgram = create_ELFTableSections(header);
-    ReadELFTableSections(file, header, shdrProgram);
-//    PrintELFTableSections(file, header, shdrProgram);
     char name[STR_SIZE];
     char flag[STR_SIZE];
     char beforecmp[2];
@@ -500,13 +488,7 @@ void oracleEtape2(char *filename) {
         printf("\033[0;32mSucces\033[0m pour l'etape 2\n");
 }
 
-void oracleEtape3(char *filename) {
-    FILE *file = fopen(filename, "r");
-    Elf32_Ehdr header;
-    ReadELFHeader(file, &header);
-    Elf32_Shdr *shdr = create_ELFTableSections(header);
-    ReadELFTableSections(file, header, shdr);
-
+void oracleEtape3(char *filename, FILE *file, Elf32_Ehdr header, Elf32_Shdr *shdr) {
     char command[2 * STR_SIZE];
     char ligne[STR_SIZE];
     FILE *resultCommand;
@@ -575,7 +557,6 @@ void oracleEtape3(char *filename) {
         pclose(resultCommand);
         free(resultProgram);
     }
-    fclose(file);
 
     if (echec)
         printf("\033[0;31mEchec\033[0m pour l'etape 3\n");
@@ -583,7 +564,7 @@ void oracleEtape3(char *filename) {
         printf("\033[0;32mSucces\033[0m pour l'etape 3\n");
 }
 
-void oracleEtape4(char *filename) {
+void oracleEtape4(char *filename, FILE *file, Elf32_Ehdr header, Elf32_Shdr *shdrProgram, Elf32_Sym *stProgram) {
     char command[STR_SIZE] = "readelf -sW ";
     FILE *resultCommand = popen(strcat(command, filename), "r");
 
@@ -673,15 +654,6 @@ void oracleEtape4(char *filename) {
     }
     pclose(resultCommand);
 
-    FILE *file = fopen(filename, "r");
-    Elf32_Ehdr header;
-    ReadELFHeader(file, &header);
-    Elf32_Shdr *shdrProgram = create_ELFTableSections(header);
-    ReadELFTableSections(file, header, shdrProgram);
-    Elf32_Shdr sh_symtab = shdrProgram[sectionName2Index(".symtab", file, header, shdrProgram)];
-    Elf32_Sym *stProgram = create_ELFTableSymbols(sh_symtab);
-    ReadELFTableSymbols(file, stProgram, sh_symtab);
-//    PrintELFTableSymbols(file, header, shdr, stProgram);
     char name[STR_SIZE];
     int echec = 0;
     for (i = 0; i < imax; i++) {
@@ -729,20 +701,9 @@ void oracleEtape4(char *filename) {
         printf("\033[0;32mSucces\033[0m pour l'etape 4\n");
 }
 
-void oracleEtape5(char *filename) {
+void oracleEtape5(char *filename, FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Rel **relTables) {
     char command[STR_SIZE] = "readelf -r ";
     FILE *resultCommand = popen(strcat(command, filename), "r");
-
-    FILE *file = fopen(filename, "r");
-    Elf32_Ehdr ehdr;
-    ReadELFHeader(file, &ehdr);
-    Elf32_Shdr *shdrTable = create_ELFTableSections(ehdr);
-    ReadELFTableSections(file, ehdr, shdrTable);
-    Elf32_Shdr sh_symtab = shdrTable[sectionName2Index(".symtab", file, ehdr, shdrTable)];
-    Elf32_Sym *symTable = create_ELFTableSymbols(sh_symtab);
-    ReadELFTableSymbols(file, symTable, sh_symtab);
-    Elf32_Rel **relTables = create_ELFTablesRel(ehdr);
-    ReadELFRelocationTable(file, relTables, ehdr, shdrTable, symTable);
 
     char ligne[STR_SIZE];
     char name[STR_SIZE];
@@ -804,18 +765,7 @@ void oracleEtape5(char *filename) {
 }
 
 
-void oracleEtape6(char *filename1, char *filename2) {
-    FILE *file1 = fopen(filename1, "r");
-    FILE *file2 = fopen(filename2, "r");
-
-    Elf32_Ehdr ehdr1, ehdr2;
-    ReadELFHeader(file1, &ehdr1);
-    ReadELFHeader(file2, &ehdr2);
-    Elf32_Shdr *shdrTable1 = create_ELFTableSections(ehdr1);
-    Elf32_Shdr *shdrTable2 = create_ELFTableSections(ehdr2);
-    ReadELFTableSections(file1, ehdr1, shdrTable1);
-    ReadELFTableSections(file2, ehdr2, shdrTable2);
-
+void oracleEtape6(char *filename1, char *filename2, FILE *file1, FILE *file2, Elf32_Ehdr ehdr1, Elf32_Ehdr ehdr2, Elf32_Shdr *shdrTable1, Elf32_Shdr *shdrTable2) {
     FILE *output = fopen("output.tmp", "w");
     FusionELF_Etape6 *res = LinkELFRenumSections(file1, file2, output);
     fclose(output);
@@ -898,8 +848,6 @@ void oracleEtape6(char *filename1, char *filename2) {
 
     fclose(output);
     remove("output.tmp");
-    fclose(file2);
-    fclose(file1);
 }
 
 
@@ -907,26 +855,47 @@ int main(int argc, char *argv[]) {
     if (argc < 2)
         fprintf(stderr, "Il faut au moins un fichier de test\n");
     else {
-        FILE *tmp;
+        FILE *file1, *file2;
+        ELF *elf1, *elf2;
         for (int i = 1; i < argc; i++) {
-            tmp = fopen(argv[i], "r");
-            if (!tmp) {
-                printf("Read error : (FileNotFound) '%s'\n", argv[i]);
-                exit(1);
-            } else
-                fclose(tmp);
-        }
-        for (int i = 1; i < argc; i++) {
+                file1 = fopen(argv[i], "r");
+                if (!file1) {
+                    printf("File not found : '%s'\n", argv[i]);
+                    exit(1);
+                }
+                elf1 = ReadELF(file1);
+
                 printf("\nTests Phase 1 avec le fichier '%s'\n", argv[i]);
-                oracleEtape1(argv[i]);
-                oracleEtape2(argv[i]);
-                oracleEtape3(argv[i]);
-                oracleEtape4(argv[i]);
-                oracleEtape5(argv[i]);
+                oracleEtape1(argv[i], elf1->ehdr);
+                oracleEtape2(argv[i], file1, elf1->ehdr, elf1->shdrTable);
+                oracleEtape3(argv[i], file1, elf1->ehdr, elf1->shdrTable);
+                oracleEtape4(argv[i], file1, elf1->ehdr, elf1->shdrTable, elf1->symTable);
+                oracleEtape5(argv[i], file1, elf1->ehdr, elf1->shdrTable, elf1->relTables);
+
+                fclose(file1);
+                free_ELF(elf1);
         }
         if (argc == 3) {
+            file1 = fopen(argv[1], "r");
+            file2 = fopen(argv[2], "r");
+            if (!file1) {
+                printf("File not found : '%s'\n", argv[1]);
+                exit(1);
+            }
+            if (!file2) {
+                printf("File not found : '%s'\n", argv[2]);
+                exit(1);
+            }
+            elf1 = ReadELF(file1);
+            elf2 = ReadELF(file2);
+
             printf("\nTests Phase 2 avec la fusion des fichiers '%s' et '%s'\n", argv[1], argv[2]);
-            oracleEtape6(argv[1], argv[2]);
+            oracleEtape6(argv[1], argv[2], file1, file2, elf1->ehdr, elf2->ehdr, elf1->shdrTable, elf2->shdrTable);
+
+            fclose(file1);
+            fclose(file2);
+            free_ELF(elf1);
+            free_ELF(elf2);
         }
     }
     return 0;

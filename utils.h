@@ -53,6 +53,15 @@ Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr);
 
 
+/* free_relTables
+ * Parametres :
+ *  - relTables : une table des tables des relocations
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : libere la memoire allouee aux tables des relocations
+ */
+void free_relTables(Elf32_Rel **relTables, Elf32_Ehdr ehdr);
+
+
 /* getSectionContent
  * Parametres :
  *  - file : un pointeur sur un fichier ELF
