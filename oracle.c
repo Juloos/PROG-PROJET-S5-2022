@@ -880,7 +880,7 @@ void oracleEtape7(char *filename1, char *filename2, FILE *file1, FILE *file2) {
         // On vérifie que tout les symboles locaux des deux fichiers en entrée sont dans la table des symboles finale
         i = 0;
         while (i < symTable1->nbElems && !error) {
-            if (getSymbolBindValue(symTable1->symbols[i]) == STB_LOCAL) {
+            if (ELF32_ST_BIND(symTable1->symbols[i].st_info) == STB_LOCAL) {
                 j = 0;
                 while (j < symsTableResult->nbElems && symTable1->symbols[i].st_name != symsTableResult->symbols[j].st_name)
                     j++;
@@ -891,7 +891,7 @@ void oracleEtape7(char *filename1, char *filename2, FILE *file1, FILE *file2) {
 
         i = 0;
         while (i < symTable2->nbElems && !error) {
-            if (getSymbolBindValue(symTable2->symbols[i]) == STB_LOCAL) {
+            if (ELF32_ST_BIND(symTable2->symbols[i].st_info) == STB_LOCAL) {
                 j = 0;
                 while (j < symsTableResult->nbElems && symTable2->symbols[i].st_name != symsTableResult->symbols[j].st_name)
                     j++;
@@ -907,8 +907,8 @@ void oracleEtape7(char *filename1, char *filename2, FILE *file1, FILE *file2) {
         j = i + 1;
         while (j < symTable2->nbElems && !error) {
             error = symTable1->symbols[i].st_name == symTable2->symbols[j].st_name
-                    && getSymbolBindValue(symTable1->symbols[i]) == STB_GLOBAL
-                    && getSymbolBindValue(symTable2->symbols[j]) == STB_GLOBAL
+                    && ELF32_ST_BIND(symTable1->symbols[i].st_info) == STB_GLOBAL
+                    && ELF32_ST_BIND(symTable2->symbols[j].st_info) == STB_GLOBAL
                     && ELF32_ST_TYPE(symTable1->symbols[i].st_info) != STT_NOTYPE
                     && ELF32_ST_TYPE(symTable2->symbols[j].st_info) != STT_NOTYPE;
             j++;
