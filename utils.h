@@ -56,6 +56,15 @@ Elf32_Rel *create_ELFTableRel(Elf32_Shdr shdr);
 Elf32_Rel **create_ELFTablesRel(Elf32_Ehdr ehdr);
 
 
+/* free_relTables
+ * Parametres :
+ *  - relTables : une table des tables des relocations
+ *  - ehdr : l'en-tete d'un fichier ELF
+ * Resultat : libere la memoire allouee aux tables des relocations
+ */
+void free_relTables(Elf32_Rel **relTables, Elf32_Ehdr ehdr);
+
+
 /* getSectionContent
  * Parametres :
  *  - file : un pointeur sur un fichier ELF
@@ -196,13 +205,13 @@ Elf32_Word Type2shType(char *type);
  * Parametres :
  *  - bind : une chaine de caracteres initialisee dans laquelle mettre le resultat
  *  - symEntry : un symbole, de la table des symboles du fichier ELF
- * Resultat : la liaison du symbole est ecrit dans la chaine bind
+ * Resultat : la portee du symbole est ecrit dans la chaine bind
  */
 void getSymbolBind(char *bind, Elf32_Sym symEntry);
 
 /* Bind2SymBind
  * Parametre :
- *  - bind : la liaison d'un symbole sous la forme d'une chaine de caracteres
+ *  - bind : la portee d'un symbole sous la forme d'une chaine de caracteres
  * Resultat : renvoie la valeur correspondant a la liaison
  */
 unsigned char Bind2symBind(char *bind);

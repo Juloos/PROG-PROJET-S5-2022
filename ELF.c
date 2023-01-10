@@ -1,7 +1,24 @@
 #include "ELF.h"
 
 
-void ReadELFile(FILE *file) {
+void free_ELF(ELF *elf) {
+    free(elf->shdrTable);
+    free(elf->symTable);
+    free_relTables(elf->relTables, elf->ehdr);
+    free(elf);
+}
+
+ELF *ReadELF(FILE *file) {
+    ELF *elf = malloc(sizeof(ELF));
+    ReadELFHeader(file, &elf->ehdr);
+    elf->shdrTable = create_ELFTableSections(elf->ehdr);
+    ReadELFTableSections(file, elf->ehdr, elf->shdrTable);
+    Elf32_Shdr sh_symtab = elf->shdrTable[sectionName2Index(".symtab", file, elf->ehdr, elf->shdrTable)];
+    elf->symTable = create_ELFTableSymbols(sh_symtab);
+    ReadELFTableSymbols(file, elf->symTable, sh_symtab);
+    elf->relTables = create_ELFTablesRel(elf->ehdr);
+    ReadELFRelocationTable(file, elf->relTables, elf->ehdr, elf->shdrTable, elf->symTable);
+    return elf;
 }
 
 void ReadELFHeader(FILE *file, Elf32_Ehdr *ehdr) {
@@ -166,7 +183,6 @@ ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32
             relTables[i] = create_ELFTableRel(shdrTable[i]);
             fseek(file, shdrTable[i].sh_offset, SEEK_SET);
             for (int j = 0; j < shdrTable[i].sh_size / shdrTable[i].sh_entsize; j++) {
-
                 if (!fread(&relTables[i][j].r_offset, sizeof(Elf32_Addr), 1, file))
                     fprintf(stderr, "Read error : (ReadELFRelocationTable) r_offset\n");
 
@@ -187,9 +203,8 @@ ReadELFRelocationTable(FILE *file, Elf32_Rel **relTables, Elf32_Ehdr ehdr, Elf32
 void PrintELFHeader(Elf32_Ehdr ehdr) {
     printf("ELF File's Header:");
     printf("\n  Ident: ");
-    for (int i = 0; i < EI_NIDENT; i++) {
+    for (int i = 0; i < EI_NIDENT; i++)
         printf("%.2x ", ehdr.e_ident[i]);
-    }
 
     char class[STR_SIZE];
     char data[STR_SIZE];
@@ -355,8 +370,7 @@ void PrintELFTableSymbols(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, El
     printf("\n");
 }
 
-void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable,
-                             Elf32_Rel **relTables) {
+void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable, Elf32_Sym *symTable, Elf32_Rel **relTables) {
     char name[STR_SIZE];
     char type[STR_SIZE];
 
@@ -394,17 +408,8 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
 }
 
 
-FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output) {
-    Elf32_Ehdr ehdr1, ehdr2;
-    Elf32_Shdr *shdrTable1, *shdrTable2;
+FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output, Elf32_Ehdr ehdr1, Elf32_Ehdr ehdr2, Elf32_Shdr *shdrTable1, Elf32_Shdr *shdrTable2) {
     char name1[STR_SIZE], name2[STR_SIZE];
-
-    ReadELFHeader(input1, &ehdr1);
-    ReadELFHeader(input2, &ehdr2);
-    shdrTable1 = create_ELFTableSections(ehdr1);
-    shdrTable2 = create_ELFTableSections(ehdr2);
-    ReadELFTableSections(input1, ehdr1, shdrTable1);
-    ReadELFTableSections(input2, ehdr2, shdrTable2);
 
     FusionELF_Etape6 *res = create_fusion6(ehdr2.e_shnum);
     res->renum[0] = 0;

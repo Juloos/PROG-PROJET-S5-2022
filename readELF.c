@@ -34,44 +34,36 @@ int main(int argc, char *argv[]) {
             exit(EXIT_FAILURE);
         }
 
-        Elf32_Ehdr header;
-        ReadELFHeader(file, &header);
-        if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_HEADER))
-            PrintELFHeader(header);
+        ELF *elf = ReadELF(file);
 
-        Elf32_Shdr *sectionTable = create_ELFTableSections(header);
-        ReadELFTableSections(file, header, sectionTable);
+        if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_HEADER))
+            PrintELFHeader(elf->ehdr);
+
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_SECTION_TABLE))
-            PrintELFTableSections(file, header, sectionTable);
+            PrintELFTableSections(file, elf->ehdr, elf->shdrTable);
 
         if (!strcmp(typeAffichage, PRINT_ALL)) {
-            for (int i = 0; i < header.e_shnum; i++) {
-                PrintELFSectionNum(file, header, sectionTable, i);
+            for (int i = 0; i < elf->ehdr.e_shnum; i++) {
+                PrintELFSectionNum(file, elf->ehdr, elf->shdrTable, i);
                 printf("\n");
             }
         } else if (!strcmp(typeAffichage, PRINT_SECTION)) {
             int numSection = atoi(section);
             // Affichage en fonction du nom
             if (!numSection)
-                PrintELFSectionNom(file, header, sectionTable, section);
+                PrintELFSectionNom(file, elf->ehdr, elf->shdrTable, section);
                 // Affichage en fonction du numéro
             else
-                PrintELFSectionNum(file, header, sectionTable, numSection);
+                PrintELFSectionNum(file, elf->ehdr, elf->shdrTable, numSection);
         }
 
-        Elf32_Shdr sh_symtab = sectionTable[sectionName2Index(".symtab", file, header, sectionTable)];
-        Elf32_Sym *symbolTable = create_ELFTableSymbols(sh_symtab);
-        ReadELFTableSymbols(file, symbolTable, sh_symtab);
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_SYMBOL_TABLE))
-            PrintELFTableSymbols(file, header, sectionTable, symbolTable);
+            PrintELFTableSymbols(file, elf->ehdr, elf->shdrTable, elf->symTable);
 
-        Elf32_Rel **relTables = create_ELFTablesRel(header);
-        ReadELFRelocationTable(file, relTables, header, sectionTable, symbolTable);
         if (!strcmp(typeAffichage, PRINT_ALL) || !strcmp(typeAffichage, PRINT_RELOCATION_TABLE))
-            PrintELFRelocationTable(file, header, sectionTable, symbolTable, relTables);
+            PrintELFRelocationTable(file, elf->ehdr, elf->shdrTable, elf->symTable, elf->relTables);
 
-        free(sectionTable);
-        free(symbolTable);
+        free_ELF(elf);
         fclose(file);
     }
 

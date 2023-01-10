@@ -8,12 +8,21 @@ typedef struct ELFSymbsTable {
     Elf32_Sym* symbols;
 } SymbolsTable;
 
+typedef struct {
+    Elf32_Ehdr ehdr;
+    Elf32_Shdr *shdrTable;
+    Elf32_Sym *symTable;
+    Elf32_Rel **relTables;
+} ELF;
+
+void free_ELF(ELF *elf);
+
 /* ReadELFFile
  * Parametres :
  * - un pointeur sur un fichier ELF
- * Resultat : lit le contenu du fichier ELF en parametre
+ * Resultat : lit le contenu du fichier ELF en parametre et renvoie un pointeur sur l'ensemble de ce qui a ete lu
  */
-void ReadELFFile(FILE *file);
+ELF *ReadELF(FILE *file);
 
 /* ReadELFHeader
  * Parametres :
@@ -116,12 +125,16 @@ void PrintELFRelocationTable(FILE *file, Elf32_Ehdr ehdr, Elf32_Shdr *shdrTable,
  *  - input1 : un premier pointeur sur un fichier ELF
  *  - input2 : un second pointeur sur un fichier ELF
  *  - output : un pointeur sur le fichier de sortie de la fusion
+ *  - ehdr1 : l'en-tete du premier fichier ELF
+ *  - ehdr2 : l'en-tete du second fichier ELF
+ *  - shdrTable1 : la table des sections du premier fichier ELF
+ *  - shdrTable2 : la table des sections du second fichier ELF
  * Resultat : fusionne les deux fichiers ELF en parametre et ecrit le resultat dans output, renvoie les offsets de
  *             concatenation et les renumerotations des sections de input2
  */
-FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output);
+FusionELF_Etape6 *LinkELFRenumSections(FILE *input1, FILE *input2, FILE *output, Elf32_Ehdr ehdr1, Elf32_Ehdr ehdr2, Elf32_Shdr *shdrTable1, Elf32_Shdr *shdrTable2);
 
-/**LinkELFSymbols
+/* LinkELFSymbols
  * Paramètres:
  * - un premier pointeur sur un fichier ELF
  * - un second pointeur sur un fichier
