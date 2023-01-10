@@ -280,8 +280,4 @@ FusionELF_Etape6 *create_fusion6(uint size);
 void free_fusion6(FusionELF_Etape6 *f);
 
 
-int SectionCmp(Elf32_Shdr section1, Elf32_Shdr section2);
-
-int SymbolCmp(Elf32_Sym sym1, Elf32_Sym sym2);
-
 #endif
