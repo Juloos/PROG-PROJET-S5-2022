@@ -849,7 +849,7 @@ void oracleEtape6(char *filename1, char *filename2, FILE *file1, FILE *file2, El
     remove("output.tmp");
 }
 
-void oracleEtape7(char *filename1, char *filename2, FILE *file1, FILE *file2) {
+void oracleEtape7(FILE *file1, FILE *file2) {
     // Récupération de la table des symboles de file1
     SymbolsTable *symTable1 = GetSymbolsTable(file1);
 
@@ -931,6 +931,22 @@ void oracleEtape7(char *filename1, char *filename2, FILE *file1, FILE *file2) {
     }
 }
 
+void oracleEtape8(FILE *file1, FILE* file2, ELF *elf1, ELF *elf2) {
+    // Table des sections fusionnées et renumérotées
+//    FusionELF_Etape6* sections = LinkELFRenumSections();
+
+    // Table des symboles fusionnés et renumérotés
+//    SymbolsTable* symbols = LinkELFSymbols(file1, file2);
+
+    // Table des réimplantations fusionnées et renumérotées
+
+
+
+//    // Libération de la mémoire
+//    free(sections);
+//    free(symbols);
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2)
         fprintf(stderr, "Il faut au moins un fichier de test\n");
@@ -971,7 +987,8 @@ int main(int argc, char *argv[]) {
 
             printf("\nTests Phase 2 avec la fusion des fichiers '%s' et '%s'\n", argv[1], argv[2]);
             oracleEtape6(argv[1], argv[2], file1, file2, elf1->ehdr, elf2->ehdr, elf1->shdrTable, elf2->shdrTable);
-            oracleEtape7(argv[1], argv[2], file1, file2);
+            oracleEtape7(file1, file2);
+            oracleEtape8(file1, file2, elf1, elf2);
 
             fclose(file1);
             fclose(file2);

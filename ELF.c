@@ -574,3 +574,160 @@ SymbolsTable *GetSymbolsTable(FILE *input) {
 
     return table;
 }
+
+void WriteELFFile(char *filename, ELF file) {
+    FILE *output = fopen(filename, "w");
+
+    // Ecriture du file.header
+    if (!IS_BIGENDIAN()) {
+        SWAPB(&file.header.e_type, sizeof(Elf32_Half));
+        SWAPB(&file.header.e_machine, sizeof(Elf32_Half));
+        SWAPB(&file.header.e_version, sizeof(Elf32_Word));
+        SWAPB(&file.header.e_entry, sizeof(Elf32_Addr));
+        SWAPB(&file.header.e_phoff, sizeof(Elf32_Off));
+        SWAPB(&file.header.e_shoff, sizeof(Elf32_Off));
+        SWAPB(&file.header.e_flags, sizeof(Elf32_Word));
+        SWAPB(&file.header.e_ehsize, sizeof(Elf32_Half));
+        SWAPB(&file.header.e_phentsize, sizeof(Elf32_Half));
+        SWAPB(&file.header.e_phnum, sizeof(Elf32_Half));
+        SWAPB(&file.header.e_shentsize, sizeof(Elf32_Half));
+        SWAPB(&file.header.e_shnum, sizeof(Elf32_Half));
+        SWAPB(&file.header.e_shstrndx, sizeof(Elf32_Half));
+    }
+
+    if(!fwrite(&file.header.e_ident, sizeof(char), EI_NIDENT, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_type, sizeof(Elf32_Half), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_machine, sizeof(Elf32_Half), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_version, sizeof(Elf32_Word), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_entry, sizeof(Elf32_Addr), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_phoff, sizeof(Elf32_Off), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_shoff, sizeof(Elf32_Off), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_flags, sizeof(Elf32_Word), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_ehsize, sizeof(Elf32_Half), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_phentsize, sizeof(Elf32_Half), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_phnum, sizeof(Elf32_Half), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_shentsize, sizeof(Elf32_Half), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_shnum, sizeof(Elf32_Half), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+    if(!fwrite(&file.header.e_shstrndx, sizeof(Elf32_Half), 1, output)) {
+        fprintf(stderr, "Write error\n");
+    }
+
+    // Ecriture de la table des sections
+    for(int i = 0; i < file.nbsh; i++) {
+        if (!IS_BIGENDIAN()) {
+            SWAPB(&file.shdrTable[i].sh_name, sizeof(Elf32_Word));
+            SWAPB(&file.shdrTable[i].sh_type, sizeof(Elf32_Word));
+            SWAPB(&file.shdrTable[i].sh_flags, sizeof(Elf32_Word));
+            SWAPB(&file.shdrTable[i].sh_addr, sizeof(Elf32_Addr));
+            SWAPB(&file.shdrTable[i].sh_offset, sizeof(Elf32_Off));
+            SWAPB(&file.shdrTable[i].sh_size, sizeof(Elf32_Word));
+            SWAPB(&file.shdrTable[i].sh_link, sizeof(Elf32_Word));
+            SWAPB(&file.shdrTable[i].sh_info, sizeof(Elf32_Word));
+            SWAPB(&file.shdrTable[i].sh_addralign, sizeof(Elf32_Word));
+            SWAPB(&file.shdrTable[i].sh_entsize, sizeof(Elf32_Word));
+        }
+
+        // Header de la section
+        if(!fwrite(&file.shdrTable[i].sh_name, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_type, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_flags, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_addr, sizeof(Elf32_Addr), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_offset, sizeof(Elf32_Off), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_size, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_link, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_info, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_addralign, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.shdrTable[i].sh_entsize, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+
+        if(file.shdrTable[i].sh_size > 0) {
+            // Contenu de la section
+            if(!fwrite(getSectionContent(file.file, file.shdrTable[i]), 1, file.shdrTable[i].sh_size, output)) {
+                fprintf(stderr, "Write error\n");
+            }
+        }
+    }
+
+    // Ecriture de la table des symboles
+    for(int i = 0; i < file.nbsym; i++) {
+        if (!IS_BIGENDIAN()) {
+            SWAPB(&file.symTable[i].st_name, sizeof(Elf32_Word));
+            SWAPB(&file.symTable[i].st_value, sizeof(Elf32_Addr));
+            SWAPB(&file.symTable[i].st_size, sizeof(Elf32_Word));
+            SWAPB(&file.symTable[i].st_info, sizeof(unsigned char));
+            SWAPB(&file.symTable[i].st_other, sizeof(unsigned char));
+            SWAPB(&file.symTable[i].st_shndx, sizeof(Elf32_Half));
+        }
+
+        if(!fwrite(&file.symTable[i].st_name, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.symTable[i].st_value, sizeof(Elf32_Addr), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.symTable[i].st_size, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.symTable[i].st_info, sizeof(unsigned char), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.symTable[i].st_other, sizeof(unsigned char), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+        if(!fwrite(&file.symTable[i].st_shndx, sizeof(Elf32_Half), 1, output)) {
+            fprintf(stderr, "Write error\n");
+        }
+    }
+
+    // Ecriture de la table des réimplantations
+    for(int i = 0; i < nb_relocation; i++) {
+        printf("%d %d %d\n", relocationSection[i].sh_size, relocationSection[i].sh_entsize, relocationSection[i].sh_size / relocationSection[i].sh_entsize);
+    }
+
+    fclose(output);
+}

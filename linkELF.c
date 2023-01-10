@@ -23,6 +23,22 @@ int main(int argc, char* argv[]) {
         printf("%3d ", res->renum[j]);
     printf("\n");
 
+    uint8_t *sectionsContent[elf1->ehdr.e_shnum];
+    for(int i = 0; i < elf1->ehdr.e_shnum; i++) {
+        if(elf1->shdrTable[i].sh_size > 0) {
+            sectionsContent[i] = getSectionContent(input1, elf1->shdrTable[i]);
+        }
+    }
+
+    WriteELFFile("resultat.o", elf1->ehdr, elf1->shdrTable, sectionsContent, elf1->symTable, elf1->relTables);
+
+    printf("Fin écriture\n");
+    for(int i = 0; i < elf1->ehdr.e_shnum; i++) {
+        if(sectionsContent[i] != NULL) {
+            free(sectionsContent[i]);
+        }
+    }
+
     free_fusion6(res);
     free_ELF(elf1);
     free_ELF(elf2);

@@ -9,10 +9,14 @@ typedef struct ELFSymbsTable {
 } SymbolsTable;
 
 typedef struct {
+    FILE *file;
     Elf32_Ehdr ehdr;
     Elf32_Shdr *shdrTable;
+    int nbsh;
     Elf32_Sym *symTable;
+    int nbsym;
     Elf32_Rel **relTables;
+    int *relTable_sizes;
 } ELF;
 
 void free_ELF(ELF *elf);
@@ -151,5 +155,13 @@ SymbolsTable* LinkELFSymbols(FILE* input1, FILE* input2, FusionELF_Etape6* secti
  * Effet de bord : alloue de la mémoire dynamiquement, il faut ensuite la libérée manuellement
  */
 SymbolsTable* GetSymbolsTable(FILE* input);
+
+/**WriteELFFile
+ * Paramètres:
+ * - le nom du fichier dans lequel écrire
+ * - le contenu au format ELF à écrire dans le fichier
+ * Résultat: écrit le contenu au format ELF dans le fichier en paramètre
+ */
+void WriteELFFile(char *filename, ELF file);
 
 #endif
