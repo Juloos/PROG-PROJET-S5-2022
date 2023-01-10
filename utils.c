@@ -399,23 +399,6 @@ void getSymbolBind(char *bind, Elf32_Sym symEntry) {
     strcpy(bind, "UNKNOWN");
 }
 
-int getSymbolBindValue(Elf32_Sym sym) {
-    switch (ELF32_ST_BIND(sym.st_info)) {
-        case STB_LOCAL:
-            return STB_LOCAL;
-        case STB_GLOBAL:
-            return STB_GLOBAL;
-        case STB_WEAK:
-            return STB_WEAK;
-        case STB_LOPROC:
-            return STB_LOPROC;
-        case STB_HIPROC:
-            return STB_HIPROC;
-        default:
-            return -1;
-    }
-}
-
 unsigned char Bind2symBind(char *bind) {
     if (strcmp(bind, "LOCAL") == 0) return STB_LOCAL;
     if (strcmp(bind, "GLOBAL") == 0) return STB_GLOBAL;
@@ -468,19 +451,6 @@ void getSymbolNdx(char *ndx, Elf32_Sym symEntry) {
             break;
     }
     sprintf(ndx, "%d", symEntry.st_shndx);
-}
-
-int getSymbolNdxValue(Elf32_Sym sym) {
-    switch (sym.st_shndx) {
-        case SHN_UNDEF:
-            return SHN_UNDEF;
-        case SHN_ABS:
-            return SHN_ABS;
-        case SHN_COMMON:
-            return SHN_COMMON;
-        default:
-            return -1;
-    }
 }
 
 Elf32_Half Ndx2symNdx(char *ndx) {

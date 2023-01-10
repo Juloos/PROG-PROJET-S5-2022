@@ -472,8 +472,8 @@ SymbolsTable *LinkELFSymbols(FILE *input1, FILE *input2, FusionELF_Etape6 *secti
     while (i < input1SymbsTable->nbElems && !error) {
         j = i + 1;
         while (j < input2SymbsTable->nbElems && !error) {
-            error = getSymbolBindValue(input1SymbsTable->symbols[i]) == STB_GLOBAL &&
-                    getSymbolBindValue(input2SymbsTable->symbols[i]) == STB_GLOBAL
+            error = ELF32_ST_BIND(input1SymbsTable->symbols[i].st_info) == STB_GLOBAL &&
+                    ELF32_ST_BIND(input2SymbsTable->symbols[i].st_info) == STB_GLOBAL
                     && input1SymbsTable->symbols[i].st_name == input2SymbsTable->symbols[i].st_name
                     && ELF32_ST_TYPE(input1SymbsTable->symbols[i].st_info) != STT_NOTYPE
                     && ELF32_ST_TYPE(input2SymbsTable->symbols[j].st_info) != STT_NOTYPE;
@@ -495,14 +495,14 @@ SymbolsTable *LinkELFSymbols(FILE *input1, FILE *input2, FusionELF_Etape6 *secti
 
         for (int i = 0; i < input2SymbsTable->nbElems; i++) {
             // Pour un symbole local
-            if (input2SymbsTable->symbols[i].st_info == STB_LOCAL) {
+            if (ELF32_ST_BIND(input2SymbsTable->symbols[i].st_info) == STB_LOCAL) {
                 int j = 0;
                 while (i < input1SymbsTable->nbElems &&
                        input1SymbsTable->symbols[j].st_name != input2SymbsTable->symbols[i].st_name) {
                     j++;
                 }
                 if (j == input1SymbsTable->nbElems) {
-                    if(getSymbolNdxValue(input2SymbsTable->symbols[i]) == SHN_COMMON) {
+                    if(input2SymbsTable->symbols[i].st_shndx == SHN_COMMON) {
                         input2SymbsTable->symbols[i].st_shndx = sections->renum[input2SymbsTable->symbols[i].st_shndx];
                     }
                     nbElems++;
@@ -519,7 +519,7 @@ SymbolsTable *LinkELFSymbols(FILE *input1, FILE *input2, FusionELF_Etape6 *secti
                     }
                     if (j == input1SymbsTable->nbElems ||
                         ELF32_ST_TYPE(input1SymbsTable->symbols[j].st_info) == STT_NOTYPE) {
-                        if(getSymbolNdxValue(input2SymbsTable->symbols[i]) == SHN_COMMON) {
+                        if(input2SymbsTable->symbols[i].st_shndx == SHN_COMMON) {
                             input2SymbsTable->symbols[i].st_shndx = sections->renum[input2SymbsTable->symbols[i].st_shndx];
                         }
                         nbElems++;

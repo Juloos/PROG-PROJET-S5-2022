@@ -200,13 +200,6 @@ Elf32_Word Type2shType(char *type);
  */
 void getSymbolBind(char *bind, Elf32_Sym symEntry);
 
-/* getSymbolBindValue
- * Paramètres:
- * - sym : le symbol dont on veut connaitre la portée
- * Résultat: la portée du symbol en entrée
- */
-int getSymbolBindValue(Elf32_Sym sym);
-
 /* Bind2SymBind
  * Parametre :
  *  - bind : la liaison d'un symbole sous la forme d'une chaine de caracteres
@@ -239,13 +232,6 @@ unsigned char Vis2symVis(char *vis);
  * Resultat : le ndx du symbole est ecrit dans la chaine ndx
  */
 void getSymbolNdx(char *ndx, Elf32_Sym symEntry);
-
-/* getSymbolNdxValue
- * Paramètres:
- * - sym: un symbole, d'une table des symboles d'un fichier ELF
- * Résultat: la valeur du champ NDX du symbole
- */
-int getSymbolNdxValue(Elf32_Sym sym);
 
 /* Ndx2symNdx
  * Parametre :
