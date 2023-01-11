@@ -500,6 +500,7 @@ void oracleEtape3(char *filename, ELF *elf) {
                 fprintf(stderr, "  est vide avec le programme\n\n");
                 echec = 1;
             }
+            pclose(resultCommand);
             continue;
         }
 
