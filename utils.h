@@ -275,8 +275,18 @@ typedef struct FusionELF_Etape6 {
     int snb;          // nombre de sections apres fusion
 } FusionELF_Etape6;
 
+/* create_fusion6
+ * Paramètres:
+ * - size: le nombre de sections dans la structure résultat
+ * Résultat: retourne un pointeur sur une structure FusionELF_Etape6 contenant size sections
+ */
 FusionELF_Etape6 *create_fusion6(uint size);
 
+/* free_fusion6
+ * Paramètres:
+ * - f: un pointeur non NULL sur une structure FusionELF_Etape6
+ * Résultat: libère la mémoire allouée pour f
+ */
 void free_fusion6(FusionELF_Etape6 *f);
 
 

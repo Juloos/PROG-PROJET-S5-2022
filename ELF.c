@@ -510,20 +510,19 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
         return NULL;
     }
 
-    printf("Debut\n");
-
     ELF *res = create_ELF();
     res->symTable = (Elf32_Sym *) malloc(sizeof(Elf32_Sym) * (elf1->nbsym + elf2->nbsym));
     int nbElems = 0;
 
-    // Tableau des noms des symboles de type section
+    // Table de chaines des symboles de type SECTION
     char sectionsName[elf1->nbsym + elf2->nbsym][STR_SIZE];
     int a = 0;
-    // Tableau des noms des symboles qui ne sont pas de type section
+    // Table de chaines des symboles qui ne sont pas de type SECTION
     char symbolsName[elf1->nbsym + elf2->nbsym][STR_SIZE];
     int b = 0;
 
     for (int i = 0; i < elf1->nbsym; i++) {
+        // Ajout du nom du symbole dans la table de chaines correspondante
         if(ELF32_ST_TYPE(elf1->symTable[i].st_info) == STT_SECTION) {
             elf1->symTable[i].st_name = a;
             getSectionName(sectionsName[a], elf1->file, elf1->ehdr, elf1->shdrTable, i);
@@ -539,10 +538,10 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
         nbElems++;
     }
 
-    printf("Partie1\n");
     for (int i = 0; i < elf2->nbsym; i++) {
         // Pour un symbole local
         if (ELF32_ST_BIND(elf2->symTable[i].st_info) == STB_LOCAL) {
+            // Vérification qu'un symbole avec le même nom n'existe pas déjà dans la table des symboles de résultat
             int j = 0;
             while (i < elf1->nbsym && elf1->symTable[j].st_name != elf2->symTable[i].st_name)
                 j++;
@@ -550,6 +549,7 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
                 if(elf2->symTable[i].st_shndx == SHN_COMMON)
                     elf2->symTable[i].st_shndx = fusion6->renum[elf2->symTable[i].st_shndx];
 
+                // Ajout du nom du symbole dans la table de chaines correspondante
                 if(ELF32_ST_TYPE(elf2->symTable[i].st_info) == STT_SECTION) {
                     elf2->symTable[i].st_name = a;
                     getSectionName(sectionsName[a], elf2->file, elf2->ehdr, elf2->shdrTable, elf2->symTable[i].st_shndx);
@@ -564,7 +564,7 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
                 nbElems++;
             }
         }
-            // Pour un symbole global on l'écrit que s'il est défini dans la table des symboles de file2 mais pas dans celle de input1
+        // Pour un symbole global on l'écrit uniquement s'il est défini dans la table des symboles de elf2 mais pas dans celle de elf1
         else {
             if (ELF32_ST_TYPE(elf2->symTable[i].st_info) != STT_NOTYPE) {
                 j = 0;
@@ -574,6 +574,7 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
                     if(elf2->symTable[i].st_shndx == SHN_COMMON)
                         elf2->symTable[i].st_shndx = fusion6->renum[elf2->symTable[i].st_shndx];
 
+                    // Ajout du nom du symbole dans la table de chaines correspondante
                     if(ELF32_ST_TYPE(elf2->symTable[i].st_info) == STT_SECTION) {
                         elf2->symTable[i].st_name = a;
                         getSectionName(sectionsName[a], elf2->file, elf2->ehdr, elf2->shdrTable, elf2->symTable[i].st_shndx);
@@ -592,12 +593,20 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
         }
     }
 
+    // On crée la table de chaînes dans les deux sections qu'il faut
+    // strtab pour les noms des symboles qui ne pas de type SECTION
+    // shstrtab pour les noms des symboles de type SECTION
+
     fprintf(stderr, "Affichage des noms\n");
     for(int i = 0; i < a; i++) {
         fprintf(stderr, "Nom de la section %d: %s\n", i, sectionsName[i]);
     }
     for(int i = 0; i < b; i++) {
-        fprintf(stderr, "Nom du symbole %d: %s\n", i, symbolsName[i]);
+        fprintf(stderr, "Nom du symbole %d:", i);
+        for(int j = 0; j < STR_SIZE; j++) {
+            fprintf(stderr, "%c",  symbolsName[i][j]);
+        }
+        fprintf(stderr,"\n");
     }
 
     res->nbsym = nbElems;
@@ -608,6 +617,7 @@ void WriteELFFile(char *filename, ELF content) {
     FILE *output = fopen(filename, "w");
 
     // Ecriture du header
+    // On inverse les octets des attributs de la structure du header si la machine qui exécute ce code est en little endian
     if (!IS_BIGENDIAN()) {
         SWAPB(&content.ehdr.e_type, sizeof(Elf32_Half));
         SWAPB(&content.ehdr.e_machine, sizeof(Elf32_Half));
@@ -625,51 +635,51 @@ void WriteELFFile(char *filename, ELF content) {
     }
 
     if(!fwrite(&content.ehdr.e_ident, sizeof(unsigned char), EI_NIDENT, output)) {
-        fprintf(stderr, "Write error e_ident\n");
+        fprintf(stderr, "Write error header e_ident\n");
     }
     if(!fwrite(&content.ehdr.e_type, sizeof(Elf32_Half), 1, output)) {
-        fprintf(stderr, "Write error e_type\n");
+        fprintf(stderr, "Write error header e_type\n");
     }
     if(!fwrite(&content.ehdr.e_machine, sizeof(Elf32_Half), 1, output)) {
-        fprintf(stderr, "Write error e_machine\n");
+        fprintf(stderr, "Write error header e_machine\n");
     }
     if(!fwrite(&content.ehdr.e_version, sizeof(Elf32_Word), 1, output)) {
-        fprintf(stderr, "Write error e_version\n");
+        fprintf(stderr, "Write error header e_version\n");
     }
     if(!fwrite(&content.ehdr.e_entry, sizeof(Elf32_Addr), 1, output)) {
-        fprintf(stderr, "Write error e_entry\n");
+        fprintf(stderr, "Write error header e_entry\n");
     }
     if(!fwrite(&content.ehdr.e_phoff, sizeof(Elf32_Off), 1, output)) {
-        fprintf(stderr, "Write error e_phoff\n");
+        fprintf(stderr, "Write error header e_phoff\n");
     }
     if(!fwrite(&content.ehdr.e_shoff, sizeof(Elf32_Off), 1, output)) {
-        fprintf(stderr, "Write error e_shoff\n");
+        fprintf(stderr, "Write error header e_shoff\n");
     }
     if(!fwrite(&content.ehdr.e_flags, sizeof(Elf32_Word), 1, output)) {
-        fprintf(stderr, "Write error e_flags\n");
+        fprintf(stderr, "Write error header e_flags\n");
     }
     if(!fwrite(&content.ehdr.e_ehsize, sizeof(Elf32_Half), 1, output)) {
-        fprintf(stderr, "Write error e_ehsize\n");
+        fprintf(stderr, "Write error header e_ehsize\n");
     }
     if(!fwrite(&content.ehdr.e_phentsize, sizeof(Elf32_Half), 1, output)) {
-        fprintf(stderr, "Write error e_phentsize\n");
+        fprintf(stderr, "Write error header e_phentsize\n");
     }
     if(!fwrite(&content.ehdr.e_phnum, sizeof(Elf32_Half), 1, output)) {
-        fprintf(stderr, "Write error e_phnum\n");
+        fprintf(stderr, "Write error header e_phnum\n");
     }
     if(!fwrite(&content.ehdr.e_shentsize, sizeof(Elf32_Half), 1, output)) {
-        fprintf(stderr, "Write error e_shentsize\n");
+        fprintf(stderr, "Write error header e_shentsize\n");
     }
     if(!fwrite(&content.ehdr.e_shnum, sizeof(Elf32_Half), 1, output)) {
-        fprintf(stderr, "Write error e_shnum\n");
+        fprintf(stderr, "Write error header e_shnum\n");
     }
     if(!fwrite(&content.ehdr.e_shstrndx, sizeof(Elf32_Half), 1, output)) {
-        fprintf(stderr, "Write error e_shstrndx\n");
+        fprintf(stderr, "Write error header e_shstrndx\n");
     }
 
     // Ecriture de la table des sections
     for(int i = 0; i < content.nbsh; i++) {
-//        fprintf(stderr, "Index: %d, name: %d\n", i, content.shdrTable[i].sh_name);
+        // On inverse les octets des attributs de la structure du header de la section si la machine qui exécute ce code est en little endian
         if (!IS_BIGENDIAN()) {
             SWAPB(&content.shdrTable[i].sh_name, sizeof(Elf32_Word));
             SWAPB(&content.shdrTable[i].sh_type, sizeof(Elf32_Word));
@@ -678,45 +688,46 @@ void WriteELFFile(char *filename, ELF content) {
             SWAPB(&content.shdrTable[i].sh_offset, sizeof(Elf32_Off));
             SWAPB(&content.shdrTable[i].sh_size, sizeof(Elf32_Word));
             SWAPB(&content.shdrTable[i].sh_link, sizeof(Elf32_Word));
-//            SWAPB(&content.shdrTable[i].sh_info, sizeof(Elf32_Word));
+            SWAPB(&content.shdrTable[i].sh_info, sizeof(Elf32_Word));
             SWAPB(&content.shdrTable[i].sh_addralign, sizeof(Elf32_Word));
             SWAPB(&content.shdrTable[i].sh_entsize, sizeof(Elf32_Word));
         }
-//        fprintf(stderr, "V2 Index: %d, name: %d\n", i, content.shdrTable[i].sh_name);
 
+        // Header de la section
         if(!fwrite(&content.shdrTable[i].sh_name, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error sh_name\n");
+            fprintf(stderr, "Write error section %d sh_name\n", i);
         }
         if(!fwrite(&content.shdrTable[i].sh_type, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error sh_type\n");
+            fprintf(stderr, "Write error section %d sh_type\n", i);
         }
         if(!fwrite(&content.shdrTable[i].sh_flags, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error sh_flags\n");
+            fprintf(stderr, "Write error section %d sh_flags\n", i);
         }
         if(!fwrite(&content.shdrTable[i].sh_addr, sizeof(Elf32_Addr), 1, output)) {
-            fprintf(stderr, "Write error sh_addr\n");
+            fprintf(stderr, "Write error section %d sh_addr\n", i);
         }
         if(!fwrite(&content.shdrTable[i].sh_offset, sizeof(Elf32_Off), 1, output)) {
-            fprintf(stderr, "Write error sh_offset\n");
+            fprintf(stderr, "Write error section %d sh_offset\n", i);
         }
         if(!fwrite(&content.shdrTable[i].sh_size, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error sh_size\n");
+            fprintf(stderr, "Write error section %d sh_size\n", i);
         }
         if(!fwrite(&content.shdrTable[i].sh_link, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error sh_link\n");
+            fprintf(stderr, "Write error section %d sh_link\n", i);
         }
-        if(!fwrite(&content.shdrTable[i].sh_info, 1, sizeof(Elf32_Word), output)) {
-            fprintf(stderr, "Write error sh_info\n");
+        if(!fwrite(&content.shdrTable[i].sh_info, sizeof(Elf32_Word), 1, output)) {
+            fprintf(stderr, "Write error section %d sh_info\n", i);
         }
         if(!fwrite(&content.shdrTable[i].sh_addralign, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error sh_addralign\n");
+            fprintf(stderr, "Write error section %d sh_addralign\n", i);
         }
         if(!fwrite(&content.shdrTable[i].sh_entsize, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error sh_entsize\n");
+            fprintf(stderr, "Write error section %d sh_entsize\n", i);
         }
 
         // Contenu de la section
         if(content.shdrTable[i].sh_size > 0) {
+            // On inverse les octets du contenu de la section si la machine qui exécute ce code est en little endian
             if (!IS_BIGENDIAN()) {
                 SWAPB(&content.shdrTable[i].sh_offset, sizeof(Elf32_Off));
             }
@@ -731,6 +742,7 @@ void WriteELFFile(char *filename, ELF content) {
 
     // Ecriture de la table des symboles
     for(int i = 0; i < content.nbsym; i++) {
+        // On inverse les octets des attributs de la structure du symbole si la machine qui exécute ce code est en little endian
         if (!IS_BIGENDIAN()) {
             SWAPB(&content.symTable[i].st_name, sizeof(Elf32_Word));
             SWAPB(&content.symTable[i].st_value, sizeof(Elf32_Addr));
@@ -741,22 +753,22 @@ void WriteELFFile(char *filename, ELF content) {
         }
 
         if(!fwrite(&content.symTable[i].st_name, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error st_name\n");
+            fprintf(stderr, "Write error symbol %d st_name\n", i);
         }
         if(!fwrite(&content.symTable[i].st_value, sizeof(Elf32_Addr), 1, output)) {
-            fprintf(stderr, "Write error st_value\n");
+            fprintf(stderr, "Write error symbol %d st_value\n", i);
         }
         if(!fwrite(&content.symTable[i].st_size, sizeof(Elf32_Word), 1, output)) {
-            fprintf(stderr, "Write error st_size\n");
+            fprintf(stderr, "Write error symbol %d st_size\n", i);
         }
         if(!fwrite(&content.symTable[i].st_info, sizeof(unsigned char), 1, output)) {
-            fprintf(stderr, "Write error st_info\n");
+            fprintf(stderr, "Write error symbol %d st_info\n", i);
         }
         if(!fwrite(&content.symTable[i].st_other, sizeof(unsigned char), 1, output)) {
-            fprintf(stderr, "Write error st_other\n");
+            fprintf(stderr, "Write error symbol %d st_other\n", i);
         }
         if(!fwrite(&content.symTable[i].st_shndx, sizeof(Elf32_Half), 1, output)) {
-            fprintf(stderr, "Write error st_shndx\n");
+            fprintf(stderr, "Write error symbol %d st_shndx\n", i);
         }
     }
 
@@ -764,16 +776,17 @@ void WriteELFFile(char *filename, ELF content) {
     for(int i = 0; i < content.nbsh; i++) {
         if(content.relTables[i] != NULL) {
             for(int j = 0; j < content.relTable_sizes[i]; j++) {
+                // On inverse les octets des attributs de la structure de l'entrée de la table de réimplantation si la machine qui exécute ce code est en little endian
                 if(!IS_BIGENDIAN()) {
                     SWAPB(&content.relTables[i][j].r_offset, sizeof(Elf32_Addr));
                     SWAPB(&content.relTables[i][j].r_info, sizeof(Elf32_Word));
                 }
 
                 if(!fwrite(&content.relTables[i][j].r_offset, sizeof(Elf32_Addr), 1, output)) {
-                    fprintf(stderr, "Write error r_offset\n");
+                    fprintf(stderr, "Write error relocation %d entry %d r_offset\n", i, j);
                 }
                 if(!fwrite(&content.relTables[i][j].r_info, sizeof(Elf32_Word), 1, output)) {
-                    fprintf(stderr, "Write error r_info\n");
+                    fprintf(stderr, "Write error relocation %d entry %d r_info\n", i, j);
                 }
             }
         }
