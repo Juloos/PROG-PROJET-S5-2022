@@ -1,33 +1,6 @@
 #include "ELF.h"
 
 
-ELF *create_ELF() {
-    ELF *elf = malloc(sizeof(ELF));
-    elf->ehdr = (Elf32_Ehdr) {0};
-    elf->file = NULL;
-    elf->shdrTable = NULL;
-    elf->nbsh = 0;
-    elf->symTable = NULL;
-    elf->nbsym = 0;
-    elf->relTables = NULL;
-    elf->relTable_sizes = NULL;
-    return elf;
-}
-
-void free_ELF(ELF *elf) {
-    if (elf == NULL)
-        return;
-    if (elf->shdrTable != NULL)
-        free(elf->shdrTable);
-    if (elf->symTable != NULL)
-        free(elf->symTable);
-    if (elf->relTables != NULL)
-        free_relTables(elf->relTables, elf->nbsh);
-    if (elf->relTable_sizes != NULL)
-        free(elf->relTable_sizes);
-    free(elf);
-}
-
 ELF *ReadELF(FILE *file) {
     ELF *elf = create_ELF();
     elf->file = file;
@@ -45,6 +18,8 @@ ELF *ReadELF(FILE *file) {
     for (int i = 0; i < elf->nbsh; i++) {
         if (elf->relTables[i] != NULL)
             elf->relTable_sizes[i] = elf->shdrTable[i].sh_size / elf->shdrTable[i].sh_entsize;
+        else
+            elf->relTable_sizes[i] = 0;
     }
     return elf;
 }
@@ -430,35 +405,34 @@ void PrintELFRelocationTable(ELF *elf) {
 }
 
 
-FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2, FILE *output) {
+FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2) {
     char name1[STR_SIZE], name2[STR_SIZE];
 
-    FusionELF_Etape6 *res = create_fusion6(elf2->ehdr.e_shnum);
+    FusionELF_Etape6 *res = create_fusion6(elf1, elf2);
     res->renum[0] = 0;
-    for (int j = 0; j < elf2->ehdr.e_shnum; j++)
+    for (int j = 0; j < elf2->nbsh; j++)
         res->offsets[j] = -1;
 
     uint8_t *buff;
     for (int i = 0; i < elf1->ehdr.e_shnum; i++) {
-        if (elf1->shdrTable[i].sh_size) {
-            buff = getSectionContent(elf1->file, elf1->shdrTable[i]);
-            if (!fwrite(buff, 1, elf1->shdrTable[i].sh_size, output))
-                fprintf(stderr, "Write error : (LinkELFRenumSections) section %d of file 1\n", i);
-            free(buff);
-        }
+        if (elf1->shdrTable[i].sh_size)
+            res->contents[i] = getSectionContent(elf1->file, elf1->shdrTable[i]);
 
         if (elf1->shdrTable[i].sh_type == SHT_PROGBITS) {
             strcpy(name1, "");
             getSectionName(name1, elf1->file, elf1->ehdr, elf1->shdrTable, i);
 
-            for (int j = 1; j < elf2->ehdr.e_shnum; j++) {
+            for (int j = 1; j < elf2->nbsh; j++) {
                 strcpy(name2, "");
                 getSectionName(name2, elf2->file, elf2->ehdr, elf2->shdrTable, j);
                 if (elf2->shdrTable[j].sh_size && strcmp(name1, name2) == 0) {
-                    buff = getSectionContent(elf2->file, elf2->shdrTable[j]);
-                    if (!fwrite(buff, 1, elf2->shdrTable[j].sh_size, output))
-                        fprintf(stderr, "Write error : (LinkELFRenumSections) section %d of file 2\n", j);
-                    free(buff);
+                    if (elf1->shdrTable[i].sh_size) {
+                        res->contents[i] = (uint8_t *) realloc(res->contents[i], elf1->shdrTable[i].sh_size + elf2->shdrTable[j].sh_size);
+                        buff = getSectionContent(elf2->file, elf2->shdrTable[j]);
+                        memcpy(res->contents[i] + elf1->shdrTable[i].sh_size, buff, elf2->shdrTable[j].sh_size);
+                        free(buff);
+                    } else
+                        res->contents[i] = getSectionContent(elf2->file, elf2->shdrTable[j]);
                     res->offsets[j] = elf1->shdrTable[i].sh_size;
                     res->renum[j] = i;
                 }
@@ -467,20 +441,16 @@ FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2, FILE *output) {
     }
 
     int e_shnum_acc = 0;
-    for (int j = 1; j < elf2->ehdr.e_shnum; j++) {
+    for (int j = 1; j < elf2->nbsh; j++) {
         if (res->offsets[j] == -1) {
-            res->renum[j] = elf1->ehdr.e_shnum + e_shnum_acc;
-            if (elf2->shdrTable[j].sh_size) {
-                buff = getSectionContent(elf2->file, elf2->shdrTable[j]);
-                if (!fwrite(buff, 1, elf2->shdrTable[j].sh_size, output))
-                    fprintf(stderr, "Write error : (LinkELFRenumSections) section %d of file 2\n", j);
-                free(buff);
-            }
+            res->renum[j] = elf1->nbsh + e_shnum_acc;
+            if (elf2->shdrTable[j].sh_size)
+                res->contents[res->renum[j]] = getSectionContent(elf2->file, elf2->shdrTable[j]);
             e_shnum_acc++;
         }
     }
 
-    res->snb = elf1->ehdr.e_shnum + e_shnum_acc;
+    res->snb = elf1->nbsh + e_shnum_acc;
     return res;
 }
 

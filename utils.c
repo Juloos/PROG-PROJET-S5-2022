@@ -16,6 +16,34 @@ void SWAPB(void *ptr, int size) {
 }
 
 
+ELF *create_ELF() {
+    ELF *elf = malloc(sizeof(ELF));
+    elf->ehdr = (Elf32_Ehdr) {0};
+    elf->file = NULL;
+    elf->shdrTable = NULL;
+    elf->nbsh = 0;
+    elf->symTable = NULL;
+    elf->nbsym = 0;
+    elf->relTables = NULL;
+    elf->relTable_sizes = NULL;
+    return elf;
+}
+
+void free_ELF(ELF *elf) {
+    if (elf == NULL)
+        return;
+    if (elf->shdrTable != NULL)
+        free(elf->shdrTable);
+    if (elf->symTable != NULL)
+        free(elf->symTable);
+    if (elf->relTables != NULL)
+        free_relTables(elf->relTables, elf->nbsh);
+    if (elf->relTable_sizes != NULL)
+        free(elf->relTable_sizes);
+    free(elf);
+}
+
+
 Elf32_Shdr *create_ELFTableSections(Elf32_Ehdr ehdr) {
     return (Elf32_Shdr *) malloc(sizeof(Elf32_Shdr) * ehdr.e_shnum);
 }
@@ -498,16 +526,24 @@ void passerNLignes(FILE *file, uint n) {
 }
 
 
-FusionELF_Etape6 *create_fusion6(uint size) {
-    FusionELF_Etape6 *res = malloc(sizeof(FusionELF_Etape6));
-    res->offsets = malloc(size * sizeof(int));
-    res->renum = malloc(size * sizeof(int));
-    res->size = size;
-    res->snb = size;  // le nouveau nombre de section est au minimum le nombre de section donne
+FusionELF_Etape6 *create_fusion6(ELF *elf1, ELF *elf2) {
+    FusionELF_Etape6 *res = (FusionELF_Etape6 *) malloc(sizeof(FusionELF_Etape6));
+    res->contents = (uint8_t **) malloc(elf1->nbsh * elf2->nbsh * sizeof(uint8_t *));
+    for (int i = 0; i < elf1->nbsh * elf2->nbsh; i++)
+        res->contents[i] = NULL;
+    res->offsets = (int *) malloc(elf2->nbsh * sizeof(int));
+    res->renum = (int *) malloc(elf2->nbsh * sizeof(int));
+    res->size = elf2->nbsh;
+    res->snb = elf2->nbsh;  // le nouveau nombre de section est au minimum le nombre de section donne
     return res;
 }
 
 void free_fusion6(FusionELF_Etape6 *f) {
+    for (int i = 0; i < f->snb; i++) {
+        if (f->contents[i] != NULL)
+            free(f->contents[i]);
+    }
+    free(f->contents);
     free(f->offsets);
     free(f->renum);
     free(f);

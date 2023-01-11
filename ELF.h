@@ -4,19 +4,6 @@
 #include "utils.h"
 
 
-typedef struct {
-    FILE *file;
-    Elf32_Ehdr ehdr;
-    Elf32_Shdr *shdrTable;
-    int nbsh;
-    Elf32_Sym *symTable;
-    int nbsym;
-    Elf32_Rel **relTables;
-    int *relTable_sizes;
-} ELF;
-
-void free_ELF(ELF *elf);
-
 /* ReadELFFile
  * Parametres :
  * - un pointeur sur un fichier ELF
@@ -102,11 +89,10 @@ void PrintELFRelocationTable(ELF *elf);
  * Parametres :
  *  - elf1 : un pointeur sur une premiere structure ELF
  *  - elf2 : un pointeur sur une seconde structure ELF
- *  - output : un pointeur sur le fichier de sortie de la fusion
- * Resultat : fusionne les deux ELF en parametre et ecrit le resultat dans output, renvoie les offsets de
- *             concatenation et les renumerotations des sections de elf2
+ * Resultat : fusionne les deux ELF en parametre et renvoie les offsets de concatenation et les renumerotations des
+ *             sections de elf2
  */
-FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2, FILE *output);
+FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2);
 
 /* LinkELFSymbols
  * Parametres:
