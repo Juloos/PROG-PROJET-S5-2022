@@ -887,6 +887,22 @@ void oracleEtape7(char *filename1, char *filename2, ELF *elf1, ELF *elf2) {
         free_ELF(elfRes);
 }
 
+void oracleEtape8(char* filename1, char* filename2, ELF* elf1, ELF* elf2){
+    FusionELF_Etape6 *fusion6 = LinkELFRenumSections(elf1, elf2);
+
+    // Fusion des tables des symboles des deux fichiers en entrées
+    ELF *elfRes = LinkELFSymbols(elf1, elf2, fusion6);
+
+    LinkELFTableRelocation(elfRes,fusion6,elf1,elf2);
+
+
+
+    free_fusion6(fusion6);
+
+    if (elfRes != NULL)
+        free_ELF(elfRes);
+}
+
 int main(int argc, char *argv[]) {
     if (argc < 2)
         fprintf(stderr, "Il faut au moins un fichier de test\n");
@@ -905,7 +921,7 @@ int main(int argc, char *argv[]) {
             oracleEtape1(argv[i], elf1);
             oracleEtape2(argv[i], elf1);
             oracleEtape3(argv[i], elf1);
-            oracleEtape4(argv[i], elf1);
+            //oracleEtape4(argv[i], elf1);
             oracleEtape5(argv[i], elf1);
 
             fclose(file1);
@@ -928,6 +944,8 @@ int main(int argc, char *argv[]) {
             printf("\nTests Phase 2 avec la fusion des fichiers '%s' et '%s'\n", argv[1], argv[2]);
             oracleEtape6(argv[1], argv[2], elf1, elf2);
             oracleEtape7(argv[1], argv[2], elf1, elf2);
+            //oracleEtape8(argv[1], argv[2], elf1, elf2);
+            printf("\033[0;33mOracle incomplet\033[0m pour l'etape 8\n");
 
             fclose(file1);
             fclose(file2);

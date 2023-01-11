@@ -372,7 +372,7 @@ void PrintELFRelocationTable(ELF *elf) {
     char type[STR_SIZE];
 
     int nbRel = 0;
-    for (int i = 0; i < elf->ehdr.e_shnum; i++) {
+    for (int i = 0; i < elf->nbsh; i++) {
         if (elf->relTables[i] != NULL) {
             strcpy(name, "");
             getSectionName(name, elf->file, elf->ehdr, elf->shdrTable, i);
@@ -481,6 +481,7 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
     }
 
     ELF *res = create_ELF();
+    res->nbsh = fusion6->snb;
     res->symTable = (Elf32_Sym *) malloc(sizeof(Elf32_Sym) * (elf1->nbsym + elf2->nbsym));
     int nbElems = 0;
 
@@ -565,6 +566,59 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
 
     res->nbsym = nbElems;
     return res;
+}
+void LinkELFTableRelocation(ELF *elf, FusionELF_Etape6 *fusion6, ELF *input1, ELF *input2){
+    elf->relTable_sizes = (int *) malloc(sizeof(int) * elf->nbsh);
+    //Concaténation des tables de réimplantation
+    elf->relTables = malloc(sizeof(Elf32_Rel) * (fusion6->snb));
+    for (int i = 0; i < input1->nbsh; i++){
+        if (input1->shdrTable[i].sh_type == SHT_REL) {
+            elf->relTables[i] = create_ELFTableRel(input1->shdrTable[i]);
+            for (int j = 0; j < input1->relTable_sizes[i]; j++){
+                elf->relTable_sizes[i] = input1->relTable_sizes[i];
+                elf->relTables[i][j] = input1->relTables[i][j];
+            }
+        }
+    }
+    Elf32_Word r_info;
+    for (int i = 0; i < input2->nbsh; i++){
+        if (input2->shdrTable[i].sh_type == SHT_REL) {
+            if (fusion6->renum[i] < input1->nbsh) {
+                elf->relTable_sizes[fusion6->renum[i]] = input1->relTable_sizes[fusion6->renum[i]] + input2->relTable_sizes[i];
+                elf->relTables[fusion6->renum[i]] = realloc(elf->relTables[fusion6->renum[i]], sizeof(Elf32_Rel) * elf->relTable_sizes[fusion6->renum[i]]);
+            } else {
+                elf->relTable_sizes[fusion6->renum[i]] = input2->relTable_sizes[i];
+                elf->relTables[fusion6->renum[i]] = create_ELFTableRel(input2->shdrTable[i]);
+            }
+            for (int j = 0; j < input2->relTable_sizes[i]; j++){
+                elf->relTables[fusion6->renum[i]][j] = input2->relTables[i][j];
+                elf->relTables[fusion6->renum[i]][j].r_offset += fusion6->offsets[i];
+                r_info = elf->relTables[fusion6->renum[i]][j].r_info;
+                elf->relTables[fusion6->renum[i]][j].r_info = ELF32_R_INFO(fusion6->renum[ELF32_R_SYM(r_info)], ELF32_R_TYPE(r_info));
+            }
+        }
+    }
+
+    /*
+    //char typeS[STR_SIZE]="";
+    //char typeR[STR_SIZE]="";
+    for (int i = 0; i < elf->nbsh; i++){
+        for (int j = 0; j < elf->relTable_sizes[i]; j++){
+            getSymbolType(typeS,elf->symTable[i]);
+            if (strcmp(typeS, "SECTION")){
+                getRelType(typeR,elf->relTables[i][j]);
+                if (strcmp(typeR, "R_ARM_ABS32")){
+                    elf->relTables[i]->addend += fusion6->offsets[i];
+                }
+                else if (strcmp(typeR, "R_ARM_JUMP24") || strcmp(typeR, "R_ARM_CALL")){
+                    elf->relTables[i]->addend += fusion6->offsets[i] / 4;
+                }
+            }
+
+        }
+
+    }*/
+
 }
 
 void WriteELFFile(char *filename, ELF content) {
