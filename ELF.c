@@ -401,7 +401,7 @@ void PrintELFRelocationTable(ELF *elf) {
         }
     }
     if (nbRel == 0)
-        printf("There are no relocations in this elf->file.\n\n");
+        printf("There are no relocations in this file.\n\n");
 }
 
 
