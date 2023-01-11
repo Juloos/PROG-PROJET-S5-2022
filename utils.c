@@ -503,7 +503,7 @@ FusionELF_Etape6 *create_fusion6(uint size) {
     res->offsets = malloc(size * sizeof(int));
     res->renum = malloc(size * sizeof(int));
     res->size = size;
-    res->snb = size;  // le nouveau nombre de section est au minimum le nombre de section de la premiere elf
+    res->snb = size;  // le nouveau nombre de section est au minimum le nombre de section donne
     return res;
 }
 
@@ -511,21 +511,4 @@ void free_fusion6(FusionELF_Etape6 *f) {
     free(f->offsets);
     free(f->renum);
     free(f);
-}
-
-int SymbolCmp(Elf32_Sym sym1, Elf32_Sym sym2) {
-    if(sym1.st_name != sym2.st_name) {
-        return 1;
-    } else if(sym1.st_value != sym2.st_value) {
-        return 1;
-    } else if(sym1.st_size != sym2.st_size) {
-        return 1;
-    } else if(sym1.st_info != sym2.st_info) {
-        return 1;
-    } else if(sym1.st_other != sym2.st_other) {
-        return 1;
-    } else if(sym1.st_shndx != sym2.st_shndx) {
-        return 1;
-    }
-    return 0;
 }
