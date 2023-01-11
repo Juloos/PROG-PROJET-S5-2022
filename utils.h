@@ -292,7 +292,6 @@ typedef struct FusionELF_Etape6 {
     int snb;             // nombre de sections apres fusion
 } FusionELF_Etape6;
 
-FusionELF_Etape6 *create_fusion6(ELF *elf1, ELF *elf2);
 /* create_fusion6
  * Paramètres:
  * - elf1: un pointeur sur une structure ELF
