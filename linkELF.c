@@ -24,9 +24,8 @@ int main(int argc, char* argv[]) {
         printf("%3d ", res->renum[j]);
     printf("\n");
 
-    WriteELFFile(argv[3], *resultat);
-
-    printf("Fin écriture\n");
+    fprintf(stderr, "Fonctionnalitée obsolète d'écriture du fichier de sortie au format ELF\n");
+//    WriteELFFile(argv[3], *resultat);
 
     free_fusion6(res);
     free_ELF(resultat);
