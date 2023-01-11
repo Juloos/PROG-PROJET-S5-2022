@@ -119,10 +119,10 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6);
 
 /**WriteELFFile
  * Paramètres:
- * - le nom du fichier dans lequel écrire
- * - le contenu au format ELF à écrire dans le fichier
+ * - filename: le nom du fichier dans lequel écrire
+ * - content: le contenu au format ELF à écrire dans le fichier
  * Résultat: écrit le contenu au format ELF dans le fichier en paramètre
  */
-void WriteELFFile(char *filename, ELF file);
+void WriteELFFile(char *filename, ELF content);
 
 #endif
