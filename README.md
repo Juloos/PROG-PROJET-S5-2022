@@ -9,7 +9,7 @@ Projet de Programmation de 2022 à l'IM²AG. Auteurs :
 
 # Installation
 Une fois le projet git cloné, executer les scripts shell `./setup` et `./compile`, ce dernier permet de générer
-le fichier Makefile et de compiler le projet.
+le fichier Makefile et de compiler le projet. Vous pourrez tester l'ensemble du projet avec `./test_all.sh`
 
 
 # Execution
