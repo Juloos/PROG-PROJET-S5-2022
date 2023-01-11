@@ -25,14 +25,14 @@ void SWAPB(void *ptr, int size);
 
 
 typedef struct {
-    FILE *file;
-    Elf32_Ehdr ehdr;
-    Elf32_Shdr *shdrTable;
-    int nbsh;
-    Elf32_Sym *symTable;
-    int nbsym;
-    Elf32_Rel **relTables;
-    int *relTable_sizes;
+    FILE *file;             // le fichier ELF (peut être NULL)
+    Elf32_Ehdr ehdr;        // le header
+    Elf32_Shdr *shdrTable;  // la table des sections
+    int nbsh;               // le nombre de sections
+    Elf32_Sym *symTable;    // la table des symboles
+    int nbsym;              // le nombre de symboles
+    Elf32_Rel **relTables;  // les tables de réimplantation
+    int *relTable_sizes;    // les tailles de chaque table de réimplantation
 } ELF;
 
 ELF *create_ELF();
