@@ -102,6 +102,7 @@ FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2);
  * Resultat: renvoie la table des symboles fusionnee des 2 ELF en parametre
  */
 ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6);
+void LinkELFTableRelocation(ELF *elf, FusionELF_Etape6 *fusion6, ELF *input1, ELF *input2);
 
 /* WriteELFFile
  * Paramètres:
