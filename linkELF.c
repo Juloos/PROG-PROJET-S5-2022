@@ -8,7 +8,6 @@ int main(int argc, char* argv[]) {
     }
     FILE *input1 = fopen(argv[1], "r");
     FILE *input2 = fopen(argv[2], "r");
-    FILE *output = fopen(argv[3], "w");
 
     ELF *elf1 = ReadELF(input1);
     ELF *elf2 = ReadELF(input2);
@@ -25,7 +24,7 @@ int main(int argc, char* argv[]) {
         printf("%3d ", res->renum[j]);
     printf("\n");
 
-    WriteELFFile("resultat.o", *elf1);
+    WriteELFFile(argv[3], *resultat);
 
     printf("Fin écriture\n");
 
@@ -33,7 +32,6 @@ int main(int argc, char* argv[]) {
     free_ELF(resultat);
     free_ELF(elf1);
     free_ELF(elf2);
-    fclose(output);
 
     return 0;
 }

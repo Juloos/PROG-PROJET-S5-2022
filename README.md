@@ -1,7 +1,7 @@
 # PROG-PROJET-S5-2022
 Projet de Programmation de 2022 à l'IM²AG. Auteurs :
 - Romain ALVES
-- Romain BOSSI
+- Romain BOSSY
 - Victoria FIORI
 - Lancelin FOUSSADIER
 - Jules SEBAN
@@ -23,3 +23,4 @@ et d'afficher le résultat de la lecture sur la sortie standard. Il prend en com
 
 Le programme `./linkELF <fichier 1> <fichier 2> <fichier sortie>` permet de fusionner les 2 premiers fichiers au format
 ELF et d'écrire le résultat, au format ELF aussi, dans le fichier de sortie donné.
+Ce progamme est incomplet.
