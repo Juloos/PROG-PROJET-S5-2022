@@ -85,7 +85,7 @@ void PrintELFTableSymbols(ELF *elf);
 void PrintELFRelocationTable(ELF *elf);
 
 
-/* LinkELFRenumSections
+/*LinkELFRenumSections
  * Parametres :
  *  - elf1 : un pointeur sur une premiere structure ELF
  *  - elf2 : un pointeur sur une seconde structure ELF
@@ -102,5 +102,13 @@ FusionELF_Etape6 *LinkELFRenumSections(ELF *elf1, ELF *elf2);
  * Resultat: renvoie la table des symboles fusionnee des 2 ELF en parametre
  */
 ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6);
+
+/* WriteELFFile
+ * Paramètres:
+ * - filename: le nom du fichier dans lequel écrire
+ * - content: le contenu au format ELF à écrire dans le fichier
+ * Résultat: écrit le contenu du paramètre content dans le fichier de nom filename
+ */
+void WriteELFFile(char *filename, ELF content);
 
 #endif

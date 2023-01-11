@@ -293,7 +293,19 @@ typedef struct FusionELF_Etape6 {
 } FusionELF_Etape6;
 
 FusionELF_Etape6 *create_fusion6(ELF *elf1, ELF *elf2);
+/* create_fusion6
+ * Paramètres:
+ * - elf1: un pointeur sur une structure ELF
+ * - elf2: un pointeur sur une structure ELF
+ * Résultat: retourne un pointeur sur une structure FusionELF_Etape6 contenant size sections
+ */
+FusionELF_Etape6 *create_fusion6(ELF *elf1, ELF *elf2);
 
+/* free_fusion6
+ * Paramètres:
+ * - f: un pointeur non NULL sur une structure FusionELF_Etape6
+ * Résultat: libère la mémoire allouée pour f
+ */
 void free_fusion6(FusionELF_Etape6 *f);
 
 

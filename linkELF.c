@@ -15,6 +15,8 @@ int main(int argc, char* argv[]) {
 
     FusionELF_Etape6 *res = LinkELFRenumSections(elf1, elf2);
 
+    ELF *resultat = LinkELFSymbols(elf1, elf2, res);
+
     printf("Offsets de concaténation du deuxième fichiers : \n  ");
     for (int j = 0; j < res->size; j++)
         printf("%3d ", res->offsets[j]);
@@ -23,7 +25,12 @@ int main(int argc, char* argv[]) {
         printf("%3d ", res->renum[j]);
     printf("\n");
 
+    WriteELFFile("resultat.o", *elf1);
+
+    printf("Fin écriture\n");
+
     free_fusion6(res);
+    free_ELF(resultat);
     free_ELF(elf1);
     free_ELF(elf2);
     fclose(output);
