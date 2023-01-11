@@ -24,6 +24,22 @@ int IS_BIGENDIAN();
 void SWAPB(void *ptr, int size);
 
 
+typedef struct {
+    FILE *file;
+    Elf32_Ehdr ehdr;
+    Elf32_Shdr *shdrTable;
+    int nbsh;
+    Elf32_Sym *symTable;
+    int nbsym;
+    Elf32_Rel **relTables;
+    int *relTable_sizes;
+} ELF;
+
+ELF *create_ELF();
+
+void free_ELF(ELF *elf);
+
+
 /* create_ELFTableSections
  * Parametre :
  *  - ehdr : l'en-tete d'un fichier ELF
@@ -269,13 +285,14 @@ void passerNLignes(FILE *file, uint n);
 
 
 typedef struct FusionELF_Etape6 {
-    int *offsets;     // offsets de concatenation des sections PROGBITS du second fichier
-    int *renum;       // renumerations des sections du second fichier
-    int size;         // taille des tableaux offsets et renum
-    int snb;          // nombre de sections apres fusion
+    uint8_t **contents;  // tableux contenant les contenues des sections, de taille snb
+    int *offsets;        // offsets de concatenation des sections PROGBITS du second fichier
+    int *renum;          // renumerations des sections du second fichier
+    int size;            // taille des tableaux offsets et renum
+    int snb;             // nombre de sections apres fusion
 } FusionELF_Etape6;
 
-FusionELF_Etape6 *create_fusion6(uint size);
+FusionELF_Etape6 *create_fusion6(ELF *elf1, ELF *elf2);
 
 void free_fusion6(FusionELF_Etape6 *f);
 

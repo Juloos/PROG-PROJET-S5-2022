@@ -749,27 +749,22 @@ void oracleEtape5(char *filename, ELF *elf) {
 
 
 void oracleEtape6(char *filename1, char *filename2, ELF *elf1, ELF *elf2) {
-    FILE *output = fopen("output.tmp", "w");
-    FusionELF_Etape6 *res = LinkELFRenumSections(elf1, elf2, output);
-    fclose(output);
+    FusionELF_Etape6 *res = LinkELFRenumSections(elf1, elf2);
 
-    output = fopen("output.tmp", "r");
-
-    uint8_t octet;
     uint8_t *buff;
     int echec = 0;
     int local_echec;
     int k;
     int i = 0;
-    while (i < elf1->ehdr.e_shnum) {
+    int cat_offset;
+    while (i < elf1->nbsh) {
         if (elf1->shdrTable[i].sh_size) {
             local_echec = 0;
             buff = getSectionContent(elf1->file, elf1->shdrTable[i]);
             for (int j = 0; j < elf1->shdrTable[i].sh_size; j++) {
-                octet = fgetc(output);
-                if (octet != buff[j] && local_echec == 0) {
+                if (res->contents[i][j] != buff[j] && local_echec == 0) {
                     fprintf(stderr, "Erreur sur la section %d du premier fichier ELF (offset 0x%.8x)\n", i, j);
-                    fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n", octet);
+                    fprintf(stderr, "  octet obtenu apres la fonction LinkELFRenumSections : %.2x\n", res->contents[i][j]);
                     fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
                     echec = 1;
                     local_echec = 1;
@@ -785,11 +780,11 @@ void oracleEtape6(char *filename1, char *filename2, ELF *elf1, ELF *elf2) {
             if (k < res->size && elf2->shdrTable[k].sh_size) {
                 local_echec = 0;
                 buff = getSectionContent(elf2->file, elf2->shdrTable[k]);
+                cat_offset = elf1->shdrTable[i].sh_size;
                 for (int j = 0; j < elf2->shdrTable[k].sh_size; j++) {
-                    octet = fgetc(output);
-                    if (octet != buff[j] && local_echec == 0) {
+                    if (res->contents[i][j + cat_offset] != buff[j] && local_echec == 0) {
                         fprintf(stderr, "Erreur sur la section %d du second fichier ELF (offset 0x%.8x)\n", k, j);
-                        fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n", octet);
+                        fprintf(stderr, "  octet obtenu apres la fonction LinkELFRenumSections : %.2x\n", res->contents[i][j + cat_offset]);
                         fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
                         echec = 1;
                         local_echec = 1;
@@ -809,10 +804,9 @@ void oracleEtape6(char *filename1, char *filename2, ELF *elf1, ELF *elf2) {
             local_echec = 0;
             buff = getSectionContent(elf2->file, elf2->shdrTable[k]);
             for (int j = 0; j < elf2->shdrTable[k].sh_size; j++) {
-                octet = fgetc(output);
-                if (octet != buff[j] && local_echec == 0) {
+                if (res->contents[i][j] != buff[j] && local_echec == 0) {
                     fprintf(stderr, "Erreur sur la section %d du second fichier ELF (offset 0x%.8x)\n", k, j);
-                    fprintf(stderr, "  octet obtenu dans le fichier resultat de LinkELFRenumSections : %.2x\n", octet);
+                    fprintf(stderr, "  octet obtenu apres la fonction LinkELFRenumSections : %.2x\n", res->contents[i][j]);
                     fprintf(stderr, "  octet obtenu dans la section correspondante : %.2x\n\n", buff[j]);
                     echec = 1;
                     local_echec = 1;
@@ -829,15 +823,10 @@ void oracleEtape6(char *filename1, char *filename2, ELF *elf1, ELF *elf2) {
         printf("\033[0;32mSucces\033[0m pour l'etape 6\n");
 
     free_fusion6(res);
-    fclose(output);
-    remove("output.tmp");
 }
 
 void oracleEtape7(char *filename1, char *filename2, ELF *elf1, ELF *elf2) {
-    FILE *output = fopen("output.tmp", "w");
-    FusionELF_Etape6 *fusion6 = LinkELFRenumSections(elf1, elf2, output);
-    fclose(output);
-    remove("output.tmp");
+    FusionELF_Etape6 *fusion6 = LinkELFRenumSections(elf1, elf2);
 
     // Fusion des tables des symboles des deux fichiers en entrées
     ELF *elfRes = LinkELFSymbols(elf1, elf2, fusion6);
