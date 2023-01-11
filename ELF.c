@@ -563,22 +563,6 @@ ELF *LinkELFSymbols(ELF *elf1, ELF *elf2, FusionELF_Etape6 *fusion6) {
         }
     }
 
-    // On crée la table de chaînes dans les deux sections qu'il faut
-    // strtab pour les noms des symboles qui ne pas de type SECTION
-    // shstrtab pour les noms des symboles de type SECTION
-
-    fprintf(stderr, "Affichage des noms\n");
-    for(int i = 0; i < a; i++) {
-        fprintf(stderr, "Nom de la section %d: %s\n", i, sectionsName[i]);
-    }
-    for(int i = 0; i < b; i++) {
-        fprintf(stderr, "Nom du symbole %d:", i);
-        for(int j = 0; j < STR_SIZE; j++) {
-            fprintf(stderr, "%c",  symbolsName[i][j]);
-        }
-        fprintf(stderr,"\n");
-    }
-
     res->nbsym = nbElems;
     return res;
 }
